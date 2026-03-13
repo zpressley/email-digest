@@ -1,0 +1,161 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&display=swap');
+
+/* ============================================================
+   FBP Hub Extension — style.css
+   Phase 1: Badge styles
+   Phase 2: FBP+ toggle + heatmap cells
+   ============================================================ */
+
+/* --- Badge Container --- */
+.fbp-badge-container {
+    display: inline-block;
+    margin-left: 8px;
+    vertical-align: middle;
+    line-height: 1;
+}
+
+/* --- Base Badge --- */
+.fbp-badge {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-block;
+}
+
+.fbp-badge + .fbp-badge {
+    margin-left: 4px;
+}
+
+/* --- Contract Colors --- */
+.fbp-contract-pc {
+    background-color: #FFB612;
+    color: #111111;
+}
+
+.fbp-contract-dc {
+    background-color: #EF3E42;
+    color: #FFFFFF;
+}
+
+.fbp-contract-bc {
+    background-color: #1E88C7;
+    color: #FFFFFF;
+}
+
+.fbp-contract-mlb {
+    background-color: #2B2B2B;
+    color: #FFFFFF;
+    border: 1px solid #AAAAAA;
+    padding: 1px 5px;
+}
+
+/* ============================================================
+   FBP+ TOGGLE BUTTON
+   ============================================================ */
+
+.fbp-plus-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 5px 12px;
+    border-radius: 5px;
+    border: 2px solid #EF3E42;
+    background-color: #1a1a1a;
+    color: #EF3E42;
+    cursor: pointer;
+    margin: 0 10px 4px 4px;
+    vertical-align: middle;
+    transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+    position: relative;
+    z-index: 9999;
+}
+
+.fbp-plus-btn:hover {
+    background-color: #EF3E42;
+    color: #ffffff;
+    box-shadow: 0 0 10px rgba(239, 62, 66, 0.5);
+}
+
+/* Active (ON) state */
+.fbp-plus-btn--active {
+    background-color: #EF3E42;
+    color: #ffffff;
+    box-shadow: 0 0 12px rgba(239, 62, 66, 0.6);
+}
+
+.fbp-plus-btn--active:hover {
+    background-color: #c73236;
+}
+
+.fbp-plus-icon {
+    font-size: 12px;
+    line-height: 1;
+}
+
+.fbp-plus-state {
+    font-size: 10px;
+    font-weight: 700;
+    opacity: 0.8;
+    background: rgba(255,255,255,0.15);
+    padding: 1px 4px;
+    border-radius: 3px;
+}
+
+/* ============================================================
+   FBP+ HEATMAP CELLS
+   ============================================================ */
+
+.fbp-plus-cell {
+    font-family: 'Barlow Condensed', sans-serif !important;
+    font-weight: 700 !important;
+    font-size: 12px !important;
+    text-align: center;
+    border-radius: 3px;
+    transition: background-color 0.2s ease;
+    cursor: help;
+}
+
+/* Elite: 160+ — deep green */
+.fbp-plus-elite {
+    background-color: #1a7a3a !important;
+    color: #d4f7e0 !important;
+}
+
+/* Great: 130–159 — medium green */
+.fbp-plus-great {
+    background-color: #28a84a !important;
+    color: #ffffff !important;
+}
+
+/* Above avg: 115–129 — light green */
+.fbp-plus-above {
+    background-color: #5dc971 !important;
+    color: #0d2e15 !important;
+}
+
+/* Average: 85–114 — muted charcoal, neutral */
+.fbp-plus-avg {
+    background-color: #3a3a3a !important;
+    color: #cccccc !important;
+}
+
+/* Below avg: 70–84 — dull orange */
+.fbp-plus-below {
+    background-color: #b05e12 !important;
+    color: #ffd9b0 !important;
+}
+
+/* Poor: <70 — FBP red */
+.fbp-plus-poor {
+    background-color: #EF3E42 !important;
+    color: #ffffff !important;
+}

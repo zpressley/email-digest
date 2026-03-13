@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Fantasy Digest — {{ date }}</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f1117; color: #e2e8f0; margin: 0; padding: 20px; }
+    .container { max-width: 700px; margin: 0 auto; }
+    h1 { color: #f7c948; font-size: 1.4rem; border-bottom: 2px solid #f7c948; padding-bottom: 8px; }
+    h2 { color: #90cdf4; font-size: 1rem; margin-top: 28px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .card { background: #1a1d27; border-radius: 8px; padding: 14px 18px; margin-bottom: 10px; border-left: 4px solid #4a5568; }
+    .card.green { border-left-color: #48bb78; }
+    .card.red { border-left-color: #fc8181; }
+    .card.yellow { border-left-color: #f6e05e; }
+    .label { font-size: 0.75rem; color: #718096; text-transform: uppercase; letter-spacing: 0.05em; }
+    .value { font-size: 1.1rem; font-weight: 600; }
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 600; margin-left: 6px; }
+    .tag-green { background: #276749; color: #9ae6b4; }
+    .tag-red { background: #742a2a; color: #feb2b2; }
+    .tag-yellow { background: #744210; color: #fefcbf; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    th { text-align: left; color: #718096; padding: 6px 8px; border-bottom: 1px solid #2d3748; }
+    td { padding: 8px; border-bottom: 1px solid #1e2330; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>⚾ Fantasy Digest &mdash; {{ date }}</h1>
+
+  <h2>📋 Today's Roster Impact</h2>
+  {% if roster_impact %}
+    <table>
+      <tr><th>Player</th><th>Opponent SP</th><th>ERA</th><th>Matchup</th></tr>
+      {% for p in roster_impact %}
+      <tr>
+        <td>{{ p.name }}</td>
+        <td>{{ p.opp_pitcher }}</td>
+        <td>{{ p.opp_era }}</td>
+        <td>
+          {% if p.favorable %}
+            <span class="tag tag-green">✓ Favorable</span>
+          {% else %}
+            <span class="tag tag-red">✗ Tough</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+  {% else %}
+    <div class="card">No games today for rostered players.</div>
+  {% endif %}
+
+  <h2>🔄 Upcoming Pitcher Starts</h2>
+  {% for p in upcoming_starts %}
+  <div class="card {% if p.days_out <= 1 %}yellow{% else %}green{% endif %}">
+    <span class="value">{{ p.name }}</span>
+    <span class="tag {% if p.days_out <= 1 %}tag-yellow{% else %}tag-green{% endif %}">
+      {{ 'TODAY' if p.days_out == 0 else 'TOMORROW' if p.days_out == 1 else p.game_date }}
+    </span>
+    <div style="margin-top:6px; font-size:0.85rem; color:#a0aec0;">
+      vs {{ p.opponent }} &bull; {{ 'Confirmed' if p.confirmed else 'Probable' }}
+      {% if p.days_out <= 1 %}&bull; <strong style="color:#f6e05e;">Act now — roster lag</strong>{% endif %}
+    </div>
+  </div>
+  {% else %}
+  <div class="card">No upcoming starts found.</div>
+  {% endfor %}
+
+  <h2>🎯 Streaming Opportunities</h2>
+  {% for opp in streaming_opportunities %}
+  <div class="card green">
+    <span class="value">{{ opp.name }}</span>
+    <span class="tag tag-green">Score: {{ opp.score }}</span>
+    <div style="margin-top:6px; font-size:0.85rem; color:#a0aec0;">
+      vs {{ opp.opponent }} &bull; {{ opp.game_date }} &bull; ERA {{ opp.era }} &bull; {{ opp.ownership }}% owned
+    </div>
+    <div style="font-size:0.8rem; color:#68d391; margin-top:4px;">
+      ⚡ Add by {{ opp.latest_add_date }} to roster in time
+    </div>
+  </div>
+  {% else %}
+  <div class="card">No streaming opportunities found.</div>
+  {% endfor %}
+
+  <h2>🔥 Free Agent Heat</h2>
+  {% for fa in hot_free_agents %}
+  <div class="card yellow">
+    <span class="value">{{ fa.name }}</span>
+    <span class="tag tag-yellow">{{ fa.position }}</span>
+    <span class="label" style="margin-left:8px;">{{ fa.ownership }}% owned &bull; {{ fa.trend }}</span>
+    <div style="font-size:0.8rem; color:#f6e05e; margin-top:4px;">
+      Add by {{ fa.latest_add_date }}
+    </div>
+  </div>
+  {% else %}
+  <div class="card">No notable free agent movement.</div>
+  {% endfor %}
+
+  <h2>📈 Statcast Breakout Watch</h2>
+  {% for h in breakout_watch %}
+  <div class="card green">
+    <span class="value">{{ h.name }}</span>
+    <span class="tag tag-green">Score: {{ h.signal_score }}</span>
+    <div style="font-size:0.85rem; color:#a0aec0; margin-top:6px;">
+      EV: {{ h.avg_exit_velocity }} &bull; Barrel%: {{ h.barrel_rate }} &bull;
+      xBA: {{ h.xba }} &bull; Whiff%: {{ h.whiff_rate }} &bull; BB%: {{ h.walk_rate }}
+    </div>
+  </div>
+  {% else %}
+  <div class="card">No breakout signals detected.</div>
+  {% endfor %}
+
+  {% if bench_candidates %}
+  <h2>⚠️ Consider Benching</h2>
+  {% for h in bench_candidates %}
+  <div class="card red">
+    <span class="value">{{ h.name }}</span>
+    <div style="font-size:0.85rem; color:#a0aec0; margin-top:6px;">
+      EV: {{ h.avg_exit_velocity }} &bull; Barrel%: {{ h.barrel_rate }} &bull; Whiff%: {{ h.whiff_rate }}
+    </div>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  {% if prospect_callouts %}
+  <h2>🌱 Prospect Callouts</h2>
+  {% for p in prospect_callouts %}
+  <div class="card {% if p.positive %}green{% else %}red{% endif %}">
+    <span class="value">{{ p.name }}</span>
+    <span class="label" style="margin-left:8px;">{{ p.level }}</span>
+    <div style="font-size:0.85rem; color:#a0aec0; margin-top:6px;">{{ p.note }}</div>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  <div style="margin-top:40px; font-size:0.75rem; color:#4a5568; text-align:center;">
+    email-digest &bull; generated {{ date }}
+  </div>
+</div>
+</body>
+</html>

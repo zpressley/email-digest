@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Weekly Review — {{ date }}</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f1117; color: #e2e8f0; margin: 0; padding: 20px; }
+    .container { max-width: 700px; margin: 0 auto; }
+    h1 { color: #f7c948; font-size: 1.4rem; border-bottom: 2px solid #f7c948; padding-bottom: 8px; }
+    h2 { color: #90cdf4; font-size: 1rem; margin-top: 28px; text-transform: uppercase; letter-spacing: 0.05em; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-bottom: 16px; }
+    th { text-align: left; color: #718096; padding: 6px 8px; border-bottom: 1px solid #2d3748; }
+    td { padding: 8px; border-bottom: 1px solid #1e2330; }
+    .up { color: #68d391; }
+    .down { color: #fc8181; }
+    .neutral { color: #a0aec0; }
+    .target { background: #1a2744; }
+    .card { background: #1a1d27; border-radius: 8px; padding: 14px 18px; margin-bottom: 10px; border-left: 4px solid #4a5568; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>📊 Weekly Review &mdash; {{ date }}</h1>
+
+  <h2>🏆 Category Standings</h2>
+  <table>
+    <tr>
+      <th>Category</th><th>Rank</th><th>My Total</th>
+      <th>Gap to 1st</th><th>Gap to Last</th><th>Trend</th>
+    </tr>
+    {% for cat in category_dashboard %}
+    <tr {% if cat.is_target %}class="target"{% endif %}>
+      <td><strong>{{ cat.name }}</strong>{% if cat.is_target %} 🎯{% endif %}</td>
+      <td>{{ cat.my_rank }}/{{ cat.league_size }}</td>
+      <td>{{ cat.my_total }}</td>
+      <td class="{% if cat.gap_to_first == 0 %}up{% else %}neutral{% endif %}">
+        {{ '+' + cat.gap_to_first|string if cat.gap_to_first > 0 else '—' }}
+      </td>
+      <td class="{% if cat.gap_to_last > 0 %}down{% else %}neutral{% endif %}">
+        {{ cat.gap_to_last }}
+      </td>
+      <td class="{% if cat.trend > 0 %}up{% elif cat.trend < 0 %}down{% else %}neutral{% endif %}">
+        {{ '↑' if cat.trend > 0 else '↓' if cat.trend < 0 else '→' }}
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <h2>🎯 Target Categories This Week</h2>
+  {% for cat in target_categories %}
+  <div class="card">
+    <strong>{{ cat.name }}</strong> — currently rank {{ cat.my_rank }}.
+    Need <strong>{{ cat.gap_to_move_up }}</strong> more to move up one spot.
+    {% if cat.fa_targets %}
+      Top FA targets: {{ cat.fa_targets | join(', ') }}
+    {% endif %}
+  </div>
+  {% endfor %}
+
+  <h2>⚾ League Pitcher Usage</h2>
+  <table>
+    <tr><th>Team</th><th>Starts</th><th>RP Apps</th><th>Total IP</th><th>Note</th></tr>
+    {% for team in league_pitcher_usage %}
+    <tr>
+      <td>{{ team.name }}</td>
+      <td>{{ team.starts }}</td>
+      <td>{{ team.rp_appearances }}</td>
+      <td>{{ team.innings_pitched }}</td>
+      <td class="neutral">{{ team.note }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <div style="margin-top:40px; font-size:0.75rem; color:#4a5568; text-align:center;">
+    email-digest &bull; weekly review {{ date }}
+  </div>
+</div>
+</body>
+</html>

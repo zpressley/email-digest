@@ -1,0 +1,41 @@
+name: Weekly Review
+
+on:
+  schedule:
+    - cron: '0 11 * * 0'
+  workflow_dispatch:
+
+jobs:
+  send-weekly:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -r requirements.txt
+      - name: Write Yahoo token
+        run: echo '${{ secrets.YAHOO_TOKEN_JSON }}' > token.json
+      - name: Run weekly review
+        env:
+          YAHOO_TOKEN_PATH: ./token.json
+          YAHOO_CLIENT_ID: ${{ secrets.YAHOO_CLIENT_ID }}
+          YAHOO_CLIENT_SECRET: ${{ secrets.YAHOO_CLIENT_SECRET }}
+          YAHOO_LEAGUE_ID: ${{ secrets.YAHOO_LEAGUE_ID }}
+          YAHOO_GAME_KEY: ${{ secrets.YAHOO_GAME_KEY }}
+          YAHOO_TEAM_ID: ${{ secrets.YAHOO_TEAM_ID }}
+          SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
+          TO_EMAIL: ${{ secrets.TO_EMAIL }}
+          FROM_EMAIL: ${{ secrets.FROM_EMAIL }}
+        run: python src/weekly_review.py
+      - name: Update Yahoo token secret
+        run: cat token.json | gh secret set YAHOO_TOKEN_JSON
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+      - name: Commit snapshots
+        run: |
+          git config --global user.name "email-digest-bot"
+          git config --global user.email "bot@email-digest"
+          git add data/snapshots/
+          git diff --staged --quiet || git commit -m "chore: weekly snapshot $(date +%Y-%m-%d)"
+          git push
