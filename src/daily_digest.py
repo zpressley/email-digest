@@ -7,8 +7,8 @@ from src.analysis.free_agent_tracker import get_hot_free_agents
 from src.analysis.hitter_analyzer import get_breakout_watch, get_bench_candidates
 from src.analysis.prospect_tracker import get_prospect_callouts
 from src.data.snapshot_store import save_snapshot
-from src.email.renderer import render_daily
-from src.email.sender import send_email
+from src.mailer.renderer import render_daily
+from src.mailer.sender import send_email
 
 
 def run():
@@ -28,8 +28,13 @@ def run():
 
     save_snapshot({"daily": context}, today)
     html = render_daily(context)
-    send_email(f"⚾ Fantasy Digest — {context['date']}", html)
-    print("Daily digest complete.")
+    
+    # TEMP: write to file instead of sending
+    with open("digest_preview.html", "w") as f:
+        f.write(html)
+    print("Saved to digest_preview.html")
+    
+    # send_email(f"⚾ Fantasy Digest — {context['date']}", html)
 
 
 if __name__ == "__main__":

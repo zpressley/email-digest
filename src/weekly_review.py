@@ -3,8 +3,8 @@ from datetime import date
 from src.analysis.category_standings import get_category_dashboard, get_target_categories
 from src.analysis.pitcher_analyzer import get_league_pitcher_usage
 from src.data.snapshot_store import save_snapshot
-from src.email.renderer import render_weekly
-from src.email.sender import send_email
+from src.mailer.renderer import render_weekly
+from src.mailer.sender import send_email
 
 
 def run():
