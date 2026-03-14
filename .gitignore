@@ -5,3 +5,4 @@ __pycache__/
 venv/
 *.egg-info/
 venv/
+digest_preview.html
