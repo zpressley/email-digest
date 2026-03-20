@@ -134,6 +134,24 @@
   {% endfor %}
   {% endif %}
 
+  {% if farm_report %}
+<h2>🌾 AI Farm System Report</h2>
+<div class="card green">
+  <div style="font-size:0.9rem;line-height:1.6;white-space:pre-wrap;">
+    {{ farm_report }}
+  </div>
+</div>
+{% endif %}
+
+{% if baseball_pulse %}
+<h2>📡 Baseball Pulse</h2>
+<div class="card">
+  <div style="font-size:0.9rem;line-height:1.6;white-space:pre-wrap;">
+    {{ baseball_pulse }}
+  </div>
+</div>
+{% endif %}
+
   <div style="margin-top:40px; font-size:0.75rem; color:#4a5568; text-align:center;">
     email-digest &bull; generated {{ date }}
   </div>

@@ -27,3 +27,7 @@ STREAMING_WINDOW_DAYS = 5
 FA_OWNERSHIP_THRESHOLD = 30.0
 STATCAST_ROLLING_DAYS = 21
 SNAPSHOT_DIR = "data/snapshots"
+COMBINED_PLAYERS_PATH = os.getenv(
+    "COMBINED_PLAYERS_PATH",
+    "/Users/zpressley/fbp-trade-bot/data/combined_players.json"
+)

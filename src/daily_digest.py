@@ -9,7 +9,23 @@ from src.analysis.prospect_tracker import get_prospect_callouts
 from src.data.snapshot_store import save_snapshot
 from src.mailer.renderer import render_daily
 from src.mailer.sender import send_email
+from src.data.ai_client import generate_farm_report, generate_baseball_pulse
+from src.analysis.prospect_tracker import get_prospect_callouts
+from src.analysis.discord_reader import get_twitter_feed_posts  # new module
 
+def run():
+    today = date.today()
+
+    # existing calls...
+    prospect_callouts = get_prospect_callouts()
+    discord_posts = get_twitter_feed_posts()  # new
+
+    context = {
+        # ... existing keys ...
+        "prospect_callouts": prospect_callouts,
+        "farm_report": generate_farm_report(prospect_callouts),  # new
+        "baseball_pulse": generate_baseball_pulse(discord_posts),  # new
+    }
 
 def run():
     today = date.today()

@@ -1,12 +1,20 @@
-"""Minor league and recent call-up performance tracker."""
-from datetime import date, timedelta
+"""Minor league and recent call-up performance tracker.
+
+Prospects are loaded from combined_players.json — the single source of truth.
+MLB IDs come from the same file via UPID linkage.
+
+Contract types in combined_players.json under 'contract_type':
+    "Purchased Contract" → PC
+    "Development Cont."  → DC
+    "Blue Chip Contract" → BC
+"""
+import json
+import os
 import requests
-from src.data.yahoo_client import YahooClient
-from src.data.mlb_client import MLBClient
+from src.config import COMBINED_PLAYERS_PATH
 
 MLB_BASE = "https://statsapi.mlb.com/api/v1"
 
-# Minor league sport IDs
 MINOR_LEAGUE_SPORT_IDS = {
     11: "AAA",
     12: "AA",
@@ -14,131 +22,106 @@ MINOR_LEAGUE_SPORT_IDS = {
     14: "A",
 }
 
-# Thresholds for flagging strong/poor performance
-BATTER_HOT_OPS = 0.900
-BATTER_COLD_AVG = 0.210
-PITCHER_HOT_ERA = 2.50
+CONTRACT_DISPLAY = {
+    "Purchased Contract": "PC",
+    "Development Cont.":  "DC",
+    "Blue Chip Contract": "BC",
+}
+
+# Performance thresholds
+BATTER_HOT_OPS   = 0.900
+BATTER_COLD_AVG  = 0.210
+PITCHER_HOT_ERA  = 2.50
 PITCHER_COLD_ERA = 6.00
-MIN_PA_BATTER = 15
-MIN_IP_PITCHER = 5.0
+MIN_PA_BATTER    = 15
+MIN_IP_PITCHER   = 5.0
+
+
+def _format_contract(raw: str) -> str:
+    """Normalize contract_type to short display label (PC / DC / BC)."""
+    return CONTRACT_DISPLAY.get(raw, raw or "—")
 
 
 def get_prospect_callouts() -> list[dict]:
     """
-    For farm-system players and recent call-ups:
-    - flags strong performance (green)
-    - flags poor performance (red)
-    - flags call-up watch candidates
-    Returns empty list if nothing notable.
+    Loads WIZ prospects from combined_players.json (player_type == 'Farm'),
+    fetches minor league stats from MLB Stats API using mlb_id,
+    and returns notable callouts grouped as callup / positive / negative.
     """
-    yahoo = YahooClient()
-    mlb = MLBClient()
+    try:
+        with open(COMBINED_PLAYERS_PATH) as f:
+            all_players = json.load(f)
+    except FileNotFoundError:
+        print(f"⚠️  combined_players.json not found at {COMBINED_PLAYERS_PATH}")
+        return []
 
-    my_roster = yahoo.get_my_roster()
-
-    # Identify farm / prospect players — those on NA slots or
-    # with no active MLB team assignment are likely minor leaguers
-    farm_players = [
-        p for p in my_roster
-        if _is_prospect(p)
+    # My farm system only
+    my_prospects = [
+        p for p in all_players
+        if p.get("player_type") == "Farm"
+        and p.get("manager") == "WIZ"
+        and p.get("upid")
     ]
 
-    if not farm_players:
+    if not my_prospects:
         return []
 
     callouts = []
 
-    for player in farm_players:
-        name = player.get("name", "")
-        yahoo_id = player.get("yahoo_id")
-        first = player.get("first_name", "")
-        last = player.get("last_name", "")
+    for prospect in my_prospects:
+        name     = prospect.get("name", "")
+        mlb_id   = prospect.get("mlb_id")
+        position = prospect.get("position", "")
+        contract = _format_contract(prospect.get("contract_type", ""))
 
-        # Try to get MLB ID from Yahoo player data
-        mlb_id = _get_mlb_id_from_yahoo(yahoo_id)
         if not mlb_id:
+            # Player hasn't appeared in the MLB system yet — no stats available
             continue
 
-        # Check if recently called up to MLB
-        is_active_mlb = _check_mlb_active(mlb_id)
-
-        # Get minor league stats
-        minor_stats = _get_minor_league_stats(mlb_id)
-
-        if not minor_stats and not is_active_mlb:
+        try:
+            mlb_id = int(mlb_id)
+        except (ValueError, TypeError):
             continue
 
-        position = player.get("primary_position", "")
+        is_mlb_active = _check_mlb_active(mlb_id)
+        minor_stats   = _get_minor_league_stats(mlb_id)
+
+        if not minor_stats and not is_mlb_active:
+            continue
+
         is_pitcher = position in ("SP", "RP", "P")
 
-        if is_pitcher:
-            callout = _evaluate_pitcher(name, minor_stats, is_active_mlb)
-        else:
-            callout = _evaluate_batter(name, minor_stats, is_active_mlb)
+        callout = (
+            _evaluate_pitcher(name, contract, minor_stats, is_mlb_active)
+            if is_pitcher
+            else _evaluate_batter(name, contract, minor_stats, is_mlb_active)
+        )
 
         if callout:
             callouts.append(callout)
 
-    # Sort: positive callouts first, then call-up watch, then negatives
-    order = {"positive": 0, "callup": 1, "negative": 2}
+    # Sort: callup watch first, then positive, then negative
+    order = {"callup": 0, "positive": 1, "negative": 2}
     callouts.sort(key=lambda x: order.get(x.get("type", "positive"), 1))
-
     return callouts
-
-
-def _is_prospect(player: dict) -> bool:
-    """
-    Heuristic: a player is a prospect if they have no active MLB status
-    or are on a minor league assignment.
-    """
-    status = (player.get("status") or "").upper()
-    injury = player.get("injury_note") or ""
-    # Active MLB players have no status flag or are active
-    if status in ("", "ACTIVE", "ACT"):
-        return False
-    # NA = not active = minor leaguer or injured list
-    if status in ("NA", "DL", "IL", "DTD"):
-        return True
-    return False
-
-
-def _get_mlb_id_from_yahoo(yahoo_id: str | None) -> int | None:
-    """
-    Look up MLB player ID from Yahoo player ID via MLB Stats API suggest.
-    """
-    if not yahoo_id:
-        return None
-    try:
-        # Use MLB Stats API player search — not perfect but works for known players
-        url = f"https://statsapi.mlb.com/api/v1/people/{yahoo_id}"
-        resp = requests.get(url, timeout=8)
-        if resp.status_code == 200:
-            people = resp.json().get("people", [])
-            if people:
-                return people[0].get("id")
-    except Exception:
-        pass
-    return None
 
 
 def _check_mlb_active(mlb_id: int) -> bool:
     """Returns True if the player is on an active MLB 26-man roster."""
     try:
-        url = f"{MLB_BASE}/people/{mlb_id}?hydrate=currentTeam,rosterEntries"
+        url  = f"{MLB_BASE}/people/{mlb_id}?hydrate=rosterEntries"
         resp = requests.get(url, timeout=8)
         if resp.status_code != 200:
             return False
-        person = resp.json().get("people", [{}])[0]
-        roster_status = person.get("rosterStatus", "")
-        return roster_status == "Active"
+        return resp.json().get("people", [{}])[0].get("active", False)
     except Exception:
         return False
 
 
 def _get_minor_league_stats(mlb_id: int) -> dict | None:
     """
-    Returns the player's most recent minor league stats split.
-    Tries AAA first, then AA, A+, A.
+    Returns the player's most recent minor league stat split.
+    Tries AAA → AA → A+ → A in order.
     """
     try:
         sport_ids = ",".join(str(s) for s in MINOR_LEAGUE_SPORT_IDS.keys())
@@ -151,47 +134,52 @@ def _get_minor_league_stats(mlb_id: int) -> dict | None:
         if resp.status_code != 200:
             return None
 
-        stats_groups = resp.json().get("stats", [])
-        for group in stats_groups:
+        for group in resp.json().get("stats", []):
             splits = group.get("splits", [])
-            if splits:
-                # Return the most recent / highest level split
-                split = splits[-1]
-                sport_id = split.get("sport", {}).get("id")
-                level = MINOR_LEAGUE_SPORT_IDS.get(sport_id, "MiLB")
-                return {
-                    "level": level,
-                    "stat": split.get("stat", {}),
-                    "group": group.get("group", {}).get("displayName", ""),
-                }
+            if not splits:
+                continue
+            split    = splits[-1]
+            sport_id = split.get("sport", {}).get("id")
+            level    = MINOR_LEAGUE_SPORT_IDS.get(sport_id, "MiLB")
+            return {
+                "level": level,
+                "stat":  split.get("stat", {}),
+                "group": group.get("group", {}).get("displayName", ""),
+            }
     except Exception:
         pass
     return None
 
 
-def _evaluate_batter(name: str, stats: dict | None, is_mlb_active: bool) -> dict | None:
-    """Evaluate a minor league batter and return a callout if notable."""
+def _evaluate_batter(
+    name: str,
+    contract: str,
+    stats: dict | None,
+    is_mlb_active: bool,
+) -> dict | None:
+
     if is_mlb_active:
         return {
-            "name": name,
-            "level": "MLB",
-            "note": "Recently called up to MLB roster 🔔",
+            "name":     name,
+            "contract": contract,
+            "level":    "MLB",
+            "note":     "Recently called up to MLB roster 🔔",
             "positive": True,
-            "type": "callup",
+            "type":     "callup",
         }
 
-    if not stats or stats.get("group") not in ("hitting", None):
+    if not stats:
         return None
 
-    stat = stats.get("stat", {})
+    stat  = stats.get("stat", {})
     level = stats.get("level", "MiLB")
 
     try:
         avg = float(stat.get("avg", 0) or 0)
         ops = float(stat.get("ops", 0) or 0)
-        pa = int(stat.get("plateAppearances", 0) or 0)
-        hr = int(stat.get("homeRuns", 0) or 0)
-        sb = int(stat.get("stolenBases", 0) or 0)
+        pa  = int(stat.get("plateAppearances", 0) or 0)
+        hr  = int(stat.get("homeRuns", 0) or 0)
+        sb  = int(stat.get("stolenBases", 0) or 0)
     except (ValueError, TypeError):
         return None
 
@@ -199,62 +187,67 @@ def _evaluate_batter(name: str, stats: dict | None, is_mlb_active: bool) -> dict
         return None
 
     if ops >= BATTER_HOT_OPS:
-        note = f".{int(avg*1000)} AVG / {ops:.3f} OPS"
-        if hr > 0:
+        note = f".{int(avg * 1000):03d} AVG / {ops:.3f} OPS"
+        if hr:
             note += f" / {hr} HR"
-        if sb > 0:
+        if sb:
             note += f" / {sb} SB"
         note += f" ({pa} PA)"
-
-        # Call-up watch if OPS is elite
-        if ops >= 1.000:
+        callout_type = "callup" if ops >= 1.000 else "positive"
+        if callout_type == "callup":
             note += " · Call-up watch 🔔"
-            callout_type = "callup"
-        else:
-            callout_type = "positive"
-
         return {
-            "name": name,
-            "level": level,
-            "note": note,
+            "name":     name,
+            "contract": contract,
+            "level":    level,
+            "note":     note,
             "positive": True,
-            "type": callout_type,
+            "type":     callout_type,
         }
 
     if avg <= BATTER_COLD_AVG and pa >= MIN_PA_BATTER * 2:
         return {
-            "name": name,
-            "level": level,
-            "note": f".{int(avg*1000)} AVG / {ops:.3f} OPS ({pa} PA) · Slumping — monitor",
+            "name":     name,
+            "contract": contract,
+            "level":    level,
+            "note":     (
+                f".{int(avg * 1000):03d} AVG / {ops:.3f} OPS "
+                f"({pa} PA) · Slumping — monitor"
+            ),
             "positive": False,
-            "type": "negative",
+            "type":     "negative",
         }
 
     return None
 
 
-def _evaluate_pitcher(name: str, stats: dict | None, is_mlb_active: bool) -> dict | None:
-    """Evaluate a minor league pitcher and return a callout if notable."""
+def _evaluate_pitcher(
+    name: str,
+    contract: str,
+    stats: dict | None,
+    is_mlb_active: bool,
+) -> dict | None:
+
     if is_mlb_active:
         return {
-            "name": name,
-            "level": "MLB",
-            "note": "Recently called up to MLB roster 🔔",
+            "name":     name,
+            "contract": contract,
+            "level":    "MLB",
+            "note":     "Recently called up to MLB roster 🔔",
             "positive": True,
-            "type": "callup",
+            "type":     "callup",
         }
 
     if not stats:
         return None
 
-    stat = stats.get("stat", {})
+    stat  = stats.get("stat", {})
     level = stats.get("level", "MiLB")
 
     try:
-        era = float(stat.get("era", 99) or 99)
-        ip_str = str(stat.get("inningsPitched", "0") or "0")
-        ip = float(ip_str)
-        k = int(stat.get("strikeOuts", 0) or 0)
+        era  = float(stat.get("era", 99) or 99)
+        ip   = float(str(stat.get("inningsPitched", "0") or "0"))
+        k    = int(stat.get("strikeOuts", 0) or 0)
         whip = float(stat.get("whip", 0) or 0)
     except (ValueError, TypeError):
         return None
@@ -263,28 +256,30 @@ def _evaluate_pitcher(name: str, stats: dict | None, is_mlb_active: bool) -> dic
         return None
 
     if era <= PITCHER_HOT_ERA:
-        note = f"{era:.2f} ERA / {whip:.2f} WHIP / {k} K ({ip:.1f} IP)"
-        if era <= 1.50:
+        note         = f"{era:.2f} ERA / {whip:.2f} WHIP / {k} K ({ip:.1f} IP)"
+        callout_type = "callup" if era <= 1.50 else "positive"
+        if callout_type == "callup":
             note += " · Call-up watch 🔔"
-            callout_type = "callup"
-        else:
-            callout_type = "positive"
-
         return {
-            "name": name,
-            "level": level,
-            "note": note,
+            "name":     name,
+            "contract": contract,
+            "level":    level,
+            "note":     note,
             "positive": True,
-            "type": callout_type,
+            "type":     callout_type,
         }
 
     if era >= PITCHER_COLD_ERA:
         return {
-            "name": name,
-            "level": level,
-            "note": f"{era:.2f} ERA / {whip:.2f} WHIP ({ip:.1f} IP) · Struggling — monitor",
+            "name":     name,
+            "contract": contract,
+            "level":    level,
+            "note":     (
+                f"{era:.2f} ERA / {whip:.2f} WHIP "
+                f"({ip:.1f} IP) · Struggling — monitor"
+            ),
             "positive": False,
-            "type": "negative",
+            "type":     "negative",
         }
 
     return None
