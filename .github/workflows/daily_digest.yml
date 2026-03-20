@@ -27,6 +27,9 @@ jobs:
           SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
           TO_EMAIL: ${{ secrets.TO_EMAIL }}
           FROM_EMAIL: ${{ secrets.FROM_EMAIL }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          ANTHROPIC_KEY: ${{ secrets.ANTHROPIC_KEY }}
+          COMBINED_PLAYERS_PATH: ./data/combined_players.json
         run: python src/daily_digest.py
       - name: Update Yahoo token secret
         run: cat token.json | gh secret set YAHOO_TOKEN_JSON
