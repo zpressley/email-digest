@@ -135,13 +135,22 @@
   {% endif %}
 
   {% if farm_report %}
-<h2>🌾 AI Farm System Report</h2>
-<div class="card green">
-  <div style="font-size:0.9rem;line-height:1.6;white-space:pre-wrap;">
-    {{ farm_report }}
+  <h2>🌾 AI Farm System Report</h2>
+  <div class="card green">
+    <div style="font-size:0.85rem;line-height:1.7;color:#c6f6d5;white-space:pre-wrap;">
+      {{ farm_report }}
+    </div>
   </div>
-</div>
-{% endif %}
+  {% endif %}
+  
+  {% if baseball_pulse %}
+  <h2>📡 Baseball Pulse</h2>
+  <div class="card">
+    <div style="font-size:0.85rem;line-height:1.7;color:#e2e8f0;white-space:pre-wrap;">
+      {{ baseball_pulse }}
+    </div>
+  </div>
+  {% endif %}
 
 {% if baseball_pulse %}
 <h2>📡 Baseball Pulse</h2>
