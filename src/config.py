@@ -31,3 +31,4 @@ COMBINED_PLAYERS_PATH = os.getenv(
     "COMBINED_PLAYERS_PATH",
     "/Users/zpressley/fbp-trade-bot/data/combined_players.json"
 )
+MY_TEAM_ABBR = os.getenv("MY_TEAM_ABBR", "WAR")

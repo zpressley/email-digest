@@ -11,7 +11,7 @@ Contract types in combined_players.json under 'contract_type':
 import json
 import os
 import requests
-from src.config import COMBINED_PLAYERS_PATH
+from src.config import COMBINED_PLAYERS_PATH, MY_TEAM_ABBR
 
 MLB_BASE = "https://statsapi.mlb.com/api/v1"
 
@@ -44,7 +44,7 @@ def _format_contract(raw: str) -> str:
 
 def get_prospect_callouts() -> list[dict]:
     """
-    Loads WIZ prospects from combined_players.json (player_type == 'Farm'),
+    Loads WAR prospects from combined_players.json (player_type == 'Farm'),
     fetches minor league stats from MLB Stats API using mlb_id,
     and returns notable callouts grouped as callup / positive / negative.
     """
@@ -59,7 +59,7 @@ def get_prospect_callouts() -> list[dict]:
     my_prospects = [
         p for p in all_players
         if p.get("player_type") == "Farm"
-        and p.get("manager") == "WIZ"
+        and p.get("manager") == MY_TEAM_ABBR
         and p.get("upid")
     ]
 
