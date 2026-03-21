@@ -101,8 +101,10 @@ Write 3-4 short paragraphs covering the most relevant items:
 
 Rules:
 - Be direct and actionable — this is a fantasy manager's morning briefing
-- Flag anything that requires same-day action due to roster lag
-  (if a player has a start tomorrow, they need to be added TODAY)
+- This league has a 1-day roster lag — pickups made today 
+  are not active until tomorrow. Never suggest same-day adds.
+  Always frame urgency as "add today to be rostered tomorrow"
+  or "add by [day] to be active for [day+1 start]"
 - Skip anything that is purely entertainment or not fantasy-relevant
 - Do not include a title or header — just the summary body
 - If the feed is mostly noise with nothing actionable, say so briefly
@@ -162,7 +164,7 @@ def generate_weekly_recap(
     target_text = "\n".join(target_lines) if target_lines else "None identified"
 
     prompt = f"""You are a fantasy baseball analyst writing a weekly recap 
-for the Whiz Kids dynasty team (12-team H2H categories league, 20 categories).
+for the Weekend Warriors dynasty team (12-team H2H categories league, 20 categories).
 
 Matchup result this week: {matchup_result}
 

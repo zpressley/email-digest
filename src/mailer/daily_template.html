@@ -1,169 +1,212 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Fantasy Digest — {{ date }}</title>
-  <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f1117; color: #e2e8f0; margin: 0; padding: 20px; }
-    .container { max-width: 700px; margin: 0 auto; }
-    h1 { color: #f7c948; font-size: 1.4rem; border-bottom: 2px solid #f7c948; padding-bottom: 8px; }
-    h2 { color: #90cdf4; font-size: 1rem; margin-top: 28px; text-transform: uppercase; letter-spacing: 0.05em; }
-    .card { background: #1a1d27; border-radius: 8px; padding: 14px 18px; margin-bottom: 10px; border-left: 4px solid #4a5568; }
-    .card.green { border-left-color: #48bb78; }
-    .card.red { border-left-color: #fc8181; }
-    .card.yellow { border-left-color: #f6e05e; }
-    .label { font-size: 0.75rem; color: #718096; text-transform: uppercase; letter-spacing: 0.05em; }
-    .value { font-size: 1.1rem; font-weight: 600; }
-    .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 600; margin-left: 6px; }
-    .tag-green { background: #276749; color: #9ae6b4; }
-    .tag-red { background: #742a2a; color: #feb2b2; }
-    .tag-yellow { background: #744210; color: #fefcbf; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-    th { text-align: left; color: #718096; padding: 6px 8px; border-bottom: 1px solid #2d3748; }
-    td { padding: 8px; border-bottom: 1px solid #1e2330; }
-  </style>
 </head>
-<body>
-<div class="container">
-  <h1>⚾ Fantasy Digest &mdash; {{ date }}</h1>
+<body style="margin:0;padding:0;background:#f1f3f4;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;">
+<div style="max-width:660px;margin:0 auto;padding:16px;">
 
-  <h2>📋 Today's Roster Impact</h2>
-  {% if roster_impact %}
-    <table>
-      <tr><th>Player</th><th>Opponent SP</th><th>ERA</th><th>Matchup</th></tr>
+  <!-- Header -->
+  <div style="background:linear-gradient(135deg,#1a1d2e 0%,#0f1117 100%);border-radius:8px 8px 0 0;padding:24px 28px 20px;">
+    <div style="font-size:10px;color:#f7c948;letter-spacing:0.14em;text-transform:uppercase;margin-bottom:5px;">Daily Briefing</div>
+    <div style="font-size:22px;font-weight:700;color:#ffffff;">⚾ Fantasy Digest</div>
+    <div style="font-size:13px;color:#90cdf4;margin-top:3px;">{{ date }}</div>
+    <div style="margin-top:14px;">
+      <span style="background:rgba(247,201,72,0.2);border:1px solid rgba(247,201,72,0.4);border-radius:20px;padding:4px 12px;font-size:11px;color:#f7c948;margin-right:6px;">⚾ WIZ Daily</span>
+      <span style="background:rgba(144,205,244,0.2);border:1px solid rgba(144,205,244,0.4);border-radius:20px;padding:4px 12px;font-size:11px;color:#90cdf4;">📡 AI Powered</span>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div style="background:#ffffff;padding:20px 28px 28px;border-radius:0 0 8px 8px;box-shadow:0 2px 8px rgba(0,0,0,0.12);">
+
+    <!-- Section helper styles applied inline throughout -->
+
+    <!-- TODAY'S ROSTER IMPACT -->
+    <div style="font-size:11px;font-weight:700;color:#5f6368;text-transform:uppercase;letter-spacing:0.1em;border-bottom:2px solid #f1f3f4;padding-bottom:8px;margin:24px 0 12px;">📋 Today's Roster Impact</div>
+    {% if roster_impact %}
+    <table style="width:100%;border-collapse:collapse;font-size:13px;">
+      <tr style="background:#f8f9fa;">
+        <th style="text-align:left;padding:8px 10px;color:#5f6368;font-weight:600;font-size:11px;">PLAYER</th>
+        <th style="text-align:left;padding:8px 10px;color:#5f6368;font-weight:600;font-size:11px;">OPP STARTER</th>
+        <th style="text-align:center;padding:8px 10px;color:#5f6368;font-weight:600;font-size:11px;">ERA</th>
+        <th style="text-align:center;padding:8px 10px;color:#5f6368;font-weight:600;font-size:11px;">MATCHUP</th>
+      </tr>
       {% for p in roster_impact %}
-      <tr>
-        <td>{{ p.name }}</td>
-        <td>{{ p.opp_pitcher }}</td>
-        <td>{{ p.opp_era }}</td>
-        <td>
-          {% if p.favorable %}
-            <span class="tag tag-green">✓ Favorable</span>
+      <tr style="border-bottom:1px solid #f1f3f4;background:{% if p.matchup == 'favorable' %}#f8fff8{% else %}#ffffff{% endif %};">
+        <td style="padding:10px;font-weight:600;color:#202124;">{{ p.name }}</td>
+        <td style="padding:10px;color:#5f6368;">{{ p.opp_pitcher }}</td>
+        <td style="padding:10px;text-align:center;color:#5f6368;">{{ p.opp_era }}</td>
+        <td style="padding:10px;text-align:center;">
+          {% if p.matchup == 'favorable' %}
+            <span style="background:#e6f4ea;color:#137333;font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;">✓ FAVORABLE</span>
+          {% elif p.matchup == 'tough' %}
+            <span style="background:#fce8e6;color:#c5221f;font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;">TOUGH</span>
           {% else %}
-            <span class="tag tag-red">✗ Tough</span>
+            <span style="background:#fef7e0;color:#b45309;font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;">NEUTRAL</span>
           {% endif %}
         </td>
       </tr>
       {% endfor %}
     </table>
-  {% else %}
-    <div class="card">No games today for rostered players.</div>
-  {% endif %}
+    {% else %}
+    <div style="background:#f8f9fa;border-radius:6px;padding:12px 16px;color:#5f6368;font-size:13px;">No games today for rostered players.</div>
+    {% endif %}
 
-  <h2>🔄 Upcoming Pitcher Starts</h2>
-  {% for p in upcoming_starts %}
-  <div class="card {% if p.days_out <= 1 %}yellow{% else %}green{% endif %}">
-    <span class="value">{{ p.name }}</span>
-    <span class="tag {% if p.days_out <= 1 %}tag-yellow{% else %}tag-green{% endif %}">
-      {{ 'TODAY' if p.days_out == 0 else 'TOMORROW' if p.days_out == 1 else p.game_date }}
-    </span>
-    <div style="margin-top:6px; font-size:0.85rem; color:#a0aec0;">
-      vs {{ p.opponent }} &bull; {{ 'Confirmed' if p.confirmed else 'Probable' }}
-      {% if p.days_out <= 1 %}&bull; <strong style="color:#f6e05e;">Act now — roster lag</strong>{% endif %}
+    <!-- UPCOMING PITCHER STARTS -->
+    <div style="font-size:11px;font-weight:700;color:#5f6368;text-transform:uppercase;letter-spacing:0.1em;border-bottom:2px solid #f1f3f4;padding-bottom:8px;margin:24px 0 12px;">🔄 Upcoming Pitcher Starts</div>
+    {% if upcoming_starts %}
+      {% for p in upcoming_starts %}
+      <div style="border:1px solid {% if p.act_now %}#fbbc04{% else %}#e0e0e0{% endif %};border-radius:8px;padding:12px 16px;margin-bottom:10px;background:{% if p.act_now %}#fffde7{% else %}#ffffff{% endif %};">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <span style="font-weight:700;color:#202124;font-size:14px;">{{ p.name }}</span>
+            <span style="background:{% if p.days_out == 0 %}#ea4335{% elif p.days_out == 1 %}#fbbc04{% elif p.days_out == 2 %}#e6f4ea{% else %}#e8f0fe{% endif %};color:{% if p.days_out == 0 %}#fff{% elif p.days_out == 1 %}#202124{% elif p.days_out == 2 %}#137333{% else %}#1a73e8{% endif %};font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;margin-left:8px;">
+              {% if p.days_out == 0 %}TODAY{% elif p.days_out == 1 %}TOMORROW{% elif p.days_out == 2 %}+2 DAYS{% else %}{{ p.game_date }}{% endif %}
+            </span>
+          </div>
+          {% if p.act_now %}
+          <span style="font-size:11px;color:#b45309;font-weight:600;">⚡ Add today — active tomorrow</span>
+          {% endif %}
+        </div>
+        <div style="font-size:12px;color:#5f6368;margin-top:5px;">
+          vs {{ p.opponent }} &nbsp;·&nbsp; {{ p.game_date }} &nbsp;·&nbsp; {{ 'Confirmed ✓' if p.confirmed else 'Probable' }}
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+    <div style="background:#f8f9fa;border-radius:6px;padding:12px 16px;color:#5f6368;font-size:13px;">No upcoming starts found.</div>
+    {% endif %}
+
+    <!-- STREAMING OPPORTUNITIES -->
+    <div style="font-size:11px;font-weight:700;color:#5f6368;text-transform:uppercase;letter-spacing:0.1em;border-bottom:2px solid #f1f3f4;padding-bottom:8px;margin:24px 0 12px;">🎯 Streaming Opportunities</div>
+    {% if streaming_opportunities %}
+      {% for opp in streaming_opportunities %}
+      <div style="border-left:4px solid {% if opp.score >= 70 %}#137333{% else %}#fbbc04{% endif %};background:{% if opp.score >= 70 %}#f8fff8{% else %}#fffde7{% endif %};border-radius:0 8px 8px 0;padding:14px 16px;margin-bottom:10px;">
+        <div>
+          <span style="font-weight:700;color:#202124;font-size:14px;">{{ opp.name }}</span>
+          <span style="background:{% if opp.score >= 70 %}#137333{% else %}#b45309{% endif %};color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;margin-left:8px;">SCORE {{ opp.score }}</span>
+          <span style="font-size:10px;color:#5f6368;margin-left:8px;">{{ opp.ownership }}% owned</span>
+        </div>
+        <div style="font-size:12px;color:#5f6368;margin-top:6px;">
+          vs {{ opp.opponent }} &nbsp;·&nbsp; {{ opp.game_date }} &nbsp;·&nbsp; ERA {{ opp.era }}
+        </div>
+        <div style="font-size:12px;font-weight:600;color:{% if opp.score >= 70 %}#137333{% else %}#b45309{% endif %};margin-top:5px;">
+          ⚡ Add by {{ opp.latest_add_date }} to be active in time
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+    <div style="background:#f8f9fa;border-radius:6px;padding:12px 16px;color:#5f6368;font-size:13px;">No streaming opportunities found.</div>
+    {% endif %}
+
+    <!-- FREE AGENT HEAT -->
+    <div style="font-size:11px;font-weight:700;color:#5f6368;text-transform:uppercase;letter-spacing:0.1em;border-bottom:2px solid #f1f3f4;padding-bottom:8px;margin:24px 0 12px;">🔥 Free Agent Heat Index</div>
+    {% if hot_free_agents %}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      {% for fa in hot_free_agents %}
+      <div style="border:1px solid #e0e0e0;border-radius:8px;padding:12px 14px;">
+        <div style="font-size:10px;color:#5f6368;text-transform:uppercase;">↑ Rising</div>
+        <div style="font-weight:700;color:#202124;font-size:14px;margin-top:3px;">{{ fa.name }}</div>
+        <div style="font-size:12px;color:#5f6368;">{{ fa.position }} &nbsp;·&nbsp; {{ fa.ownership }}% owned</div>
+        <div style="font-size:12px;color:#137333;margin-top:3px;">{{ fa.trend }}</div>
+        <div style="font-size:11px;color:#c5221f;font-weight:600;margin-top:5px;">Add by {{ fa.latest_add_date }}</div>
+      </div>
+      {% endfor %}
     </div>
-  </div>
-  {% else %}
-  <div class="card">No upcoming starts found.</div>
-  {% endfor %}
+    {% else %}
+    <div style="background:#f8f9fa;border-radius:6px;padding:12px 16px;color:#5f6368;font-size:13px;">No notable free agent movement.</div>
+    {% endif %}
 
-  <h2>🎯 Streaming Opportunities</h2>
-  {% for opp in streaming_opportunities %}
-  <div class="card green">
-    <span class="value">{{ opp.name }}</span>
-    <span class="tag tag-green">Score: {{ opp.score }}</span>
-    <div style="margin-top:6px; font-size:0.85rem; color:#a0aec0;">
-      vs {{ opp.opponent }} &bull; {{ opp.game_date }} &bull; ERA {{ opp.era }} &bull; {{ opp.ownership }}% owned
+    <!-- STATCAST BREAKOUT WATCH -->
+    <div style="font-size:11px;font-weight:700;color:#5f6368;text-transform:uppercase;letter-spacing:0.1em;border-bottom:2px solid #f1f3f4;padding-bottom:8px;margin:24px 0 12px;">📈 Statcast Breakout Watch</div>
+    {% if breakout_watch %}
+      {% for h in breakout_watch %}
+      <div style="border:1px solid #dadce0;border-radius:8px;padding:14px 16px;margin-bottom:10px;">
+        <div>
+          <span style="font-weight:700;color:#202124;font-size:14px;">{{ h.name }}</span>
+          <span style="background:#1a73e8;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;margin-left:8px;">SIGNAL {{ h.signal_score }}</span>
+        </div>
+        <table style="width:100%;border-collapse:collapse;margin-top:8px;text-align:center;">
+          <tr>
+            <td style="background:#f1f3f4;border-radius:6px;padding:8px 4px;width:25%;">
+              <div style="font-size:10px;color:#5f6368;">EV</div>
+              <div style="font-size:14px;font-weight:700;color:#202124;">{{ h.avg_exit_velocity }}</div>
+            </td>
+            <td style="width:2%;"></td>
+            <td style="background:#e6f4ea;border-radius:6px;padding:8px 4px;width:25%;">
+              <div style="font-size:10px;color:#5f6368;">BARREL%</div>
+              <div style="font-size:14px;font-weight:700;color:#137333;">{{ h.barrel_rate }}</div>
+            </td>
+            <td style="width:2%;"></td>
+            <td style="background:#e6f4ea;border-radius:6px;padding:8px 4px;width:25%;">
+              <div style="font-size:10px;color:#5f6368;">xBA</div>
+              <div style="font-size:14px;font-weight:700;color:#137333;">{{ h.xba }}</div>
+            </td>
+            <td style="width:2%;"></td>
+            <td style="background:{% if h.whiff_rate and h.whiff_rate > 25 %}#fce8e6{% else %}#e6f4ea{% endif %};border-radius:6px;padding:8px 4px;width:25%;">
+              <div style="font-size:10px;color:#5f6368;">WHIFF%</div>
+              <div style="font-size:14px;font-weight:700;color:{% if h.whiff_rate and h.whiff_rate > 25 %}#c5221f{% else %}#137333{% endif %};">{{ h.whiff_rate }}</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      {% endfor %}
+    {% else %}
+    <div style="background:#f8f9fa;border-radius:6px;padding:12px 16px;color:#5f6368;font-size:13px;">No breakout signals detected.</div>
+    {% endif %}
+
+    <!-- BENCH CANDIDATES -->
+    {% if bench_candidates %}
+    <div style="font-size:11px;font-weight:700;color:#5f6368;text-transform:uppercase;letter-spacing:0.1em;border-bottom:2px solid #f1f3f4;padding-bottom:8px;margin:24px 0 12px;">⚠️ Consider Benching</div>
+    {% for h in bench_candidates %}
+    <div style="border-left:4px solid #ea4335;background:#fff8f8;border-radius:0 8px 8px 0;padding:12px 16px;margin-bottom:8px;">
+      <span style="font-weight:700;color:#202124;">{{ h.name }}</span>
+      <div style="font-size:12px;color:#5f6368;margin-top:4px;">
+        EV: {{ h.avg_exit_velocity }} &nbsp;·&nbsp; Barrel%: {{ h.barrel_rate }} &nbsp;·&nbsp; Whiff%: {{ h.whiff_rate }}
+      </div>
     </div>
-    <div style="font-size:0.8rem; color:#68d391; margin-top:4px;">
-      ⚡ Add by {{ opp.latest_add_date }} to roster in time
+    {% endfor %}
+    {% endif %}
+
+    <!-- PROSPECT CALLOUTS -->
+    {% if prospect_callouts %}
+    <div style="font-size:11px;font-weight:700;color:#5f6368;text-transform:uppercase;letter-spacing:0.1em;border-bottom:2px solid #f1f3f4;padding-bottom:8px;margin:24px 0 12px;">🌱 Prospect Callouts</div>
+    {% for p in prospect_callouts %}
+    <div style="border-left:4px solid {% if p.positive %}#34a853{% else %}#ea4335{% endif %};background:{% if p.positive %}#f8fff8{% else %}#fff8f8{% endif %};border-radius:0 8px 8px 0;padding:12px 16px;margin-bottom:8px;">
+      <span style="font-weight:700;color:#202124;">{{ p.name }}</span>
+      <span style="background:{% if p.positive %}#e6f4ea{% else %}#fce8e6{% endif %};color:{% if p.positive %}#137333{% else %}#c5221f{% endif %};font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;margin-left:8px;">{{ p.level }}</span>
+      <span style="background:#e8f0fe;color:#1a73e8;font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px;margin-left:4px;">{{ p.contract }}</span>
+      <div style="font-size:12px;color:#5f6368;margin-top:4px;">{{ p.note }}</div>
     </div>
-  </div>
-  {% else %}
-  <div class="card">No streaming opportunities found.</div>
-  {% endfor %}
+    {% endfor %}
+    {% endif %}
 
-  <h2>🔥 Free Agent Heat</h2>
-  {% for fa in hot_free_agents %}
-  <div class="card yellow">
-    <span class="value">{{ fa.name }}</span>
-    <span class="tag tag-yellow">{{ fa.position }}</span>
-    <span class="label" style="margin-left:8px;">{{ fa.ownership }}% owned &bull; {{ fa.trend }}</span>
-    <div style="font-size:0.8rem; color:#f6e05e; margin-top:4px;">
-      Add by {{ fa.latest_add_date }}
+    <!-- AI FARM REPORT -->
+    {% if farm_report %}
+    <div style="font-size:11px;font-weight:700;color:#5f6368;text-transform:uppercase;letter-spacing:0.1em;border-bottom:2px solid #f1f3f4;padding-bottom:8px;margin:24px 0 12px;">🌾 AI Farm System Report</div>
+    <div style="background:#f8fff8;border:1px solid #ceead6;border-radius:8px;padding:16px 18px;">
+      <div style="font-size:13px;line-height:1.7;color:#202124;white-space:pre-wrap;">{{ farm_report }}</div>
     </div>
-  </div>
-  {% else %}
-  <div class="card">No notable free agent movement.</div>
-  {% endfor %}
+    {% endif %}
 
-  <h2>📈 Statcast Breakout Watch</h2>
-  {% for h in breakout_watch %}
-  <div class="card green">
-    <span class="value">{{ h.name }}</span>
-    <span class="tag tag-green">Score: {{ h.signal_score }}</span>
-    <div style="font-size:0.85rem; color:#a0aec0; margin-top:6px;">
-      EV: {{ h.avg_exit_velocity }} &bull; Barrel%: {{ h.barrel_rate }} &bull;
-      xBA: {{ h.xba }} &bull; Whiff%: {{ h.whiff_rate }} &bull; BB%: {{ h.walk_rate }}
+    <!-- BASEBALL PULSE -->
+    {% if baseball_pulse %}
+    <div style="font-size:11px;font-weight:700;color:#5f6368;text-transform:uppercase;letter-spacing:0.1em;border-bottom:2px solid #f1f3f4;padding-bottom:8px;margin:24px 0 12px;">📡 Baseball Pulse</div>
+    <div style="background:#f8f9fa;border:1px solid #e0e0e0;border-radius:8px;padding:16px 18px;">
+      <div style="font-size:13px;line-height:1.7;color:#202124;white-space:pre-wrap;">{{ baseball_pulse }}</div>
     </div>
-  </div>
-  {% else %}
-  <div class="card">No breakout signals detected.</div>
-  {% endfor %}
+    {% endif %}
 
-  {% if bench_candidates %}
-  <h2>⚠️ Consider Benching</h2>
-  {% for h in bench_candidates %}
-  <div class="card red">
-    <span class="value">{{ h.name }}</span>
-    <div style="font-size:0.85rem; color:#a0aec0; margin-top:6px;">
-      EV: {{ h.avg_exit_velocity }} &bull; Barrel%: {{ h.barrel_rate }} &bull; Whiff%: {{ h.whiff_rate }}
-    </div>
   </div>
-  {% endfor %}
-  {% endif %}
 
-  {% if prospect_callouts %}
-  <h2>🌱 Prospect Callouts</h2>
-  {% for p in prospect_callouts %}
-  <div class="card {% if p.positive %}green{% else %}red{% endif %}">
-    <span class="value">{{ p.name }}</span>
-    <span class="label" style="margin-left:8px;">{{ p.level }}</span>
-    <div style="font-size:0.85rem; color:#a0aec0; margin-top:6px;">{{ p.note }}</div>
+  <!-- Footer -->
+  <div style="text-align:center;padding:14px;font-size:11px;color:#9aa0a6;">
+    email-digest &nbsp;·&nbsp; {{ date }} &nbsp;·&nbsp; Generated 6:01 AM CST
   </div>
-  {% endfor %}
-  {% endif %}
 
-  {% if farm_report %}
-  <h2>🌾 AI Farm System Report</h2>
-  <div class="card green">
-    <div style="font-size:0.85rem;line-height:1.7;color:#c6f6d5;white-space:pre-wrap;">
-      {{ farm_report }}
-    </div>
-  </div>
-  {% endif %}
-  
-  {% if baseball_pulse %}
-  <h2>📡 Baseball Pulse</h2>
-  <div class="card">
-    <div style="font-size:0.85rem;line-height:1.7;color:#e2e8f0;white-space:pre-wrap;">
-      {{ baseball_pulse }}
-    </div>
-  </div>
-  {% endif %}
-
-{% if baseball_pulse %}
-<h2>📡 Baseball Pulse</h2>
-<div class="card">
-  <div style="font-size:0.9rem;line-height:1.6;white-space:pre-wrap;">
-    {{ baseball_pulse }}
-  </div>
-</div>
-{% endif %}
-
-  <div style="margin-top:40px; font-size:0.75rem; color:#4a5568; text-align:center;">
-    email-digest &bull; generated {{ date }}
-  </div>
 </div>
 </body>
 </html>
