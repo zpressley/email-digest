@@ -1,0 +1,28 @@
+{
+  "date": "2026-03-23",
+  "n_batters": 0,
+  "n_pitchers": 0,
+  "batter_totals": {
+    "R": 0.0,
+    "H": 0.0,
+    "HR": 0.0,
+    "RBI": 0.0,
+    "SB": 0.0,
+    "BB": 0.0,
+    "K": 0.0,
+    "AVG": 0.0,
+    "OPS": 0.0,
+    "TB": 0.0
+  },
+  "pitcher_totals": {
+    "APP": 0.0,
+    "IP": 0.0,
+    "ER": 0.0,
+    "HR": 0.0,
+    "K": 0.0,
+    "QS": 0.0,
+    "H_allowed": 0.0,
+    "BB_allowed": 0.0,
+    "TB": 0.0
+  }
+}
