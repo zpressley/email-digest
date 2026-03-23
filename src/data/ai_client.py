@@ -38,19 +38,20 @@ def generate_farm_report(prospects: list[dict]) -> str:
 
     prospect_text = "\n".join(lines)
 
-    prompt = f"""You are a fantasy baseball analyst writing a farm system 
-report for a dynasty league manager (team: Whiz Kids, 12-team H2H categories).
+    prompt = f"""You are a fantasy baseball analyst writing a farm system
+report for a dynasty league manager (team: Weekend Warriors, 12-team H2H categories).
 
 Write a concise, conversational scouting report on the prospects below.
 Group them into tiers where applicable:
-🔥 Hot — strong recent performance or call-up imminent
-👀 Watch — interesting development worth monitoring
-❄️ Cold — struggling or concerning trend
+Hot — strong recent performance or call-up imminent
+Watch — interesting development worth monitoring
+Cold — struggling or concerning trend
 
 Rules:
 - 1-2 sentences per prospect max
 - Be direct and actionable
-- Reference contract type (PC/DC/BC) where relevant — BC prospects 
+- Plain text only. No markdown, no bold, no asterisks, no bullet points.
+- Reference contract type (PC/DC/BC) where relevant — BC prospects
   need Top 100 status to retain their contract, so performance matters
 - Flag anyone who looks like a graduation candidate
 - Do not include a title or header — just the report body
@@ -78,36 +79,43 @@ def generate_baseball_pulse(feed_text: str) -> str:
 
     Feed text is grouped by channel:
         [#trade-rumors] posts...
-        [#prospects] posts...
+        [#mlb-official] posts...
         etc.
     """
     if not feed_text or len(feed_text.strip()) < 50:
         return ""
 
-    prompt = f"""You are a fantasy baseball analyst summarizing yesterday's 
-baseball news for a dynasty league manager (12-team H2H categories league).
+    prompt = f"""You are a fantasy baseball analyst summarizing yesterday's
+baseball news for the Weekend Warriors dynasty team manager
+(12-team H2H categories league, 20 categories).
 
-The feed below comes from curated Twitter/X accounts routed to Discord channels:
+The feed below comes from curated Twitter/X accounts routed to Discord:
 - #trade-rumors: transaction news and roster moves
 - #mlb-official: official MLB and Pipeline news
-- #yard: home run and power highlights  
+- #yard: home run and power highlights
 - #twitter-dump: general baseball analysis and commentary
 
-Write 3-4 short paragraphs covering the most relevant items:
-1. Injury news and roster moves that impact fantasy rosters
-2. Call-up buzz or prospect promotions worth acting on
-3. Pitcher or hitter trends and performance notes
-4. Any streaming, waiver wire, or fantasy-specific intel
+Write 3-4 short paragraphs. Plain text only — no markdown, no bold,
+no asterisks, no bullet points. Just clean paragraph breaks.
+
+Cover only what is clearly stated in the feed:
+1. Injury news and roster moves with confirmed details only
+2. Call-ups and roster decisions worth acting on
+3. Pitcher or hitter performance notes with specific stats where available
+4. Streaming or waiver intel with actionable timing
 
 Rules:
-- Be direct and actionable — this is a fantasy manager's morning briefing
-- This league has a 1-day roster lag — pickups made today 
-  are not active until tomorrow. Never suggest same-day adds.
-  Always frame urgency as "add today to be rostered tomorrow"
-  or "add by [day] to be active for [day+1 start]"
-- Skip anything that is purely entertainment or not fantasy-relevant
+- Plain text only. No bold, no italic, no bullet points, no headers.
+- Never invent or guess details not present in the feed
+- If details are unclear about a player, skip that item entirely
+- This league has a mandatory 1-day roster lag. Pickups made today are
+  NOT active until tomorrow. Frame all urgency as "add today to be
+  active tomorrow" — never suggest same-day activation
+- Never reference a player without using their full name. 
+- Never write "the Marlins best hitter" or "their ace" or "the injured player" 
+— always use the actual name or skip the item entirely. If a name is not clearly stated in the feed, do not include that item.
+- Skip spring training noise with no regular season fantasy relevance
 - Do not include a title or header — just the summary body
-- If the feed is mostly noise with nothing actionable, say so briefly
 
 Feed from yesterday:
 {feed_text}"""
@@ -130,22 +138,20 @@ def generate_weekly_recap(
     target_categories: list[dict],
 ) -> str:
     """
-    Takes the week's matchup result and category dashboard from
-    category_standings.py. Returns a narrative weekly recap with
-    strategic recommendations for the coming week.
+    Takes the week's matchup result and category dashboard.
+    Returns a narrative weekly recap with strategic recommendations.
     """
     if not category_dashboard:
         return ""
 
-    # Format category table for prompt
     cat_lines = []
     for cat in category_dashboard:
         trend = (
-            "↑" if cat.get("trend", 0) > 0
-            else "↓" if cat.get("trend", 0) < 0
-            else "→"
+            "up" if cat.get("trend", 0) > 0
+            else "down" if cat.get("trend", 0) < 0
+            else "flat"
         )
-        target_flag = " 🎯" if cat.get("is_target") else ""
+        target_flag = " (target)" if cat.get("is_target") else ""
         cat_lines.append(
             f"- {cat['name']}{target_flag}: "
             f"rank {cat.get('my_rank', '?')}/12 {trend} | "
@@ -154,7 +160,6 @@ def generate_weekly_recap(
         )
     cat_text = "\n".join(cat_lines)
 
-    # Format target categories
     target_lines = []
     for cat in (target_categories or []):
         target_lines.append(
@@ -163,27 +168,30 @@ def generate_weekly_recap(
         )
     target_text = "\n".join(target_lines) if target_lines else "None identified"
 
-    prompt = f"""You are a fantasy baseball analyst writing a weekly recap 
+    prompt = f"""You are a fantasy baseball analyst writing a weekly recap
 for the Weekend Warriors dynasty team (12-team H2H categories league, 20 categories).
 
 Matchup result this week: {matchup_result}
 
-Category standings (🎯 = identified target category):
+Category standings (marked as target where improvement is needed):
 {cat_text}
 
 Recommended target categories for next week:
 {target_text}
 
-Write a 3-4 paragraph weekly recap:
-1. How the week went — wins, losses, which categories were won/lost and why
-2. Honest assessment of where the roster is strong vs where it's bleeding
-3. 2-3 specific actionable moves for the coming week with clear reasoning
-   (reference the target categories and FA targets above)
-4. One forward-looking note — what to watch for in the next 2 weeks
+Write a 3-4 paragraph weekly recap. Plain text only — no markdown, no bold,
+no asterisks, no bullet points. Just clean paragraph breaks.
+
+Cover:
+1. How the week went — wins, losses, which categories were won or lost and why
+2. Honest assessment of where the roster is strong vs where it is bleeding
+3. Two or three specific actionable moves for the coming week with clear reasoning
+4. One forward-looking note — what to watch for in the next two weeks
 
 Rules:
-- Be direct and honest — don't sugarcoat a bad week
-- Reference specific category names (ERA, SB, HR, etc.)
+- Plain text only. No bold, no italic, no bullet points, no headers.
+- Be direct and honest — do not sugarcoat a bad week
+- Reference specific category names like ERA, SB, HR
 - Keep recommendations actionable, not generic
 - Do not include a title or header — just the recap body"""
 
