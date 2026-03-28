@@ -8,8 +8,12 @@ on:
 jobs:
   send-digest:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT }}
 
       - uses: actions/setup-python@v5
         with:
@@ -21,7 +25,7 @@ jobs:
       - name: Write Yahoo token
         run: |
           echo '${{ secrets.YAHOO_TOKEN_JSON }}' > token.json
-          python -c "import json; json.load(open('token.json'))" || (echo "❌ token.json is invalid or empty — update YAHOO_TOKEN_JSON secret" && exit 1)
+          python -c "import json; json.load(open('token.json'))" || (echo "❌ token.json is invalid — update YAHOO_TOKEN_JSON secret" && exit 1)
 
       - name: Run daily digest
         env:
