@@ -10,12 +10,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: pip install -r requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
       - name: Write Yahoo token
-        run: echo '${{ secrets.YAHOO_TOKEN_JSON }}' > token.json
+        run: |
+          echo '${{ secrets.YAHOO_TOKEN_JSON }}' > token.json
+          python -c "import json; json.load(open('token.json'))" || (echo "❌ token.json is invalid or empty — update YAHOO_TOKEN_JSON secret" && exit 1)
+
       - name: Run daily digest
         env:
           YAHOO_TOKEN_PATH: ./token.json
@@ -32,10 +39,12 @@ jobs:
           COMBINED_PLAYERS_PATH: ./data/combined_players.json
           MY_TEAM_ABBR: WAR
         run: PYTHONPATH=. python src/daily_digest.py
+
       - name: Update Yahoo token secret
         run: cat token.json | gh secret set YAHOO_TOKEN_JSON
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
+
       - name: Commit snapshots
         run: |
           git config --global user.name "email-digest-bot"
