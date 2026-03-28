@@ -30,7 +30,8 @@ jobs:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           ANTHROPIC_KEY: ${{ secrets.ANTHROPIC_KEY }}
           COMBINED_PLAYERS_PATH: ./data/combined_players.json
-        run: python src/daily_digest.py
+          MY_TEAM_ABBR: WAR
+        run: PYTHONPATH=. python src/daily_digest.py
       - name: Update Yahoo token secret
         run: cat token.json | gh secret set YAHOO_TOKEN_JSON
         env:
