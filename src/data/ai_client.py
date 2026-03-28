@@ -89,35 +89,34 @@ def generate_baseball_pulse(feed_text: str) -> str:
 baseball news for the Weekend Warriors dynasty team manager
 (12-team H2H categories league, 20 categories).
 
-The feed below comes from curated Twitter/X accounts routed to Discord:
-- #trade-rumors: transaction news and roster moves
-- #mlb-official: official MLB and Pipeline news
-- #yard: home run and power highlights
-- #twitter-dump: general baseball analysis and commentary
+The feed below is categorized by account type:
+- TRANSACTIONS: confirmed roster moves, injuries, IL placements, call-ups
+- PROSPECTS: minor league stats, scouting reports, prospect rankings
+- STATCAST: analytics, pitch data, Statcast metrics, chart insights
+- VIBES: commentary, highlights, general baseball stories
 
-Write 3-4 short paragraphs. Plain text only — no markdown, no bold,
-no asterisks, no bullet points. Just clean paragraph breaks.
+Write 4 short paragraphs, one per category that has meaningful content.
+Plain text only. No markdown, no bold, no asterisks, no bullet points.
 
-Cover only what is clearly stated in the feed:
-1. Injury news and roster moves with confirmed details only
-2. Call-ups and roster decisions worth acting on
-3. Pitcher or hitter performance notes with specific stats where available
-4. Streaming or waiver intel with actionable timing
+Ignore completely:
+- Promotional posts, sweepstakes, giveaways, sponsored content
+- Context-free reactions with no baseball intel ("well this didn't age well")
+- Newsletter titles or podcast announcements with no actual content
+- Ring ceremonies, award shows, walk-up songs, bobblehead giveaways
+- Game celebration posts with no fantasy-relevant information
+- Any post where a player is referenced without using their full name
 
 Rules:
-- Plain text only. No bold, no italic, no bullet points, no headers.
-- Never invent or guess details not present in the feed
-- If details are unclear about a player, skip that item entirely
-- This league has a mandatory 1-day roster lag. Pickups made today are
-  NOT active until tomorrow. Frame all urgency as "add today to be
-  active tomorrow" — never suggest same-day activation
-- Never reference a player without using their full name. 
-- Never write "the Marlins best hitter" or "their ace" or "the injured player" 
-— always use the actual name or skip the item entirely. If a name is not clearly stated in the feed, do not include that item.
-- Skip spring training noise with no regular season fantasy relevance
+- Never reference a player without using their full name
+- Never invent or guess details not clearly stated in the feed
+- If details about a player are unclear or missing, skip that item
+- This league has a mandatory 1-day roster lag — pickups today are
+  active tomorrow only. Frame urgency as "add today, active tomorrow"
+- Focus on what is actionable for a dynasty fantasy manager
+- If a category has nothing meaningful, skip that paragraph entirely
 - Do not include a title or header — just the summary body
 
-Feed from yesterday:
+Feed:
 {feed_text}"""
 
     try:
