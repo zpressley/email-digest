@@ -1,0 +1,248 @@
+{
+  "daily": {
+    "date": "Sunday, March 29",
+    "roster_impact": [],
+    "upcoming_starts": [
+      {
+        "name": "Kris Bubic",
+        "mlb_team": "KC",
+        "opponent": "Minnesota Twins",
+        "game_date": "2026-03-30",
+        "days_out": 1,
+        "confirmed": true,
+        "act_now": true,
+        "position": "SP"
+      },
+      {
+        "name": "Luis Castillo",
+        "mlb_team": "SEA",
+        "opponent": "New York Yankees",
+        "game_date": "2026-03-30",
+        "days_out": 1,
+        "confirmed": true,
+        "act_now": true,
+        "position": "SP"
+      },
+      {
+        "name": "Ryan Weathers",
+        "mlb_team": "NYY",
+        "opponent": "Seattle Mariners",
+        "game_date": "2026-03-30",
+        "days_out": 1,
+        "confirmed": true,
+        "act_now": true,
+        "position": "SP"
+      },
+      {
+        "name": "Luis Severino",
+        "mlb_team": "ATH",
+        "opponent": "Atlanta Braves",
+        "game_date": "2026-04-01",
+        "days_out": 3,
+        "confirmed": true,
+        "act_now": false,
+        "position": "SP"
+      },
+      {
+        "name": "Garrett Crochet",
+        "mlb_team": "BOS",
+        "opponent": "Houston Astros",
+        "game_date": "2026-04-01",
+        "days_out": 3,
+        "confirmed": true,
+        "act_now": false,
+        "position": "SP"
+      }
+    ],
+    "streaming_opportunities": [
+      {
+        "name": "Chris Bassitt",
+        "pitcher_team": "Baltimore Orioles",
+        "opponent": "Texas Rangers",
+        "game_date": "2026-03-30",
+        "days_out": 1,
+        "era": "N/A",
+        "ownership": 0.0,
+        "opp_offense_rank": 15,
+        "score": 42.0,
+        "latest_add_date": "Sunday",
+        "urgent": true,
+        "confirmed": true
+      },
+      {
+        "name": "Taijuan Walker",
+        "pitcher_team": "Philadelphia Phillies",
+        "opponent": "Washington Nationals",
+        "game_date": "2026-03-30",
+        "days_out": 1,
+        "era": "N/A",
+        "ownership": 0.0,
+        "opp_offense_rank": 15,
+        "score": 42.0,
+        "latest_add_date": "Sunday",
+        "urgent": true,
+        "confirmed": true
+      },
+      {
+        "name": "Davis Martin",
+        "pitcher_team": "Chicago White Sox",
+        "opponent": "Miami Marlins",
+        "game_date": "2026-03-30",
+        "days_out": 1,
+        "era": "N/A",
+        "ownership": 0.0,
+        "opp_offense_rank": 15,
+        "score": 42.0,
+        "latest_add_date": "Sunday",
+        "urgent": true,
+        "confirmed": true
+      },
+      {
+        "name": "Nick Martinez",
+        "pitcher_team": "Tampa Bay Rays",
+        "opponent": "Milwaukee Brewers",
+        "game_date": "2026-03-30",
+        "days_out": 1,
+        "era": "N/A",
+        "ownership": 0.0,
+        "opp_offense_rank": 15,
+        "score": 42.0,
+        "latest_add_date": "Sunday",
+        "urgent": true,
+        "confirmed": true
+      },
+      {
+        "name": "Lance McCullers Jr.",
+        "pitcher_team": "Houston Astros",
+        "opponent": "Boston Red Sox",
+        "game_date": "2026-03-30",
+        "days_out": 1,
+        "era": "N/A",
+        "ownership": 0.0,
+        "opp_offense_rank": 15,
+        "score": 42.0,
+        "latest_add_date": "Sunday",
+        "urgent": true,
+        "confirmed": true
+      },
+      {
+        "name": "Justin Verlander",
+        "pitcher_team": "Detroit Tigers",
+        "opponent": "Arizona Diamondbacks",
+        "game_date": "2026-03-30",
+        "days_out": 1,
+        "era": "N/A",
+        "ownership": 0.0,
+        "opp_offense_rank": 15,
+        "score": 42.0,
+        "latest_add_date": "Sunday",
+        "urgent": true,
+        "confirmed": true
+      }
+    ],
+    "hot_free_agents": [],
+    "breakout_watch": [
+      {
+        "name": "Wyatt Langford",
+        "mlb_id": 694671,
+        "pa": 162,
+        "avg_exit_velocity": 88.7,
+        "barrel_rate": null,
+        "xba": 0.39,
+        "whiff_rate": 12.5,
+        "walk_rate": 11.9,
+        "ba": 0.324,
+        "signal_score": 4.0
+      },
+      {
+        "name": "Adolis Garc\u00eda",
+        "mlb_id": 666969,
+        "pa": 149,
+        "avg_exit_velocity": 85.6,
+        "barrel_rate": null,
+        "xba": 0.391,
+        "whiff_rate": 19.0,
+        "walk_rate": 13.2,
+        "ba": 0.25,
+        "signal_score": 4.0
+      },
+      {
+        "name": "William Contreras",
+        "mlb_id": 661388,
+        "pa": 97,
+        "avg_exit_velocity": 87.9,
+        "barrel_rate": null,
+        "xba": 0.385,
+        "whiff_rate": 14.0,
+        "walk_rate": 8.7,
+        "ba": 0.35,
+        "signal_score": 3.0
+      },
+      {
+        "name": "Tyler Soderstrom",
+        "mlb_id": 691016,
+        "pa": 128,
+        "avg_exit_velocity": 81.0,
+        "barrel_rate": null,
+        "xba": 0.428,
+        "whiff_rate": 24.6,
+        "walk_rate": 10.8,
+        "ba": 0.29,
+        "signal_score": 3.0
+      },
+      {
+        "name": "Isaac Paredes",
+        "mlb_id": 670623,
+        "pa": 176,
+        "avg_exit_velocity": 84.8,
+        "barrel_rate": null,
+        "xba": 0.3,
+        "whiff_rate": 23.9,
+        "walk_rate": 11.8,
+        "ba": 0.167,
+        "signal_score": 3.0
+      }
+    ],
+    "bench_candidates": [
+      {
+        "name": "Colson Montgomery",
+        "mlb_id": 695657,
+        "pa": 189,
+        "avg_exit_velocity": 86.2,
+        "barrel_rate": null,
+        "xba": 0.344,
+        "whiff_rate": 34.5,
+        "walk_rate": 6.7,
+        "ba": 0.19,
+        "signal_score": -3.0
+      },
+      {
+        "name": "Riley Greene",
+        "mlb_id": 682985,
+        "pa": 155,
+        "avg_exit_velocity": 82.1,
+        "barrel_rate": null,
+        "xba": 0.302,
+        "whiff_rate": 26.3,
+        "walk_rate": 4.2,
+        "ba": 0.283,
+        "signal_score": -3.0
+      },
+      {
+        "name": "Jeremy Pe\u00f1a",
+        "mlb_id": 665161,
+        "pa": 15,
+        "avg_exit_velocity": 89.6,
+        "barrel_rate": null,
+        "xba": 0.306,
+        "whiff_rate": 22.2,
+        "walk_rate": 0.0,
+        "ba": 0.4,
+        "signal_score": -2.5
+      }
+    ],
+    "prospect_callouts": [],
+    "farm_report": "",
+    "baseball_pulse": "TRANSACTIONS\n\nSeveral key roster moves took effect overnight. Christopher Morel is sidelined for four to six weeks with an oblique strain, creating a void at shortstop for the Cubs. Andrew Vaughn landed on the IL due to a hamate fracture, affecting the White Sox outfield. The Brewers recalled Jeferson Quero for his MLB debut, adding a catching option. Nico Hoerner signed a long-term extension through 2032 with the Cubs, solidifying his long-term role. On the minor league front, the White Sox traded Curtis Mead to the Nationals for Boston Smith, and the Red Sox signed Brendan Rodgers to a two-year minor league deal. Drew Smith signed with the Twins on a minor league pact, and Ryan Brasier re-signed with the Rangers on a similar deal. The Phillies outrighted Garrett Stubbs to Triple-A, and the White Sox outrighted Korey Lee, both clearing roster space.\n\nPROSPECTS\n\nChase DeLauter has become the third player in MLB history to homer in each of his first three career regular season games, joining an exclusive club. The former James Madison University standout is generating buzz as one of the season's most explosive debuts. In the minors, Charlie Condon continues his power display with a pair of homers and five RBIs for the Rockies' Triple-A affiliate. James Tibbs III enjoyed a massive night at the plate for the Dodgers' Triple-A team, collecting four hits with three knocks at 99 mph or higher exit velocity. Brody Hopkins, the Rays' No. 3 prospect, struck out five across four innings in his Triple-A debut, showcasing the stuff that made him a top prospect. Tanner McDougal, the White Sox's No. 6 prospect, fired in his Triple-A debut with eight strikeouts across four frames and hit 99 mph or faster 14 times, reaching 100.2 mph.\n\nVIBES\n\nChase DeLauter continues his historic start by reaching four homers in his first three career games, making him only the second player ever behind Trevor Story to achieve this feat. The Cleveland Guardians catcher is electrifying the league and has become must-add priority if he is somehow available in your league. Dominic Smith made his Atlanta Braves debut in spectacular fashion, becoming the first player in MLB history to hit a walk-off grand slam in his team debut. Anthony Nunez's call-up to Baltimore fulfilled a dream as the 24-year-old right-handed pitcher went from expecting a Triple-A assignment to making his MLB debut on Opening Day. Luke Raley has shown power for"
+  }
+}
