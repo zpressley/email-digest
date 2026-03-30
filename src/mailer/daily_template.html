@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Fantasy Digest — {{ date }}</title>
+  <title>Fantasy Digest</title>
 </head>
 <body style="margin:0;padding:0;background:#f1f3f4;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;">
 <div style="max-width:660px;margin:0 auto;padding:16px;">
@@ -19,10 +19,7 @@
     </div>
   </div>
 
-  <!-- Body -->
   <div style="background:#ffffff;padding:20px 28px 28px;border-radius:0 0 8px 8px;box-shadow:0 2px 8px rgba(0,0,0,0.12);">
-
-    <!-- Section helper styles applied inline throughout -->
 
     <!-- TODAY'S ROSTER IMPACT -->
     <div style="font-size:11px;font-weight:700;color:#5f6368;text-transform:uppercase;letter-spacing:0.1em;border-bottom:2px solid #f1f3f4;padding-bottom:8px;margin:24px 0 12px;">📋 Today's Roster Impact</div>
@@ -35,7 +32,7 @@
         <th style="text-align:center;padding:8px 10px;color:#5f6368;font-weight:600;font-size:11px;">MATCHUP</th>
       </tr>
       {% for p in roster_impact %}
-      <tr style="border-bottom:1px solid #f1f3f4;background:{% if p.matchup == 'favorable' %}#f8fff8{% else %}#ffffff{% endif %};">
+      <tr style="border-bottom:1px solid #f1f3f4;">
         <td style="padding:10px;font-weight:600;color:#202124;">{{ p.name }}</td>
         <td style="padding:10px;color:#5f6368;">{{ p.opp_pitcher }}</td>
         <td style="padding:10px;text-align:center;color:#5f6368;">{{ p.opp_era }}</td>
@@ -59,20 +56,63 @@
     <div style="font-size:11px;font-weight:700;color:#5f6368;text-transform:uppercase;letter-spacing:0.1em;border-bottom:2px solid #f1f3f4;padding-bottom:8px;margin:24px 0 12px;">🔄 Upcoming Pitcher Starts</div>
     {% if upcoming_starts %}
       {% for p in upcoming_starts %}
-      <div style="border:1px solid {% if p.act_now %}#fbbc04{% else %}#e0e0e0{% endif %};border-radius:8px;padding:12px 16px;margin-bottom:10px;background:{% if p.act_now %}#fffde7{% else %}#ffffff{% endif %};">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <div>
-            <span style="font-weight:700;color:#202124;font-size:14px;">{{ p.name }}</span>
-            <span style="background:{% if p.days_out == 0 %}#ea4335{% elif p.days_out == 1 %}#fbbc04{% elif p.days_out == 2 %}#e6f4ea{% else %}#e8f0fe{% endif %};color:{% if p.days_out == 0 %}#fff{% elif p.days_out == 1 %}#202124{% elif p.days_out == 2 %}#137333{% else %}#1a73e8{% endif %};font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;margin-left:8px;">
-              {% if p.days_out == 0 %}TODAY{% elif p.days_out == 1 %}TOMORROW{% elif p.days_out == 2 %}+2 DAYS{% else %}{{ p.game_date }}{% endif %}
-            </span>
-          </div>
+
+      {% if p.act_now %}
+        {% set card_bg = "#fffde7" %}
+        {% set card_border = "#fbbc04" %}
+      {% else %}
+        {% set card_bg = "#ffffff" %}
+        {% set card_border = "#e0e0e0" %}
+      {% endif %}
+
+      {% if p.days_out == 0 %}
+        {% set day_bg = "#ea4335" %}
+        {% set day_color = "#ffffff" %}
+        {% set day_label = "TODAY" %}
+      {% elif p.days_out == 1 %}
+        {% set day_bg = "#fbbc04" %}
+        {% set day_color = "#202124" %}
+        {% set day_label = "TOMORROW" %}
+      {% elif p.days_out == 2 %}
+        {% set day_bg = "#e6f4ea" %}
+        {% set day_color = "#137333" %}
+        {% set day_label = "+2 DAYS" %}
+      {% else %}
+        {% set day_bg = "#e8f0fe" %}
+        {% set day_color = "#1a73e8" %}
+        {% set day_label = p.game_date %}
+      {% endif %}
+
+      {% if p.rec_color == 'green' %}
+        {% set rec_bg = "#e6f4ea" %}
+        {% set rec_color = "#137333" %}
+      {% elif p.rec_color == 'red' %}
+        {% set rec_bg = "#fce8e6" %}
+        {% set rec_color = "#c5221f" %}
+      {% else %}
+        {% set rec_bg = "#fef7e0" %}
+        {% set rec_color = "#b45309" %}
+      {% endif %}
+
+      <div style="border:1px solid {{ card_border }};border-radius:8px;padding:12px 16px;margin-bottom:10px;background:{{ card_bg }};">
+        <div>
+          <span style="font-weight:700;color:#202124;font-size:14px;">{{ p.name }}</span>
+          <span style="background:{{ day_bg }};color:{{ day_color }};font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;margin-left:8px;">{{ day_label }}</span>
+          {% if p.recommendation %}
+          <span style="background:{{ rec_bg }};color:{{ rec_color }};font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;margin-left:6px;">{{ p.recommendation }}</span>
+          {% endif %}
           {% if p.act_now %}
-          <span style="font-size:11px;color:#b45309;font-weight:600;">⚡ Add today — active tomorrow</span>
+          <span style="font-size:11px;color:#b45309;font-weight:600;margin-left:8px;">⚡ Add today — active tomorrow</span>
           {% endif %}
         </div>
         <div style="font-size:12px;color:#5f6368;margin-top:5px;">
           vs {{ p.opponent }} &nbsp;·&nbsp; {{ p.game_date }} &nbsp;·&nbsp; {{ 'Confirmed ✓' if p.confirmed else 'Probable' }}
+          {% if p.opp_offense_rank %}
+          &nbsp;·&nbsp; Opp rank: {{ p.opp_offense_rank }}/30
+          {% endif %}
+          {% if p.opp_k_rate %}
+          &nbsp;·&nbsp; K%: {{ p.opp_k_rate }}
+          {% endif %}
         </div>
       </div>
       {% endfor %}
@@ -84,16 +124,29 @@
     <div style="font-size:11px;font-weight:700;color:#5f6368;text-transform:uppercase;letter-spacing:0.1em;border-bottom:2px solid #f1f3f4;padding-bottom:8px;margin:24px 0 12px;">🎯 Streaming Opportunities</div>
     {% if streaming_opportunities %}
       {% for opp in streaming_opportunities %}
-      <div style="border-left:4px solid {% if opp.score >= 70 %}#137333{% else %}#fbbc04{% endif %};background:{% if opp.score >= 70 %}#f8fff8{% else %}#fffde7{% endif %};border-radius:0 8px 8px 0;padding:14px 16px;margin-bottom:10px;">
+
+      {% if opp.score >= 60 %}
+        {% set stream_border = "#137333" %}
+        {% set stream_bg = "#f8fff8" %}
+        {% set stream_color = "#137333" %}
+      {% else %}
+        {% set stream_border = "#fbbc04" %}
+        {% set stream_bg = "#fffde7" %}
+        {% set stream_color = "#b45309" %}
+      {% endif %}
+
+      <div style="border-left:4px solid {{ stream_border }};background:{{ stream_bg }};border-radius:0 8px 8px 0;padding:14px 16px;margin-bottom:10px;">
         <div>
           <span style="font-weight:700;color:#202124;font-size:14px;">{{ opp.name }}</span>
-          <span style="background:{% if opp.score >= 70 %}#137333{% else %}#b45309{% endif %};color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;margin-left:8px;">SCORE {{ opp.score }}</span>
+          <span style="background:{{ stream_border }};color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;margin-left:8px;">SCORE {{ opp.score }}</span>
           <span style="font-size:10px;color:#5f6368;margin-left:8px;">{{ opp.ownership }}% owned</span>
         </div>
         <div style="font-size:12px;color:#5f6368;margin-top:6px;">
           vs {{ opp.opponent }} &nbsp;·&nbsp; {{ opp.game_date }} &nbsp;·&nbsp; ERA {{ opp.era }}
+          {% if opp.opp_offense_rank %}&nbsp;·&nbsp; Opp rank: {{ opp.opp_offense_rank }}/30{% endif %}
+          {% if opp.opp_k_rate %}&nbsp;·&nbsp; K%: {{ opp.opp_k_rate }}{% endif %}
         </div>
-        <div style="font-size:12px;font-weight:600;color:{% if opp.score >= 70 %}#137333{% else %}#b45309{% endif %};margin-top:5px;">
+        <div style="font-size:12px;font-weight:600;color:{{ stream_color }};margin-top:5px;">
           ⚡ Add by {{ opp.latest_add_date }} to be active in time
         </div>
       </div>
@@ -120,64 +173,79 @@
     <div style="background:#f8f9fa;border-radius:6px;padding:12px 16px;color:#5f6368;font-size:13px;">No notable free agent movement.</div>
     {% endif %}
 
-    <!-- STATCAST BREAKOUT WATCH -->
-    <div style="font-size:11px;font-weight:700;color:#5f6368;text-transform:uppercase;letter-spacing:0.1em;border-bottom:2px solid #f1f3f4;padding-bottom:8px;margin:24px 0 12px;">📈 Statcast Breakout Watch</div>
-    {% if breakout_watch %}
-      {% for h in breakout_watch %}
+    <!-- STATCAST TRENDS -->
+    <div style="font-size:11px;font-weight:700;color:#5f6368;text-transform:uppercase;letter-spacing:0.1em;border-bottom:2px solid #f1f3f4;padding-bottom:8px;margin:24px 0 12px;">📈 Statcast Trends</div>
+    {% if statcast_trends %}
+      {% for h in statcast_trends %}
+
+      {% if h.trend == 'up' %}
+        {% set trend_bg = "#e6f4ea" %}
+        {% set trend_color = "#137333" %}
+        {% set trend_label = "↑ TRENDING UP" %}
+      {% elif h.trend == 'down' %}
+        {% set trend_bg = "#fce8e6" %}
+        {% set trend_color = "#c5221f" %}
+        {% set trend_label = "↓ TRENDING DOWN" %}
+      {% else %}
+        {% set trend_bg = "#f1f3f4" %}
+        {% set trend_color = "#5f6368" %}
+        {% set trend_label = "→ NEUTRAL" %}
+      {% endif %}
+
       <div style="border:1px solid #dadce0;border-radius:8px;padding:14px 16px;margin-bottom:10px;">
-        <div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
           <span style="font-weight:700;color:#202124;font-size:14px;">{{ h.name }}</span>
-          <span style="background:#1a73e8;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;margin-left:8px;">SIGNAL {{ h.signal_score }}</span>
+          <span style="background:{{ trend_bg }};color:{{ trend_color }};font-size:12px;font-weight:700;padding:2px 10px;border-radius:12px;">{{ trend_label }}</span>
         </div>
         <table style="width:100%;border-collapse:collapse;margin-top:8px;text-align:center;">
           <tr>
-            <td style="background:#f1f3f4;border-radius:6px;padding:8px 4px;width:25%;">
+            <td style="background:#f1f3f4;border-radius:6px;padding:8px 4px;width:24%;">
               <div style="font-size:10px;color:#5f6368;">EV</div>
-              <div style="font-size:14px;font-weight:700;color:#202124;">{{ h.avg_exit_velocity }}</div>
+              <div style="font-size:14px;font-weight:700;color:#202124;">{{ h.avg_exit_velocity or 'N/A' }}</div>
             </td>
-            <td style="width:2%;"></td>
-            <td style="background:#e6f4ea;border-radius:6px;padding:8px 4px;width:25%;">
+            <td style="width:1%;"></td>
+            <td style="background:#f1f3f4;border-radius:6px;padding:8px 4px;width:24%;">
               <div style="font-size:10px;color:#5f6368;">BARREL%</div>
-              <div style="font-size:14px;font-weight:700;color:#137333;">{{ h.barrel_rate }}</div>
+              <div style="font-size:14px;font-weight:700;color:#202124;">{{ h.barrel_rate or 'N/A' }}</div>
             </td>
-            <td style="width:2%;"></td>
-            <td style="background:#e6f4ea;border-radius:6px;padding:8px 4px;width:25%;">
+            <td style="width:1%;"></td>
+            <td style="background:#f1f3f4;border-radius:6px;padding:8px 4px;width:24%;">
               <div style="font-size:10px;color:#5f6368;">xBA</div>
-              <div style="font-size:14px;font-weight:700;color:#137333;">{{ h.xba }}</div>
+              <div style="font-size:14px;font-weight:700;color:#202124;">{{ h.xba or 'N/A' }}</div>
             </td>
-            <td style="width:2%;"></td>
-            <td style="background:{% if h.whiff_rate and h.whiff_rate > 25 %}#fce8e6{% else %}#e6f4ea{% endif %};border-radius:6px;padding:8px 4px;width:25%;">
+            <td style="width:1%;"></td>
+            <td style="background:#f1f3f4;border-radius:6px;padding:8px 4px;width:24%;">
               <div style="font-size:10px;color:#5f6368;">WHIFF%</div>
-              <div style="font-size:14px;font-weight:700;color:{% if h.whiff_rate and h.whiff_rate > 25 %}#c5221f{% else %}#137333{% endif %};">{{ h.whiff_rate }}</div>
+              <div style="font-size:14px;font-weight:700;color:#202124;">{{ h.whiff_rate or 'N/A' }}</div>
             </td>
           </tr>
         </table>
       </div>
       {% endfor %}
     {% else %}
-    <div style="background:#f8f9fa;border-radius:6px;padding:12px 16px;color:#5f6368;font-size:13px;">No breakout signals detected.</div>
-    {% endif %}
-
-    <!-- BENCH CANDIDATES -->
-    {% if bench_candidates %}
-    <div style="font-size:11px;font-weight:700;color:#5f6368;text-transform:uppercase;letter-spacing:0.1em;border-bottom:2px solid #f1f3f4;padding-bottom:8px;margin:24px 0 12px;">⚠️ Consider Benching</div>
-    {% for h in bench_candidates %}
-    <div style="border-left:4px solid #ea4335;background:#fff8f8;border-radius:0 8px 8px 0;padding:12px 16px;margin-bottom:8px;">
-      <span style="font-weight:700;color:#202124;">{{ h.name }}</span>
-      <div style="font-size:12px;color:#5f6368;margin-top:4px;">
-        EV: {{ h.avg_exit_velocity }} &nbsp;·&nbsp; Barrel%: {{ h.barrel_rate }} &nbsp;·&nbsp; Whiff%: {{ h.whiff_rate }}
-      </div>
-    </div>
-    {% endfor %}
+    <div style="background:#f8f9fa;border-radius:6px;padding:12px 16px;color:#5f6368;font-size:13px;">No Statcast data available yet.</div>
     {% endif %}
 
     <!-- PROSPECT CALLOUTS -->
     {% if prospect_callouts %}
     <div style="font-size:11px;font-weight:700;color:#5f6368;text-transform:uppercase;letter-spacing:0.1em;border-bottom:2px solid #f1f3f4;padding-bottom:8px;margin:24px 0 12px;">🌱 Prospect Callouts</div>
     {% for p in prospect_callouts %}
-    <div style="border-left:4px solid {% if p.positive %}#34a853{% else %}#ea4335{% endif %};background:{% if p.positive %}#f8fff8{% else %}#fff8f8{% endif %};border-radius:0 8px 8px 0;padding:12px 16px;margin-bottom:8px;">
+
+    {% if p.positive %}
+      {% set prospect_border = "#34a853" %}
+      {% set prospect_bg = "#f8fff8" %}
+      {% set prospect_badge_bg = "#e6f4ea" %}
+      {% set prospect_badge_color = "#137333" %}
+    {% else %}
+      {% set prospect_border = "#ea4335" %}
+      {% set prospect_bg = "#fff8f8" %}
+      {% set prospect_badge_bg = "#fce8e6" %}
+      {% set prospect_badge_color = "#c5221f" %}
+    {% endif %}
+
+    <div style="border-left:4px solid {{ prospect_border }};background:{{ prospect_bg }};border-radius:0 8px 8px 0;padding:12px 16px;margin-bottom:8px;">
       <span style="font-weight:700;color:#202124;">{{ p.name }}</span>
-      <span style="background:{% if p.positive %}#e6f4ea{% else %}#fce8e6{% endif %};color:{% if p.positive %}#137333{% else %}#c5221f{% endif %};font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;margin-left:8px;">{{ p.level }}</span>
+      <span style="background:{{ prospect_badge_bg }};color:{{ prospect_badge_color }};font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;margin-left:8px;">{{ p.level }}</span>
       <span style="background:#e8f0fe;color:#1a73e8;font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px;margin-left:4px;">{{ p.contract }}</span>
       <div style="font-size:12px;color:#5f6368;margin-top:4px;">{{ p.note }}</div>
     </div>
@@ -202,7 +270,6 @@
 
   </div>
 
-  <!-- Footer -->
   <div style="text-align:center;padding:14px;font-size:11px;color:#9aa0a6;">
     email-digest &nbsp;·&nbsp; {{ date }} &nbsp;·&nbsp; Generated 6:01 AM CST
   </div>

@@ -1,0 +1,234 @@
+{
+  "daily": {
+    "date": "Friday, March 27",
+    "roster_impact": [],
+    "upcoming_starts": [
+      {
+        "name": "Luis Severino",
+        "mlb_team": "ATH",
+        "opponent": "Toronto Blue Jays",
+        "game_date": "2026-03-27",
+        "days_out": 0,
+        "confirmed": true,
+        "act_now": true,
+        "position": "SP"
+      },
+      {
+        "name": "Kyle Freeland",
+        "mlb_team": "COL",
+        "opponent": "Miami Marlins",
+        "game_date": "2026-03-27",
+        "days_out": 0,
+        "confirmed": true,
+        "act_now": true,
+        "position": "SP"
+      },
+      {
+        "name": "Jeffrey Springs",
+        "mlb_team": "ATH",
+        "opponent": "Toronto Blue Jays",
+        "game_date": "2026-03-28",
+        "days_out": 1,
+        "confirmed": true,
+        "act_now": true,
+        "position": "SP"
+      },
+      {
+        "name": "Kris Bubic",
+        "mlb_team": "KC",
+        "opponent": "Minnesota Twins",
+        "game_date": "2026-03-30",
+        "days_out": 3,
+        "confirmed": true,
+        "act_now": false,
+        "position": "SP"
+      },
+      {
+        "name": "Luis Castillo",
+        "mlb_team": "SEA",
+        "opponent": "New York Yankees",
+        "game_date": "2026-03-30",
+        "days_out": 3,
+        "confirmed": true,
+        "act_now": false,
+        "position": "SP"
+      },
+      {
+        "name": "Ryan Weathers",
+        "mlb_team": "NYY",
+        "opponent": "Seattle Mariners",
+        "game_date": "2026-03-30",
+        "days_out": 3,
+        "confirmed": true,
+        "act_now": false,
+        "position": "SP"
+      }
+    ],
+    "streaming_opportunities": [
+      {
+        "name": "Miles Mikolas",
+        "pitcher_team": "Washington Nationals",
+        "opponent": "Chicago Cubs",
+        "game_date": "2026-03-28",
+        "days_out": 1,
+        "era": "N/A",
+        "ownership": 0.0,
+        "opp_offense_rank": 15,
+        "score": 42.0,
+        "latest_add_date": "Friday",
+        "urgent": true,
+        "confirmed": true
+      },
+      {
+        "name": "Eury P\u00e9rez",
+        "pitcher_team": "Miami Marlins",
+        "opponent": "Colorado Rockies",
+        "game_date": "2026-03-28",
+        "days_out": 1,
+        "era": "N/A",
+        "ownership": 0.0,
+        "opp_offense_rank": 15,
+        "score": 42.0,
+        "latest_add_date": "Friday",
+        "urgent": true,
+        "confirmed": true
+      },
+      {
+        "name": "Michael Lorenzen",
+        "pitcher_team": "Colorado Rockies",
+        "opponent": "Miami Marlins",
+        "game_date": "2026-03-28",
+        "days_out": 1,
+        "era": "N/A",
+        "ownership": 0.0,
+        "opp_offense_rank": 15,
+        "score": 42.0,
+        "latest_add_date": "Friday",
+        "urgent": true,
+        "confirmed": true
+      },
+      {
+        "name": "Chad Patrick",
+        "pitcher_team": "Milwaukee Brewers",
+        "opponent": "Chicago White Sox",
+        "game_date": "2026-03-28",
+        "days_out": 1,
+        "era": "N/A",
+        "ownership": 0.0,
+        "opp_offense_rank": 15,
+        "score": 42.0,
+        "latest_add_date": "Friday",
+        "urgent": true,
+        "confirmed": true
+      },
+      {
+        "name": "Eduardo Rodriguez",
+        "pitcher_team": "Arizona Diamondbacks",
+        "opponent": "Los Angeles Dodgers",
+        "game_date": "2026-03-28",
+        "days_out": 1,
+        "era": "N/A",
+        "ownership": 0.0,
+        "opp_offense_rank": 15,
+        "score": 42.0,
+        "latest_add_date": "Friday",
+        "urgent": true,
+        "confirmed": true
+      },
+      {
+        "name": "Jose Quintana",
+        "pitcher_team": "Colorado Rockies",
+        "opponent": "Miami Marlins",
+        "game_date": "2026-03-29",
+        "days_out": 2,
+        "era": "N/A",
+        "ownership": 0.0,
+        "opp_offense_rank": 15,
+        "score": 40.0,
+        "latest_add_date": "Saturday",
+        "urgent": false,
+        "confirmed": true
+      }
+    ],
+    "hot_free_agents": [],
+    "breakout_watch": [
+      {
+        "name": "Wyatt Langford",
+        "mlb_id": 694671,
+        "pa": 155,
+        "avg_exit_velocity": 90.5,
+        "barrel_rate": null,
+        "xba": 0.384,
+        "whiff_rate": 9.5,
+        "walk_rate": 12.5,
+        "ba": 0.343,
+        "signal_score": 4.0
+      },
+      {
+        "name": "Adolis Garc\u00eda",
+        "mlb_id": 666969,
+        "pa": 146,
+        "avg_exit_velocity": 85.5,
+        "barrel_rate": null,
+        "xba": 0.422,
+        "whiff_rate": 19.0,
+        "walk_rate": 19.4,
+        "ba": 0.25,
+        "signal_score": 4.0
+      },
+      {
+        "name": "Isaac Paredes",
+        "mlb_id": 670623,
+        "pa": 138,
+        "avg_exit_velocity": 83.6,
+        "barrel_rate": null,
+        "xba": 0.349,
+        "whiff_rate": 25.5,
+        "walk_rate": 10.7,
+        "ba": 0.167,
+        "signal_score": 3.0
+      }
+    ],
+    "bench_candidates": [
+      {
+        "name": "Riley Greene",
+        "mlb_id": 682985,
+        "pa": 158,
+        "avg_exit_velocity": 82.7,
+        "barrel_rate": null,
+        "xba": 0.327,
+        "whiff_rate": 32.9,
+        "walk_rate": 2.3,
+        "ba": 0.279,
+        "signal_score": -4.5
+      },
+      {
+        "name": "Spencer Torkelson",
+        "mlb_id": 679529,
+        "pa": 159,
+        "avg_exit_velocity": 82.4,
+        "barrel_rate": null,
+        "xba": 0.286,
+        "whiff_rate": 26.4,
+        "walk_rate": 4.9,
+        "ba": 0.158,
+        "signal_score": -3.0
+      },
+      {
+        "name": "Isaac Paredes",
+        "mlb_id": 670623,
+        "pa": 138,
+        "avg_exit_velocity": 83.6,
+        "barrel_rate": null,
+        "xba": 0.349,
+        "whiff_rate": 25.5,
+        "walk_rate": 10.7,
+        "ba": 0.167,
+        "signal_score": -3.0
+      }
+    ],
+    "prospect_callouts": [],
+    "farm_report": "",
+    "baseball_pulse": "TRANSACTIONS\n\nNico Hoerner has signed a six-year, 141 million dollar extension with the Cubs that locks him through 2030, making it the fourth-largest contract ever for a second baseman. This is a significant long-term commitment for the 28-year-old who excels defensively, on the basepaths, and at making contact. The Orioles are finalizing an extension with Shane Baz, and Jorge Alcala has triggered his assignment clause with the Blue Jays. Jason Heyward has announced his retirement. Multiple minor league deals were signed including Peter Lambert with the Astros, LaMonte Wade Jr. and Hunter Strickland with the White Sox, Andrew Chafin with the Reds, and Luis Garcia with the Yankees. The Astros outrighted C\u00e9sar Salazar, the Mets outrighted Vidal Bruj\u00e1n and Ben Rortvedt, and the White Sox claimed Bryan Hudson. Additionally, Gunnar Hoglund of the Athletics has been diagnosed with a lumbar spine strain.\n\nPROSPECTS\n\nKonnor Griffin, MLB's number one overall prospect with the Pirates, has begun his Triple-A tenure and is likely just one step away from his MLB debut. He reached base twice in his debut and recorded his first stolen base of the season. Chase DeLauter, the Guardians' number 46 prospect, has homered in three of his first six at-bats to start the season. Chase Petty, the Reds' number nine prospect, struck out eight over 4 and two-thirds scoreless innings in his Triple-A debut while generating 18 whiffs on 35 swings. Hagen Smith and Noah Schultz, the White Sox's top two pitching prospects ranked 72 and 49 respectively, combined for a strong Triple-A Opening Day performance with seven innings, two hits, one run, two walks, and nine strikeouts. Robby Snelling, the Marlins' number two prospect, delivered a four-inning, one-run performance in his Triple-A debut allowing just one hard-hit ball. Kaelen Culpepper, the Twins' number 52 prospect, collected three hits in his Triple-A debut and had the second-most hits among Minnesota minor leaguers last season with 131.\n\nSTATCAST\n\nGeorge Kirby continues to paint the corners with his 96 miles per hour fastball. Gavin Williams showcased a nasty 94 miles per hour cutter along with excellent velocity throughout his outing. Ryne Nelson, Emmet Sheehan, and Michael King all recorded multiple strikeouts in early innings, demonstrating strong command"
+  }
+}

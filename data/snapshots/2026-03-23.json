@@ -1,0 +1,148 @@
+{
+  "daily": {
+    "date": "Monday, March 23",
+    "roster_impact": [],
+    "upcoming_starts": [
+      {
+        "name": "Luis Castillo",
+        "mlb_team": "SEA",
+        "opponent": "San Diego Padres",
+        "game_date": "2026-03-23",
+        "days_out": 0,
+        "confirmed": true,
+        "act_now": true,
+        "position": "SP"
+      },
+      {
+        "name": "Shane Smith",
+        "mlb_team": "CWS",
+        "opponent": "Milwaukee Brewers",
+        "game_date": "2026-03-26",
+        "days_out": 3,
+        "confirmed": true,
+        "act_now": false,
+        "position": "SP"
+      },
+      {
+        "name": "Garrett Crochet",
+        "mlb_team": "BOS",
+        "opponent": "Cincinnati Reds",
+        "game_date": "2026-03-26",
+        "days_out": 3,
+        "confirmed": true,
+        "act_now": false,
+        "position": "SP"
+      }
+    ],
+    "streaming_opportunities": [
+      {
+        "name": "Justin Verlander",
+        "pitcher_team": "Detroit Tigers",
+        "opponent": "Colorado Rockies",
+        "game_date": "2026-03-24",
+        "days_out": 1,
+        "era": "N/A",
+        "ownership": 0.0,
+        "opp_offense_rank": 15,
+        "score": 42.0,
+        "latest_add_date": "Monday",
+        "urgent": true,
+        "confirmed": true
+      },
+      {
+        "name": "Kyle Freeland",
+        "pitcher_team": "Colorado Rockies",
+        "opponent": "Miami Marlins",
+        "game_date": "2026-03-27",
+        "days_out": 4,
+        "era": "N/A",
+        "ownership": 0.0,
+        "opp_offense_rank": 15,
+        "score": 36.0,
+        "latest_add_date": "Thursday",
+        "urgent": false,
+        "confirmed": true
+      }
+    ],
+    "hot_free_agents": [],
+    "breakout_watch": [
+      {
+        "name": "Adolis Garc\u00eda",
+        "mlb_id": 666969,
+        "pa": 117,
+        "avg_exit_velocity": 87.0,
+        "barrel_rate": null,
+        "xba": 0.419,
+        "whiff_rate": 14.9,
+        "walk_rate": 23.3,
+        "ba": 0.364,
+        "signal_score": 4.0
+      },
+      {
+        "name": "Tyler Soderstrom",
+        "mlb_id": 691016,
+        "pa": 115,
+        "avg_exit_velocity": 82.5,
+        "barrel_rate": null,
+        "xba": 0.408,
+        "whiff_rate": 19.2,
+        "walk_rate": 8.3,
+        "ba": 0.29,
+        "signal_score": 3.0
+      },
+      {
+        "name": "Isaac Paredes",
+        "mlb_id": 670623,
+        "pa": 133,
+        "avg_exit_velocity": 84.8,
+        "barrel_rate": null,
+        "xba": 0.304,
+        "whiff_rate": 19.6,
+        "walk_rate": 7.7,
+        "ba": 0.174,
+        "signal_score": 3.0
+      }
+    ],
+    "bench_candidates": [
+      {
+        "name": "Riley Greene",
+        "mlb_id": 682985,
+        "pa": 115,
+        "avg_exit_velocity": 82.8,
+        "barrel_rate": null,
+        "xba": 0.354,
+        "whiff_rate": 30.4,
+        "walk_rate": 0.0,
+        "ba": 0.312,
+        "signal_score": -4.5
+      },
+      {
+        "name": "William Contreras",
+        "mlb_id": 661388,
+        "pa": 24,
+        "avg_exit_velocity": 92.5,
+        "barrel_rate": null,
+        "xba": 0.522,
+        "whiff_rate": 15.4,
+        "walk_rate": 0.0,
+        "ba": 0.571,
+        "signal_score": -2.5
+      },
+      {
+        "name": "Spencer Torkelson",
+        "mlb_id": 679529,
+        "pa": 113,
+        "avg_exit_velocity": 83.3,
+        "barrel_rate": null,
+        "xba": 0.255,
+        "whiff_rate": 22.6,
+        "walk_rate": 3.1,
+        "ba": 0.167,
+        "signal_score": -2.5
+      }
+    ],
+    "prospect_callouts": [],
+    "farm_report": "",
+    "baseball_pulse": "Spring Training action is ramping up with less than a week until Opening Day. Several notable names have been sent to Triple-A or placed on injured lists as teams finalize their rosters. Kyle Stowers of the Orioles and Esteury Ruiz will both start the season on the injured list, while Mike Tauchman will undergo meniscus surgery. On the positive side, Gleyber Torres's back issue should not prevent him from being ready for Opening Day. The Marlins' best hitter will be sidelined for three to four weeks, which represents a meaningful blow to their lineup depth.\n\nThe catching market saw some action yesterday. The White Sox signed Reese McGuire to bolster their receiving group, while the Mariners added Mitch Garver to their Opening Day roster. Both moves signal confidence that these players will contribute immediately. The Diamondbacks added Jonathan Loaisiga to their Opening Day roster, picking up the pitcher to strengthen their bullpen depth heading into the season.\n\nSome pitchers are rounding into form at the right time. Tyler Glasnow put on a dominant display with eleven strikeouts in five innings against the Angels, with all eleven coming on his curveball. Bryan Woo showed sharp stuff in six innings of work for Seattle. Meanwhile, Emmet Sheehan is set to begin the season as a starter for the Dodgers, and Tyler Mahle is slated to make the Giants' third start of the regular season. Josh Hader threw a bullpen session on Sunday and Kyle Harrison should be ready for Opening Day, which keeps both pitchers on track.\n\nThe prospect showcase Spring Breakout concluded with top prospects making their mark. Jes\u00fas Made and Leo De Vries, the top two shortstop prospects in baseball, faced off in the final game. Miguel Rojas appears likely to see time at second base for the Dodgers after Hyeseong Kim was optioned to Triple-A for increased workload."
+  }
+}

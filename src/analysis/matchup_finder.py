@@ -1,8 +1,19 @@
-"""Streaming opportunity finder — pitcher vs. weak offense."""
-from datetime import date, timedelta
+"""
+Streaming opportunity finder.
+Uses team offensive rankings as the primary signal for matchup quality.
+
+High K rate + low runs scored = ideal pitcher matchup.
+Accounts for 1-day roster lag — only surfaces starts >= ROSTER_LAG_DAYS out.
+"""
 import requests
+from datetime import date, timedelta
 from src.data.yahoo_client import YahooClient
 from src.data.mlb_client import MLBClient
+from src.data.team_offense_ranker import (
+    get_team_offense_rankings,
+    get_matchup_grade,
+    ABBR_ALIASES,
+)
 from src.config import FA_OWNERSHIP_THRESHOLD, STREAMING_WINDOW_DAYS, ROSTER_LAG_DAYS
 
 MLB_BASE = "https://statsapi.mlb.com/api/v1"
@@ -11,13 +22,12 @@ MLB_BASE = "https://statsapi.mlb.com/api/v1"
 def get_streaming_opportunities() -> list[dict]:
     """
     Finds unowned/low-owned SPs facing weak offenses within pickup window.
-    Returns list ranked by composite score, soonest/best first.
+    Ranks by composite score weighted toward opponent offensive weakness.
     Only includes starts >= ROSTER_LAG_DAYS out.
     """
     yahoo = YahooClient()
-    mlb = MLBClient()
+    mlb   = MLBClient()
 
-    # Get free agent pitchers
     fa_pitchers = yahoo.get_free_agents(position="SP", limit=50)
     fa_pitchers = [
         p for p in fa_pitchers
@@ -27,35 +37,26 @@ def get_streaming_opportunities() -> list[dict]:
     if not fa_pitchers:
         return []
 
-    # Build name → FA player lookup
     fa_lookup = {
         p["name"].lower(): p
         for p in fa_pitchers
         if p.get("name")
     }
 
-    # Get probable starters within window
-    probable = mlb.get_probable_starters(days_ahead=STREAMING_WINDOW_DAYS)
-
-    # Get team offense rankings
-    offense_rankings = _get_team_offense_rankings()
-
+    probable    = mlb.get_probable_starters(days_ahead=STREAMING_WINDOW_DAYS)
+    rankings    = get_team_offense_rankings(days=14)
     opportunities = []
     seen_pitchers = set()
 
     for starter in probable:
         days_out = starter.get("days_out", 0)
-
-        # Skip starts too soon to act on (roster lag)
         if days_out < ROSTER_LAG_DAYS:
             continue
 
         name_lower = (starter.get("name") or "").lower()
 
-        # Match against FA pitchers
         fa_player = fa_lookup.get(name_lower)
         if not fa_player:
-            # Try last name match
             for fa_name, fa_p in fa_lookup.items():
                 last = name_lower.split()[-1] if name_lower else ""
                 if last and last in fa_name:
@@ -66,144 +67,96 @@ def get_streaming_opportunities() -> list[dict]:
             continue
         seen_pitchers.add(name_lower)
 
-        opponent = starter.get("opponent", "")
-        opp_rank = offense_rankings.get(
-            _normalize_team(opponent), 15
-        )
+        # Get opponent offense ranking
+        opp_name  = starter.get("opponent", "")
+        opp_abbr  = _name_to_abbr(opp_name)
+        opp_grade = get_matchup_grade(opp_abbr)
+        opp_rank  = opp_grade.get("rank", 15)
+        opp_k_rate  = opp_grade.get("k_rate")
+        opp_runs_pg = opp_grade.get("runs_pg")
+        opp_tier  = opp_grade.get("tier", "average")
 
         # Fetch pitcher ERA
         pitcher_id = starter.get("player_id")
-        era = _get_pitcher_era(pitcher_id)
+        era        = _get_pitcher_era(pitcher_id)
 
+        # Skip clearly bad pitchers
         if era and era > 5.50:
-            continue  # skip bad pitchers even if matchup is good
+            continue
 
         pitcher_dict = {
-            "name": starter.get("name"),
-            "era": era or 4.00,
+            "name":     starter.get("name"),
+            "era":      era or 4.00,
             "ownership": fa_player.get("ownership", 0.0),
         }
 
-        score = score_opportunity(pitcher_dict, opp_rank, days_out)
+        score = score_opportunity(pitcher_dict, opp_rank, days_out, opp_k_rate)
 
-        # Deadline to add = game date minus roster lag
-        game_date = date.fromisoformat(starter["game_date"])
-        latest_add = game_date - timedelta(days=ROSTER_LAG_DAYS)
-        days_until_deadline = (latest_add - date.today()).days
+        # Deadline to add
+        game_date   = date.fromisoformat(starter["game_date"])
+        latest_add  = game_date - timedelta(days=ROSTER_LAG_DAYS)
+        days_until  = (latest_add - date.today()).days
 
         opportunities.append({
-            "name": starter.get("name"),
-            "pitcher_team": starter.get("team", ""),
-            "opponent": opponent,
-            "game_date": starter["game_date"],
-            "days_out": days_out,
-            "era": f"{era:.2f}" if era else "N/A",
-            "ownership": fa_player.get("ownership", 0.0),
-            "opp_offense_rank": opp_rank,
-            "score": score,
-            "latest_add_date": latest_add.strftime("%A"),
-            "urgent": days_until_deadline <= 0,
-            "confirmed": starter.get("confirmed", False),
+            "name":              starter.get("name"),
+            "pitcher_team":      starter.get("team", ""),
+            "opponent":          opp_name,
+            "opponent_abbr":     opp_abbr,
+            "game_date":         starter["game_date"],
+            "days_out":          days_out,
+            "era":               f"{era:.2f}" if era else "N/A",
+            "ownership":         fa_player.get("ownership", 0.0),
+            "opp_offense_rank":  opp_rank,
+            "opp_offense_tier":  opp_tier,
+            "opp_k_rate":        opp_k_rate,
+            "opp_runs_pg":       opp_runs_pg,
+            "score":             score,
+            "latest_add_date":   latest_add.strftime("%A"),
+            "urgent":            days_until <= 0,
+            "confirmed":         starter.get("confirmed", False),
         })
 
-    # Sort by score descending
     opportunities.sort(key=lambda x: x["score"], reverse=True)
-    return opportunities[:6]  # top 6 streaming plays
+    return opportunities[:6]
 
 
-def score_opportunity(pitcher: dict, opponent_rank: int, days_out: int) -> float:
+def score_opportunity(
+    pitcher: dict,
+    opponent_rank: int,
+    days_out: int,
+    opp_k_rate: float | None = None,
+) -> float:
     """
     Composite score. Higher = better streaming play.
-    - pitcher_score: rewards low ERA
-    - opponent_score: rewards weak offenses (high rank = worse offense)
-    - timing_score: rewards starts further out (more time to add)
+
+    Weights:
+        opponent_offense (45%) — primary signal, offense rank 1-30
+        pitcher_era (35%)      — quality filter
+        k_rate_bonus (10%)     — extra credit for high-K opponents
+        timing (10%)           — prefer starts further out
     """
-    pitcher_score = max(0, (5.00 - pitcher.get("era", 4.50)) * 12)
-    opponent_score = max(0, (opponent_rank - 10) * 4)
-    timing_score = max(0, (STREAMING_WINDOW_DAYS - days_out + 1) * 2)
-    return round(pitcher_score + opponent_score + timing_score, 2)
+    # Opponent weakness — rank 30 = worst offense = max score
+    opp_score = max(0, (opponent_rank - 1) / 29 * 100) * 0.45
 
+    # Pitcher ERA — lower ERA = higher score
+    era_score = max(0, (5.50 - pitcher.get("era", 4.50)) / 5.50 * 100) * 0.35
 
-def _get_team_offense_rankings(days: int = 14) -> dict[str, int]:
-    """
-    Returns team abbreviation → offensive rank (1=best, 30=worst)
-    based on runs scored over the last N days.
-    Falls back to season totals if date-range data unavailable.
-    """
-    try:
-        end = date.today()
-        start = end - timedelta(days=days)
-        url = (
-            f"{MLB_BASE}/teams/stats"
-            f"?stats=byDateRange&startDate={start}&endDate={end}"
-            f"&group=hitting&sportId=1"
-        )
-        resp = requests.get(url, timeout=10)
-        if resp.status_code != 200:
-            return _season_offense_rankings()
+    # K rate bonus — high opponent K rate = extra value
+    k_bonus = 0.0
+    if opp_k_rate and opp_k_rate > 24:
+        k_bonus = min((opp_k_rate - 24) * 2, 20) * 0.10
 
-        teams_stats = resp.json().get("stats", [{}])[0].get("splits", [])
-        if not teams_stats:
-            return _season_offense_rankings()
+    # Timing — prefer starts further out (more time to add)
+    timing_score = max(0, (STREAMING_WINDOW_DAYS - days_out + 1) / STREAMING_WINDOW_DAYS * 100) * 0.10
 
-        # Sort by runs scored descending
-        sorted_teams = sorted(
-            teams_stats,
-            key=lambda x: int(x.get("stat", {}).get("runs", 0)),
-            reverse=True
-        )
-
-        rankings = {}
-        for rank, team_stat in enumerate(sorted_teams, start=1):
-            abbr = (
-                team_stat.get("team", {})
-                          .get("abbreviation", "")
-                          .upper()
-            )
-            if abbr:
-                rankings[abbr] = rank
-
-        return rankings
-
-    except Exception:
-        return _season_offense_rankings()
-
-
-def _season_offense_rankings() -> dict[str, int]:
-    """Fallback: season-total offensive rankings."""
-    try:
-        url = (
-            f"{MLB_BASE}/teams/stats"
-            f"?stats=season&group=hitting&sportId=1"
-        )
-        resp = requests.get(url, timeout=10)
-        if resp.status_code != 200:
-            return {}
-
-        teams_stats = resp.json().get("stats", [{}])[0].get("splits", [])
-        sorted_teams = sorted(
-            teams_stats,
-            key=lambda x: int(x.get("stat", {}).get("runs", 0)),
-            reverse=True,
-        )
-        return {
-            team_stat.get("team", {}).get("abbreviation", "").upper(): rank
-            for rank, team_stat in enumerate(sorted_teams, start=1)
-            if team_stat.get("team", {}).get("abbreviation")
-        }
-    except Exception:
-        return {}
+    return round(opp_score + era_score + k_bonus + timing_score, 1)
 
 
 def _get_pitcher_era(pitcher_id: int | None) -> float | None:
-    """Fetch current season ERA for a pitcher."""
     if not pitcher_id:
         return None
     try:
-        url = (
-            f"{MLB_BASE}/people/{pitcher_id}"
-            f"/stats?stats=season&group=pitching"
-        )
+        url  = f"{MLB_BASE}/people/{pitcher_id}/stats?stats=season&group=pitching"
         resp = requests.get(url, timeout=8)
         if resp.status_code != 200:
             return None
@@ -219,12 +172,8 @@ def _get_pitcher_era(pitcher_id: int | None) -> float | None:
         return None
 
 
-def _normalize_team(name: str) -> str:
-    """
-    Convert full team name or partial name to MLB abbreviation.
-    Used to match MLB schedule opponent names to offense rankings.
-    """
-    NAME_TO_ABBR = {
+def _name_to_abbr(full_name: str) -> str:
+    NAME_MAP = {
         "yankees": "NYY", "red sox": "BOS", "blue jays": "TOR",
         "orioles": "BAL", "rays": "TB", "white sox": "CWS",
         "guardians": "CLE", "tigers": "DET", "royals": "KC",
@@ -236,8 +185,8 @@ def _normalize_team(name: str) -> str:
         "cardinals": "STL", "diamondbacks": "ARI", "rockies": "COL",
         "dodgers": "LAD", "padres": "SD", "giants": "SF",
     }
-    name_lower = name.lower()
-    for key, abbr in NAME_TO_ABBR.items():
+    name_lower = full_name.lower()
+    for key, abbr in NAME_MAP.items():
         if key in name_lower:
             return abbr
-    return name.upper()[:3]
+    return full_name.upper()[:3]

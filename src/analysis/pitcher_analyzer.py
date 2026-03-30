@@ -1,40 +1,40 @@
-"""Pitcher start analysis — upcoming starts and probable starter logic."""
+"""
+Pitcher start analysis — upcoming starts with sit/start recommendations.
+Uses team offensive rankings to grade each matchup.
+"""
 from datetime import date, timedelta
 from src.data.yahoo_client import YahooClient
 from src.data.mlb_client import MLBClient
+from src.data.team_offense_ranker import get_matchup_grade, ABBR_ALIASES
 from src.config import ROSTER_LAG_DAYS
 
 
 def get_my_upcoming_starts(days_ahead: int = 5) -> list[dict]:
     """
-    Returns my rostered pitchers with confirmed or probable starts
-    in the next N days. Flags starts within ROSTER_LAG_DAYS as 'act now'.
+    Returns my rostered pitchers with confirmed starts in the next N days.
+    Each start includes opponent offense rank and sit/start recommendation.
     """
-    yahoo = YahooClient()
-    mlb = MLBClient()
+    yahoo    = YahooClient()
+    mlb      = MLBClient()
 
-    # Get my rostered pitchers
     my_roster = yahoo.get_my_roster()
     my_pitchers = {
         p["name"].lower(): p
         for p in my_roster
         if p.get("primary_position") in ("SP", "RP", "P")
         or "SP" in (p.get("eligible_positions") or [])
-        or "RP" in (p.get("eligible_positions") or [])
+        or "RP"  in (p.get("eligible_positions") or [])
     }
 
     if not my_pitchers:
         return []
 
-    # Get all probable starters across the window
-    probable = mlb.get_probable_starters(days_ahead=days_ahead)
+    probable  = mlb.get_probable_starters(days_ahead=days_ahead)
+    starts    = []
 
-    starts = []
     for starter in probable:
         name_lower = (starter.get("name") or "").lower()
 
-        # Fuzzy match against my roster — check if any of my pitcher names
-        # appear in the probable starter name or vice versa
         matched_player = None
         for my_name, my_player in my_pitchers.items():
             last_name = my_name.split()[-1] if my_name else ""
@@ -46,20 +46,54 @@ def get_my_upcoming_starts(days_ahead: int = 5) -> list[dict]:
             continue
 
         days_out = starter["days_out"]
-        act_now = days_out <= ROSTER_LAG_DAYS
+        act_now  = days_out <= ROSTER_LAG_DAYS
+
+        # Get opponent abbreviation from start data
+        opp_name = starter.get("opponent", "")
+        opp_abbr = _name_to_abbr(opp_name)
+
+        # Grade the matchup using offense rankings
+        opp_grade      = get_matchup_grade(opp_abbr)
+        opp_rank       = opp_grade.get("rank", 15)
+        opp_tier       = opp_grade.get("tier", "average")
+        opp_k_rate     = opp_grade.get("k_rate")
+        opp_runs_pg    = opp_grade.get("runs_pg")
+
+        # Sit/start recommendation
+        if opp_rank >= 24:
+            recommendation = "START"
+            rec_color      = "green"
+        elif opp_rank >= 18:
+            recommendation = "LEAN START"
+            rec_color      = "green"
+        elif opp_rank >= 12:
+            recommendation = "NEUTRAL"
+            rec_color      = "yellow"
+        elif opp_rank >= 6:
+            recommendation = "LEAN SIT"
+            rec_color      = "red"
+        else:
+            recommendation = "SIT"
+            rec_color      = "red"
 
         starts.append({
-            "name": matched_player["name"],
-            "mlb_team": matched_player.get("mlb_team", ""),
-            "opponent": starter["opponent"],
-            "game_date": starter["game_date"],
-            "days_out": days_out,
-            "confirmed": starter["confirmed"],
-            "act_now": act_now,
-            "position": matched_player.get("position", "SP"),
+            "name":              matched_player["name"],
+            "mlb_team":          matched_player.get("mlb_team", ""),
+            "opponent":          opp_name,
+            "opponent_abbr":     opp_abbr,
+            "game_date":         starter["game_date"],
+            "days_out":          days_out,
+            "confirmed":         starter["confirmed"],
+            "act_now":           act_now,
+            "position":          matched_player.get("position", "SP"),
+            "opp_offense_rank":  opp_rank,
+            "opp_offense_tier":  opp_tier,
+            "opp_k_rate":        opp_k_rate,
+            "opp_runs_pg":       opp_runs_pg,
+            "recommendation":    recommendation,
+            "rec_color":         rec_color,
         })
 
-    # Sort by soonest first
     starts.sort(key=lambda x: x["days_out"])
     return starts
 
@@ -70,17 +104,14 @@ def get_league_pitcher_usage() -> list[dict]:
     Returns avg starts, avg RP appearances, workload notes per team.
     """
     yahoo = YahooClient()
-    mlb = MLBClient()
-
-    all_rosters = yahoo.get_all_team_rosters()
-    # Map Yahoo team IDs to abbreviations
     from src.data.yahoo_client import YAHOO_TEAM_MAP
+    all_rosters = yahoo.get_all_team_rosters()
     usage = []
 
     for team_id, players in all_rosters.items():
         team_abbr = YAHOO_TEAM_MAP.get(str(team_id), f"Team {team_id}")
 
-        starters = [
+        starters  = [
             p for p in players
             if "SP" in (p.get("eligible_positions") or [])
         ]
@@ -99,12 +130,12 @@ def get_league_pitcher_usage() -> list[dict]:
             note = "💤 Low SP usage"
 
         usage.append({
-            "team_id": team_id,
-            "name": team_abbr,
+            "team_id":       team_id,
+            "name":          team_abbr,
             "starter_count": len(starters),
             "reliever_count": len(relievers),
             "total_pitchers": len(starters) + len(relievers),
-            "note": note,
+            "note":          note,
         })
 
     usage.sort(key=lambda x: x["starter_count"], reverse=True)
@@ -112,14 +143,11 @@ def get_league_pitcher_usage() -> list[dict]:
 
 
 def get_pitcher_last_start_date(player_id: int) -> date | None:
-    """Returns date of the pitcher's most recent start from MLB API."""
+    """Returns date of the pitcher's most recent start."""
     mlb = MLBClient()
     try:
-        stats = mlb.get_player_recent_stats(player_id, days=10)
-        splits = (
-            stats.get("stats", [{}])[0]
-                 .get("splits", [])
-        )
+        stats  = mlb.get_player_recent_stats(player_id, days=10)
+        splits = stats.get("stats", [{}])[0].get("splits", [])
         if splits:
             game_date_str = splits[-1].get("date")
             if game_date_str:
@@ -127,3 +155,24 @@ def get_pitcher_last_start_date(player_id: int) -> date | None:
     except Exception:
         pass
     return None
+
+
+def _name_to_abbr(full_name: str) -> str:
+    """Convert full team name to abbreviation for offense ranking lookup."""
+    NAME_MAP = {
+        "yankees": "NYY", "red sox": "BOS", "blue jays": "TOR",
+        "orioles": "BAL", "rays": "TB", "white sox": "CWS",
+        "guardians": "CLE", "tigers": "DET", "royals": "KC",
+        "twins": "MIN", "astros": "HOU", "angels": "LAA",
+        "athletics": "OAK", "mariners": "SEA", "rangers": "TEX",
+        "braves": "ATL", "marlins": "MIA", "mets": "NYM",
+        "phillies": "PHI", "nationals": "WSH", "cubs": "CHC",
+        "reds": "CIN", "brewers": "MIL", "pirates": "PIT",
+        "cardinals": "STL", "diamondbacks": "ARI", "rockies": "COL",
+        "dodgers": "LAD", "padres": "SD", "giants": "SF",
+    }
+    name_lower = full_name.lower()
+    for key, abbr in NAME_MAP.items():
+        if key in name_lower:
+            return abbr
+    return full_name.upper()[:3]
