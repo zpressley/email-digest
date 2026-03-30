@@ -7,51 +7,86 @@
         "name": "Kris Bubic",
         "mlb_team": "KC",
         "opponent": "Minnesota Twins",
+        "opponent_abbr": "MIN",
         "game_date": "2026-03-30",
         "days_out": 0,
         "confirmed": true,
         "act_now": true,
-        "position": "SP"
+        "position": "SP",
+        "opp_offense_rank": 12,
+        "opp_offense_tier": "average",
+        "opp_k_rate": 27.4,
+        "opp_runs_pg": 3.67,
+        "recommendation": "NEUTRAL",
+        "rec_color": "yellow"
       },
       {
         "name": "Luis Castillo",
         "mlb_team": "SEA",
         "opponent": "New York Yankees",
+        "opponent_abbr": "NYY",
         "game_date": "2026-03-30",
         "days_out": 0,
         "confirmed": true,
         "act_now": true,
-        "position": "SP"
+        "position": "SP",
+        "opp_offense_rank": 14,
+        "opp_offense_tier": "average",
+        "opp_k_rate": 25.9,
+        "opp_runs_pg": 4.33,
+        "recommendation": "NEUTRAL",
+        "rec_color": "yellow"
       },
       {
         "name": "Ryan Weathers",
         "mlb_team": "NYY",
         "opponent": "Seattle Mariners",
+        "opponent_abbr": "SEA",
         "game_date": "2026-03-30",
         "days_out": 0,
         "confirmed": true,
         "act_now": true,
-        "position": "SP"
+        "position": "SP",
+        "opp_offense_rank": 18,
+        "opp_offense_tier": "average",
+        "opp_k_rate": 28.6,
+        "opp_runs_pg": 5.5,
+        "recommendation": "LEAN START",
+        "rec_color": "green"
       },
       {
         "name": "Luis Severino",
         "mlb_team": "ATH",
         "opponent": "Atlanta Braves",
+        "opponent_abbr": "ATL",
         "game_date": "2026-04-01",
         "days_out": 2,
         "confirmed": true,
         "act_now": false,
-        "position": "SP"
+        "position": "SP",
+        "opp_offense_rank": 22,
+        "opp_offense_tier": "weak",
+        "opp_k_rate": 21.7,
+        "opp_runs_pg": 4.33,
+        "recommendation": "LEAN START",
+        "rec_color": "green"
       },
       {
         "name": "Garrett Crochet",
         "mlb_team": "BOS",
         "opponent": "Houston Astros",
+        "opponent_abbr": "HOU",
         "game_date": "2026-04-01",
         "days_out": 2,
         "confirmed": true,
         "act_now": false,
-        "position": "SP"
+        "position": "SP",
+        "opp_offense_rank": 20,
+        "opp_offense_tier": "average",
+        "opp_k_rate": 23.1,
+        "opp_runs_pg": 5.5,
+        "recommendation": "LEAN START",
+        "rec_color": "green"
       }
     ],
     "streaming_opportunities": [
@@ -59,12 +94,16 @@
         "name": "Jameson Taillon",
         "pitcher_team": "Chicago Cubs",
         "opponent": "Los Angeles Angels",
+        "opponent_abbr": "LAA",
         "game_date": "2026-03-31",
         "days_out": 1,
         "era": "N/A",
         "ownership": 0.0,
-        "opp_offense_rank": 15,
-        "score": 42.0,
+        "opp_offense_rank": 24,
+        "opp_offense_tier": "weak",
+        "opp_k_rate": 27.7,
+        "opp_runs_pg": 6.25,
+        "score": 56.0,
         "latest_add_date": "Monday",
         "urgent": true,
         "confirmed": true
@@ -73,19 +112,23 @@
         "name": "Eury P\u00e9rez",
         "pitcher_team": "Miami Marlins",
         "opponent": "New York Yankees",
+        "opponent_abbr": "NYY",
         "game_date": "2026-04-03",
         "days_out": 4,
         "era": "3.86",
         "ownership": 0.0,
-        "opp_offense_rank": 15,
-        "score": 37.68,
+        "opp_offense_rank": 14,
+        "opp_offense_tier": "average",
+        "opp_k_rate": 25.9,
+        "opp_runs_pg": 4.33,
+        "score": 35.0,
         "latest_add_date": "Thursday",
         "urgent": false,
         "confirmed": true
       }
     ],
     "hot_free_agents": [],
-    "breakout_watch": [
+    "statcast_trends": [
       {
         "name": "William Contreras",
         "mlb_id": 661388,
@@ -96,7 +139,8 @@
         "whiff_rate": 12.5,
         "walk_rate": 10.7,
         "ba": 0.333,
-        "signal_score": 4.0
+        "signal_score": 4.0,
+        "trend": "up"
       },
       {
         "name": "Wyatt Langford",
@@ -108,19 +152,8 @@
         "whiff_rate": 15.9,
         "walk_rate": 11.4,
         "ba": 0.282,
-        "signal_score": 4.0
-      },
-      {
-        "name": "Tyler Soderstrom",
-        "mlb_id": 691016,
-        "pa": 138,
-        "avg_exit_velocity": 80.8,
-        "barrel_rate": null,
-        "xba": 0.43,
-        "whiff_rate": 27.1,
-        "walk_rate": 10.5,
-        "ba": 0.281,
-        "signal_score": 3.0
+        "signal_score": 4.0,
+        "trend": "up"
       },
       {
         "name": "Isaac Paredes",
@@ -132,7 +165,8 @@
         "whiff_rate": 23.7,
         "walk_rate": 10.3,
         "ba": 0.2,
-        "signal_score": 3.0
+        "signal_score": 1.0,
+        "trend": "neutral"
       },
       {
         "name": "Adolis Garc\u00eda",
@@ -144,21 +178,8 @@
         "whiff_rate": 21.6,
         "walk_rate": 11.9,
         "ba": 0.229,
-        "signal_score": 3.0
-      }
-    ],
-    "bench_candidates": [
-      {
-        "name": "Jeremy Pe\u00f1a",
-        "mlb_id": 665161,
-        "pa": 31,
-        "avg_exit_velocity": 85.6,
-        "barrel_rate": null,
-        "xba": 0.244,
-        "whiff_rate": 27.8,
-        "walk_rate": 0.0,
-        "ba": 0.2,
-        "signal_score": -3.5
+        "signal_score": 1.0,
+        "trend": "neutral"
       },
       {
         "name": "Tyler Soderstrom",
@@ -170,7 +191,73 @@
         "whiff_rate": 27.1,
         "walk_rate": 10.5,
         "ba": 0.281,
-        "signal_score": -3.0
+        "signal_score": 0.0,
+        "trend": "neutral"
+      },
+      {
+        "name": "Chase Meidroth",
+        "mlb_id": 805367,
+        "pa": 227,
+        "avg_exit_velocity": 85.7,
+        "barrel_rate": null,
+        "xba": 0.332,
+        "whiff_rate": 17.5,
+        "walk_rate": 16.0,
+        "ba": 0.31,
+        "signal_score": 0.0,
+        "trend": "neutral"
+      },
+      {
+        "name": "Chase DeLauter",
+        "mlb_id": 800050,
+        "pa": 182,
+        "avg_exit_velocity": 86.2,
+        "barrel_rate": null,
+        "xba": 0.417,
+        "whiff_rate": 20.0,
+        "walk_rate": 10.9,
+        "ba": 0.39,
+        "signal_score": 0.0,
+        "trend": "neutral"
+      },
+      {
+        "name": "Spencer Torkelson",
+        "mlb_id": 679529,
+        "pa": 174,
+        "avg_exit_velocity": 83.1,
+        "barrel_rate": null,
+        "xba": 0.323,
+        "whiff_rate": 24.7,
+        "walk_rate": 4.5,
+        "ba": 0.171,
+        "signal_score": 0.0,
+        "trend": "neutral"
+      },
+      {
+        "name": "Colson Montgomery",
+        "mlb_id": 695657,
+        "pa": 185,
+        "avg_exit_velocity": 86.8,
+        "barrel_rate": null,
+        "xba": 0.32,
+        "whiff_rate": 34.1,
+        "walk_rate": 8.7,
+        "ba": 0.214,
+        "signal_score": -1.0,
+        "trend": "neutral"
+      },
+      {
+        "name": "Jeremy Pe\u00f1a",
+        "mlb_id": 665161,
+        "pa": 31,
+        "avg_exit_velocity": 85.6,
+        "barrel_rate": null,
+        "xba": 0.244,
+        "whiff_rate": 27.8,
+        "walk_rate": 0.0,
+        "ba": 0.2,
+        "signal_score": -1.5,
+        "trend": "neutral"
       },
       {
         "name": "Riley Greene",
@@ -182,11 +269,12 @@
         "whiff_rate": 26.3,
         "walk_rate": 4.2,
         "ba": 0.283,
-        "signal_score": -3.0
+        "signal_score": -3.0,
+        "trend": "down"
       }
     ],
     "prospect_callouts": [],
     "farm_report": "",
-    "baseball_pulse": "TRANSACTIONS\n\nThe Baltimore Orioles bolstered their roster by acquiring outfielder Johnathan Rodriguez from the Cleveland Guardians in exchange for right-handed pitcher Carter Rustad. In a separate minor league transaction, shortstop Leo Jimenez moved from the Toronto Blue Jays to the Miami Marlins, with Toronto receiving infielder Dub Gleed and international signing bonus pool space in return. The Kansas City Royals are considering a temporary role change for Carlos Estevez. Veteran reliever John Brebbia signed a minor league contract with the Minnesota Twins, while Shaun Anderson was selected by the Los Angeles Angels and brought back to the majors. The Washington Nationals activated infielder Curtis Mead and optioned first baseman Andres Chaparro to Triple-A.\n\nPROSPECTS\n\nYankees top pitching prospect Carlos Lagrange made an impressive impact in Triple-A, recording the fastest pitch during Minor League Baseball's opening weekend at 101.3 miles per hour. The Brewers deployed an all-rookie battery featuring pitcher Brandon Sproat and catcher Jeferson Quero, their first such pairing since 2018, giving fans a glimpse of the organization's future. Los Angeles Dodgers prospect James Tibbs III is on a heater with a 2.105 OPS after a multi-homer game, showcasing elite batted ball data that suggests a potential breakout campaign. Spencer Jones, the Yankees' number six prospect, launched his first home run of the season at 109.1 miles per hour in Triple-A action. Cubs prospect Jaxon Wiggins impressed in his 2026 debut with six strikeouts over four innings, while Boston Red Sox prospect Connelly Early earned a spot in the rotation after posting a 1.59 ERA with 16 strikeouts over 17 innings in spring training.\n\nSTATCAST\n\nEmerson Hancock delivered a dominant performance in his season debut, firing six no-hit innings with nine strikeouts against the Cleveland Guardians. Hancock exhibited a notable uptick in stuff with his fastball showing increased ride and a lower release point, averaging 93.5 miles per hour with elite extension metrics of 102 inches and induced vertical break of 6.1 inches that suggest a potential breakout for fantasy purposes. Eric Lauer led yesterday's whiff charts with 17 whiffs while earning his first win of the season. Blake Perkins set a new maximum exit velocity of 106.4 miles per hour, improving his previous mark by 0.4 miles per hour.\n\nVIBES\n\nOpening weekend delivered plenty of offensive fireworks across the majors with numerous players launching multiple homers. Alex"
+    "baseball_pulse": "TRANSACTIONS\n\nSeveral roster moves with dynasty relevance emerged from opening weekend activity. The Giants designated Tyler Fitzgerald for assignment, acquired Dylan Smith from Detroit on a cash deal and optioned him to Triple-A, and traded Luis Matos to Milwaukee for cash considerations. The Marlins activated shortstop Leo Jimenez after acquiring him from Toronto and optioned infielder Deyvison De Los Santos to Triple-A, positioning Connor Norby for increased at-bats at first base while Christopher Morel recovers. The Blue Jays signed Austin Voth to a minor league deal and the Twins signed John Brebbia to a minor league contract. Shaun Anderson was selected to the majors by the Angels after a minor league deal. The Royals are considering a temporary role change for Carlos Estevez, who remains in a walking boot and is unlikely to be available Monday. Andrew Kittredge will begin a rehab assignment Wednesday for Baltimore. Nick Lodolo is set to make a rehab start Thursday for Cincinnati as he works back from a finger injury.\n\nPROSPECTS\n\nSpencer Jones continues to impress at Triple-A for the Yankees, launching a 109.1 mph homer in his first game of the season and recording five batted balls at 104.1 mph or faster, showcasing elite power production. Carlos Lagrange, the Yankees' top pitching prospect, threw the fastest pitch recorded during minor league opening weekend at 101.3 mph during his Triple-A debut, though the organization made the difficult decision to send him down from spring training. James Tibbs III is on a heater for the Dodgers' Triple-A affiliate with a two-homer game, posting a 2.105 OPS with elite batted ball data suggesting a potential breakout. The Brewers' all-rookie battery of Brandon Sproat and Jeferson Quero made history on Sunday as the first such pairing since 2018, with both prospects earning praise from the organization. Justin Crawford, the Phillies' number three prospect, demonstrated his ability at Citizens Bank Park by conquering one of the trickiest outfields in baseball on his first try.\n\nVIBES\n\nOpening weekend showcased several compelling storylines heading into the season. Five teams remain undefeated after three games: the Dodgers, Yankees, Blue Jays, Marlins, and Brewers. Joey Wiemer made history for the Nationals by becoming the third player since 1961 to reach safely in his first eight plate appearances with a new team. Christian Yelich delivered a pinch-hit three-run homer to cap a six-run inning and secure a series sweep for Milwaukee. Brendan Donovan contributed a three-run homer to"
   }
 }
