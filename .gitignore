@@ -6,3 +6,4 @@ venv/
 *.egg-info/
 venv/
 digest_preview.html
+.sfdx/
