@@ -6,6 +6,7 @@ from src.analysis.matchup_finder import get_streaming_opportunities
 from src.analysis.free_agent_tracker import get_hot_free_agents
 from src.analysis.hitter_analyzer import get_statcast_trends
 from src.analysis.prospect_tracker import get_prospect_callouts
+from src.analysis.category_standings import get_yesterday_results
 from src.analysis.discord_reader import get_posts_as_text
 from src.data.ai_client import generate_farm_report, generate_baseball_pulse
 from src.data.snapshot_store import save_snapshot
@@ -17,13 +18,16 @@ def run():
     today = date.today()
     print(f"Running daily digest for {today}")
 
+    print("📊 Fetching yesterday's results...")
+    yesterday_results = get_yesterday_results()
+
     print("📋 Fetching roster impact...")
     roster_impact = get_todays_roster_impact()
 
     print("🔄 Fetching upcoming starts...")
     upcoming_starts = get_my_upcoming_starts(days_ahead=5)
 
-    print("🎯 Finding streaming opportunities...")
+    print("⚡ Finding streaming opportunities...")
     streaming_opportunities = get_streaming_opportunities()
 
     print("🔥 Fetching free agent heat...")
@@ -45,6 +49,7 @@ def run():
 
     context = {
         "date":                    today.strftime("%A, %B %-d"),
+        "yesterday_results":       yesterday_results,
         "roster_impact":           roster_impact,
         "upcoming_starts":         upcoming_starts,
         "streaming_opportunities": streaming_opportunities,

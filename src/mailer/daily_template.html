@@ -3,355 +3,328 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Fantasy Digest</title>
+  <title>Fantasy Digest — {{ date }}</title>
+  <style>
+    body { margin: 0; padding: 0; background: #f4f4f0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; }
+    .wrap { max-width: 600px; margin: 0 auto; background: #ffffff; }
+    .header { background: #1a1d2e; padding: 28px 32px 24px; }
+    .header-eyebrow { font-size: 10px; color: #f7c948; letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 6px; }
+    .header-title { font-size: 26px; font-weight: 700; color: #ffffff; margin: 0 0 4px; }
+    .header-date { font-size: 13px; color: #90cdf4; }
+    .header-tags { margin-top: 16px; }
+    .tag { display: inline-block; border: 1px solid rgba(255,255,255,0.25); border-radius: 20px; padding: 3px 12px; font-size: 11px; color: rgba(255,255,255,0.7); margin-right: 6px; }
+    .body { padding: 0 32px 32px; }
+    .section { border-top: 1px solid #e8e8e4; padding: 24px 0 0; margin-top: 24px; }
+    .section:first-child { border-top: none; margin-top: 0; padding-top: 28px; }
+    .section-label { font-size: 10px; font-weight: 700; color: #9a9a94; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 14px; }
+    .section-label span { margin-right: 6px; }
+    .story { margin-bottom: 20px; }
+    .story:last-child { margin-bottom: 0; }
+    .story-hed { font-size: 15px; font-weight: 700; color: #1a1a18; margin: 0 0 6px; line-height: 1.3; }
+    .story-body { font-size: 14px; color: #3a3a36; line-height: 1.65; margin: 0; }
+    .story-body b { color: #1a1a18; }
+    .story-divider { border: none; border-top: 1px dashed #e0e0dc; margin: 16px 0; }
+    .pill { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; letter-spacing: 0.04em; text-transform: uppercase; margin-left: 6px; vertical-align: middle; }
+    .pill-start { background: #e6f4ea; color: #137333; }
+    .pill-lean-start { background: #e6f4ea; color: #137333; }
+    .pill-neutral { background: #fef7e0; color: #b45309; }
+    .pill-lean-sit { background: #fce8e6; color: #c5221f; }
+    .pill-sit { background: #fce8e6; color: #c5221f; }
+    .pill-up { background: #e6f4ea; color: #137333; }
+    .pill-down { background: #fce8e6; color: #c5221f; }
+    .pill-add { background: #fffde7; color: #b45309; }
+    .pill-tomorrow { background: #fff3cd; color: #856404; }
+    .pill-today { background: #fce8e6; color: #c5221f; }
+    .matchup-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f0f0ec; font-size: 13px; }
+    .matchup-row:last-child { border-bottom: none; }
+    .matchup-player { font-weight: 600; color: #1a1a18; }
+    .matchup-detail { color: #6a6a64; font-size: 12px; margin-top: 2px; }
+    .matchup-grade { font-size: 11px; font-weight: 700; }
+    .stat-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+    .stat-box { flex: 1; min-width: 60px; background: #f6f6f2; border-radius: 6px; padding: 8px 10px; text-align: center; }
+    .stat-label { font-size: 9px; font-weight: 700; color: #9a9a94; letter-spacing: 0.1em; text-transform: uppercase; }
+    .stat-val { font-size: 16px; font-weight: 700; color: #1a1a18; margin-top: 2px; }
+    .stat-val.good { color: #137333; }
+    .stat-val.bad { color: #c5221f; }
+    .alert-bar { background: #fffde7; border-left: 3px solid #f7c948; border-radius: 0 6px 6px 0; padding: 10px 14px; margin-bottom: 10px; font-size: 13px; color: #1a1a18; }
+    .alert-bar b { color: #1a1a18; }
+    .pulse-section { margin-bottom: 20px; }
+    .pulse-label { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-bottom: 8px; }
+    .pulse-label.my-team { background: #e8f0fe; color: #185fa5; }
+    .pulse-label.prospects { background: #e6f4ea; color: #137333; }
+    .pulse-label.league { background: #fef7e0; color: #b45309; }
+    .pulse-label.baseball { background: #f1f0ec; color: #5a5a54; }
+    .pulse-body { font-size: 14px; color: #3a3a36; line-height: 1.65; margin: 0; }
+    .empty-note { font-size: 13px; color: #9a9a94; font-style: italic; padding: 8px 0; }
+    .footer { background: #f4f4f0; padding: 20px 32px; text-align: center; font-size: 11px; color: #9a9a94; border-top: 1px solid #e8e8e4; }
+  </style>
 </head>
-<body style="margin:0;padding:0;background:#f1f3f4;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;">
-<div style="max-width:660px;margin:0 auto;padding:16px;">
+<body>
+<div class="wrap">
 
-  <!-- Header -->
-  <div style="background:linear-gradient(135deg,#1a1d2e 0%,#0f1117 100%);border-radius:8px 8px 0 0;padding:24px 28px 20px;">
-    <div style="font-size:10px;color:#f7c948;letter-spacing:0.14em;text-transform:uppercase;margin-bottom:5px;">Daily Briefing</div>
-    <div style="font-size:22px;font-weight:700;color:#ffffff;">⚾ Fantasy Digest</div>
-    <div style="font-size:13px;color:#90cdf4;margin-top:3px;">{{ date }}</div>
-    <div style="margin-top:14px;">
-      <span style="background:rgba(247,201,72,0.2);border:1px solid rgba(247,201,72,0.4);border-radius:20px;padding:4px 12px;font-size:11px;color:#f7c948;margin-right:6px;">⚾ WAR Daily</span>
-      <span style="background:rgba(144,205,244,0.2);border:1px solid rgba(144,205,244,0.4);border-radius:20px;padding:4px 12px;font-size:11px;color:#90cdf4;">📡 AI Powered</span>
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-eyebrow">Daily Briefing</div>
+    <div class="header-title">⚾ Fantasy Digest</div>
+    <div class="header-date">{{ date }}</div>
+    <div class="header-tags">
+      <span class="tag">WAR Daily</span>
+      <span class="tag">AI Powered</span>
     </div>
   </div>
 
-  <div style="background:#ffffff;padding:20px 28px 28px;border-radius:0 0 8px 8px;box-shadow:0 2px 8px rgba(0,0,0,0.12);">
+  <div class="body">
 
-    <!-- TODAY'S ROSTER IMPACT -->
-    <div style="font-size:11px;font-weight:700;color:#5f6368;text-transform:uppercase;letter-spacing:0.1em;border-bottom:2px solid #f1f3f4;padding-bottom:8px;margin:24px 0 12px;">📋 Today's Roster Impact</div>
+    <!-- YESTERDAY'S RESULTS -->
+    {% if yesterday_results %}
+    <div class="section">
+      <div class="section-label"><span>📊</span> Yesterday's Results</div>
+      <div class="story">
+        <p class="story-body">{{ yesterday_results.summary }}</p>
+        {% if yesterday_results.category_wins is defined %}
+        <div class="stat-row" style="margin-top:12px;">
+          <div class="stat-box">
+            <div class="stat-label">Cats Won</div>
+            <div class="stat-val {% if yesterday_results.cats_won >= 6 %}good{% elif yesterday_results.cats_won <= 4 %}bad{% endif %}">{{ yesterday_results.cats_won }}</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Cats Lost</div>
+            <div class="stat-val {% if yesterday_results.cats_lost >= 6 %}bad{% elif yesterday_results.cats_lost <= 4 %}good{% endif %}">{{ yesterday_results.cats_lost }}</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Record</div>
+            <div class="stat-val">{{ yesterday_results.record }}</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Rank</div>
+            <div class="stat-val">{{ yesterday_results.rank }}</div>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- TODAY'S ROSTER -->
     {% if roster_impact %}
-    <table style="width:100%;border-collapse:collapse;font-size:13px;">
-      <tr style="background:#f8f9fa;">
-        <th style="text-align:left;padding:8px 10px;color:#5f6368;font-weight:600;font-size:11px;">PLAYER</th>
-        <th style="text-align:left;padding:8px 10px;color:#5f6368;font-weight:600;font-size:11px;">OPP STARTER</th>
-        <th style="text-align:center;padding:8px 10px;color:#5f6368;font-weight:600;font-size:11px;">ERA</th>
-        <th style="text-align:center;padding:8px 10px;color:#5f6368;font-weight:600;font-size:11px;">MATCHUP</th>
-      </tr>
+    <div class="section">
+      <div class="section-label"><span>📋</span> Today's Lineup</div>
       {% for p in roster_impact %}
-      <tr style="border-bottom:1px solid #f1f3f4;">
-        <td style="padding:10px;font-weight:600;color:#202124;">{{ p.name }}</td>
-        <td style="padding:10px;color:#5f6368;">{{ p.opp_pitcher }}</td>
-        <td style="padding:10px;text-align:center;color:#5f6368;">{{ p.opp_era }}</td>
-        <td style="padding:10px;text-align:center;">
+      <div class="matchup-row">
+        <div>
+          <div class="matchup-player">{{ p.name }}</div>
+          <div class="matchup-detail">vs {{ p.opp_pitcher }} ({{ p.opp_era }} ERA) · {{ p.opponent }}</div>
+        </div>
+        <div>
           {% if p.matchup == 'favorable' %}
-            <span style="background:#e6f4ea;color:#137333;font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;">✓ FAVORABLE</span>
+            <span class="matchup-grade" style="color:#137333;">✓ Good</span>
           {% elif p.matchup == 'tough' %}
-            <span style="background:#fce8e6;color:#c5221f;font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;">TOUGH</span>
+            <span class="matchup-grade" style="color:#c5221f;">Tough</span>
           {% else %}
-            <span style="background:#fef7e0;color:#b45309;font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;">NEUTRAL</span>
+            <span class="matchup-grade" style="color:#b45309;">—</span>
           {% endif %}
-        </td>
-      </tr>
+        </div>
+      </div>
       {% endfor %}
-    </table>
-    {% else %}
-    <div style="background:#f8f9fa;border-radius:6px;padding:12px 16px;color:#5f6368;font-size:13px;">No games today for rostered players.</div>
+    </div>
     {% endif %}
 
-    <!-- UPCOMING PITCHER STARTS -->
-    <div style="font-size:11px;font-weight:700;color:#5f6368;text-transform:uppercase;letter-spacing:0.1em;border-bottom:2px solid #f1f3f4;padding-bottom:8px;margin:24px 0 12px;">🔄 Upcoming Pitcher Starts</div>
+    <!-- MY PITCHER STARTS -->
     {% if upcoming_starts %}
+    <div class="section">
+      <div class="section-label"><span>🔄</span> My Pitcher Starts</div>
       {% for p in upcoming_starts %}
-
-      {% if p.act_now %}
-        {% set card_bg = "#fffde7" %}
-        {% set card_border = "#fbbc04" %}
-      {% else %}
-        {% set card_bg = "#ffffff" %}
-        {% set card_border = "#e0e0e0" %}
-      {% endif %}
-
-      {% if p.days_out == 0 %}
-        {% set day_bg = "#ea4335" %}
-        {% set day_color = "#ffffff" %}
-        {% set day_label = "TODAY" %}
-      {% elif p.days_out == 1 %}
-        {% set day_bg = "#fbbc04" %}
-        {% set day_color = "#202124" %}
-        {% set day_label = "TOMORROW" %}
-      {% elif p.days_out == 2 %}
-        {% set day_bg = "#e6f4ea" %}
-        {% set day_color = "#137333" %}
-        {% set day_label = "+2 DAYS" %}
-      {% else %}
-        {% set day_bg = "#e8f0fe" %}
-        {% set day_color = "#1a73e8" %}
-        {% set day_label = p.game_date %}
-      {% endif %}
-
-      {% if p.rec_color == 'green' %}
-        {% set rec_bg = "#e6f4ea" %}
-        {% set rec_color = "#137333" %}
-      {% elif p.rec_color == 'red' %}
-        {% set rec_bg = "#fce8e6" %}
-        {% set rec_color = "#c5221f" %}
-      {% else %}
-        {% set rec_bg = "#fef7e0" %}
-        {% set rec_color = "#b45309" %}
-      {% endif %}
-
-      <div style="border:1px solid {{ card_border }};border-radius:8px;padding:12px 16px;margin-bottom:10px;background:{{ card_bg }};">
-        <div>
-          <span style="font-weight:700;color:#202124;font-size:14px;">{{ p.name }}</span>
-          <span style="background:{{ day_bg }};color:{{ day_color }};font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;margin-left:8px;">{{ day_label }}</span>
+      <div class="story">
+        <p class="story-hed">
+          {{ p.name }}
+          {% if p.days_out == 0 %}
+            <span class="pill pill-today">Today</span>
+          {% elif p.days_out == 1 %}
+            <span class="pill pill-tomorrow">Tomorrow</span>
+          {% else %}
+            <span class="pill pill-neutral">{{ p.game_date }}</span>
+          {% endif %}
           {% if p.recommendation %}
-          <span style="background:{{ rec_bg }};color:{{ rec_color }};font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;margin-left:6px;">{{ p.recommendation }}</span>
+            {% if p.recommendation == 'START' %}
+              <span class="pill pill-start">Start</span>
+            {% elif p.recommendation == 'LEAN START' %}
+              <span class="pill pill-lean-start">Lean Start</span>
+            {% elif p.recommendation == 'LEAN SIT' %}
+              <span class="pill pill-lean-sit">Lean Sit</span>
+            {% elif p.recommendation == 'SIT' %}
+              <span class="pill pill-sit">Sit</span>
+            {% else %}
+              <span class="pill pill-neutral">Neutral</span>
+            {% endif %}
           {% endif %}
-          {% if p.act_now %}
-          <span style="font-size:11px;color:#b45309;font-weight:600;margin-left:8px;">⚡ Add today — active tomorrow</span>
-          {% endif %}
-        </div>
-        <div style="font-size:12px;color:#5f6368;margin-top:5px;">
-          vs {{ p.opponent }} &nbsp;·&nbsp; {{ p.game_date }} &nbsp;·&nbsp; {{ 'Confirmed ✓' if p.confirmed else 'Probable' }}
-          {% if p.opp_offense_rank %}
-          &nbsp;·&nbsp; Opp rank: {{ p.opp_offense_rank }}/30
-          {% endif %}
-          {% if p.opp_k_rate %}
-          &nbsp;·&nbsp; K%: {{ p.opp_k_rate }}
-          {% endif %}
-        </div>
+        </p>
+        <p class="story-body">
+          vs {{ p.opponent }}
+          {% if p.opp_offense_rank %} · Opp offense ranks <b>{{ p.opp_offense_rank }}/30</b>{% endif %}
+          {% if p.opp_k_rate %} · K% <b>{{ p.opp_k_rate }}%</b>{% endif %}
+          · {{ 'Confirmed' if p.confirmed else 'Probable' }}
+          {% if p.act_now %} · <b>Add today — active tomorrow</b>{% endif %}
+        </p>
       </div>
+      {% if not loop.last %}<hr class="story-divider">{% endif %}
       {% endfor %}
-    {% else %}
-    <div style="background:#f8f9fa;border-radius:6px;padding:12px 16px;color:#5f6368;font-size:13px;">No upcoming starts found.</div>
+    </div>
     {% endif %}
 
-    <!-- STREAMING OPPORTUNITIES -->
-    <div style="font-size:11px;font-weight:700;color:#5f6368;text-transform:uppercase;letter-spacing:0.1em;border-bottom:2px solid #f1f3f4;padding-bottom:8px;margin:24px 0 12px;">🎯 Streaming Opportunities</div>
+    <!-- STREAMING ADDS -->
     {% if streaming_opportunities %}
+    <div class="section">
+      <div class="section-label"><span>⚡</span> Streaming Adds</div>
       {% for opp in streaming_opportunities %}
-
-      {% if opp.score >= 60 %}
-        {% set stream_border = "#137333" %}
-        {% set stream_bg = "#f8fff8" %}
-        {% set stream_color = "#137333" %}
-      {% else %}
-        {% set stream_border = "#fbbc04" %}
-        {% set stream_bg = "#fffde7" %}
-        {% set stream_color = "#b45309" %}
-      {% endif %}
-
-      <div style="border-left:4px solid {{ stream_border }};background:{{ stream_bg }};border-radius:0 8px 8px 0;padding:14px 16px;margin-bottom:10px;">
-        <div>
-          <span style="font-weight:700;color:#202124;font-size:14px;">{{ opp.name }}</span>
-          <span style="background:{{ stream_border }};color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;margin-left:8px;">SCORE {{ opp.score }}</span>
-          <span style="font-size:10px;color:#5f6368;margin-left:8px;">{{ opp.ownership }}% owned</span>
-        </div>
-        <div style="font-size:12px;color:#5f6368;margin-top:6px;">
-          vs {{ opp.opponent }} &nbsp;·&nbsp; {{ opp.game_date }} &nbsp;·&nbsp; ERA {{ opp.era }}
-          {% if opp.opp_offense_rank %}&nbsp;·&nbsp; Opp rank: {{ opp.opp_offense_rank }}/30{% endif %}
-          {% if opp.opp_k_rate %}&nbsp;·&nbsp; K%: {{ opp.opp_k_rate }}{% endif %}
-        </div>
-        <div style="font-size:12px;font-weight:600;color:{{ stream_color }};margin-top:5px;">
-          ⚡ Add by {{ opp.latest_add_date }} to be active in time
-        </div>
+      <div class="alert-bar">
+        <b>{{ opp.name }}</b>
+        {% if opp.recommendation %}
+          <span class="pill pill-{% if opp.rec_color == 'green' %}start{% else %}neutral{% endif %}">{{ opp.recommendation }}</span>
+        {% endif %}
+        <span style="color:#6a6a64;font-size:12px;margin-left:4px;">{{ opp.ownership }}% owned</span><br>
+        <span style="font-size:12px;color:#3a3a36;">
+          vs {{ opp.opponent }} · {{ opp.game_date }}
+          {% if opp.opp_offense_rank %} · Opp rank {{ opp.opp_offense_rank }}/30{% endif %}
+          {% if opp.opp_k_rate %} · K% {{ opp.opp_k_rate }}%{% endif %}
+          · Add by <b>{{ opp.latest_add_date }}</b>
+        </span>
       </div>
       {% endfor %}
-    {% else %}
-    <div style="background:#f8f9fa;border-radius:6px;padding:12px 16px;color:#5f6368;font-size:13px;">No streaming opportunities found.</div>
+    </div>
     {% endif %}
 
     <!-- FREE AGENT HEAT -->
-    <div style="font-size:11px;font-weight:700;color:#5f6368;text-transform:uppercase;letter-spacing:0.1em;border-bottom:2px solid #f1f3f4;padding-bottom:8px;margin:24px 0 12px;">🔥 Free Agent Heat Index</div>
     {% if hot_free_agents %}
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+    <div class="section">
+      <div class="section-label"><span>🔥</span> Free Agent Watch</div>
       {% for fa in hot_free_agents %}
-      <div style="border:1px solid #e0e0e0;border-radius:8px;padding:12px 14px;">
-        <div style="font-size:10px;color:#5f6368;text-transform:uppercase;">↑ Rising</div>
-        <div style="font-weight:700;color:#202124;font-size:14px;margin-top:3px;">{{ fa.name }}</div>
-        <div style="font-size:12px;color:#5f6368;">{{ fa.position }} &nbsp;·&nbsp; {{ fa.ownership }}% owned</div>
-        <div style="font-size:12px;color:#137333;margin-top:3px;">{{ fa.trend }}</div>
-        <div style="font-size:11px;color:#c5221f;font-weight:600;margin-top:5px;">Add by {{ fa.latest_add_date }}</div>
+      <div class="story">
+        <p class="story-hed">{{ fa.name }} <span style="font-size:12px;font-weight:400;color:#6a6a64;">{{ fa.position }} · {{ fa.ownership }}% owned</span></p>
+        <p class="story-body">{{ fa.trend }} · <b>Add by {{ fa.latest_add_date }}</b></p>
       </div>
+      {% if not loop.last %}<hr class="story-divider">{% endif %}
       {% endfor %}
     </div>
-    {% else %}
-    <div style="background:#f8f9fa;border-radius:6px;padding:12px 16px;color:#5f6368;font-size:13px;">No notable free agent movement.</div>
     {% endif %}
 
-   <!-- STATCAST TRENDS -->
-<div style="font-size:11px;font-weight:700;color:#5f6368;text-transform:uppercase;letter-spacing:0.1em;border-bottom:2px solid #f1f3f4;padding-bottom:8px;margin:24px 0 12px;">📈 Statcast Trends</div>
-{% if statcast_trends %}
-  {% for h in statcast_trends %}
-
-  {% if h.trend == 'up' %}
-    {% set trend_bg = "#e6f4ea" %}
-    {% set trend_color = "#137333" %}
-    {% set trend_label = "↑ TRENDING UP" %}
-    {% set card_border = "#34a853" %}
-  {% else %}
-    {% set trend_bg = "#fce8e6" %}
-    {% set trend_color = "#c5221f" %}
-    {% set trend_label = "↓ TRENDING DOWN" %}
-    {% set card_border = "#ea4335" %}
-  {% endif %}
-
-  <div style="border:1px solid {{ card_border }};border-radius:8px;padding:14px 16px;margin-bottom:10px;">
-    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;">
-      <span style="font-weight:700;color:#202124;font-size:14px;">{{ h.name }}</span>
-      <span style="background:{{ trend_bg }};color:{{ trend_color }};font-size:12px;font-weight:700;padding:2px 10px;border-radius:12px;">{{ trend_label }}</span>
-      <span style="font-size:10px;color:#9aa0a6;">{{ h.data_label }}</span>
-    </div>
-    <table style="width:100%;border-collapse:collapse;text-align:center;">
-      <tr>
-        <td style="background:#f1f3f4;border-radius:6px;padding:8px 4px;width:24%;">
-          <div style="font-size:10px;color:#5f6368;margin-bottom:2px;">WHIFF%</div>
+    <!-- STATCAST TRENDS -->
+    {% if statcast_trends %}
+    <div class="section">
+      <div class="section-label"><span>📈</span> Statcast Signals</div>
+      <p style="font-size:11px;color:#9a9a94;margin:0 0 14px;">Minimum 80 PA for plate discipline · 50 BBE for contact metrics</p>
+      {% for h in statcast_trends %}
+      <div class="story">
+        <p class="story-hed">
+          {{ h.name }}
+          {% if h.trend == 'up' %}
+            <span class="pill pill-up">↑ Trending Up</span>
+          {% else %}
+            <span class="pill pill-down">↓ Trending Down</span>
+          {% endif %}
+          <span style="font-size:11px;font-weight:400;color:#9a9a94;margin-left:4px;">{{ h.data_label }}</span>
+        </p>
+        <div class="stat-row">
           {% if h.whiff_rate %}
-            {% if h.whiff_rate <= 18 %}
-              {% set whiff_color = "#137333" %}
-            {% elif h.whiff_rate >= 30 %}
-              {% set whiff_color = "#c5221f" %}
-            {% else %}
-              {% set whiff_color = "#202124" %}
-            {% endif %}
-          <div style="font-size:14px;font-weight:700;color:{{ whiff_color }};">{{ h.whiff_rate }}</div>
-          {% else %}
-          <div style="font-size:13px;color:#9aa0a6;">—</div>
+          <div class="stat-box">
+            <div class="stat-label">Whiff%</div>
+            <div class="stat-val {% if h.whiff_rate <= 18 %}good{% elif h.whiff_rate >= 30 %}bad{% endif %}">{{ h.whiff_rate }}</div>
+          </div>
           {% endif %}
-        </td>
-        <td style="width:1%;"></td>
-        <td style="background:#f1f3f4;border-radius:6px;padding:8px 4px;width:24%;">
-          <div style="font-size:10px;color:#5f6368;margin-bottom:2px;">CHASE%</div>
           {% if h.chase_rate %}
-            {% if h.chase_rate <= 24 %}
-              {% set chase_color = "#137333" %}
-            {% elif h.chase_rate >= 35 %}
-              {% set chase_color = "#c5221f" %}
-            {% else %}
-              {% set chase_color = "#202124" %}
-            {% endif %}
-          <div style="font-size:14px;font-weight:700;color:{{ chase_color }};">{{ h.chase_rate }}</div>
-          {% else %}
-          <div style="font-size:13px;color:#9aa0a6;">—</div>
+          <div class="stat-box">
+            <div class="stat-label">Chase%</div>
+            <div class="stat-val {% if h.chase_rate <= 24 %}good{% elif h.chase_rate >= 35 %}bad{% endif %}">{{ h.chase_rate }}</div>
+          </div>
           {% endif %}
-        </td>
-        <td style="width:1%;"></td>
-        <td style="background:#f1f3f4;border-radius:6px;padding:8px 4px;width:24%;">
-          <div style="font-size:10px;color:#5f6368;margin-bottom:2px;">BARREL%</div>
           {% if h.barrel_rate %}
-            {% if h.barrel_rate >= 10 %}
-              {% set barrel_color = "#137333" %}
-            {% elif h.barrel_rate <= 3 %}
-              {% set barrel_color = "#c5221f" %}
-            {% else %}
-              {% set barrel_color = "#202124" %}
-            {% endif %}
-          <div style="font-size:14px;font-weight:700;color:{{ barrel_color }};">{{ h.barrel_rate }}</div>
-          {% else %}
-          <div style="font-size:13px;color:#9aa0a6;">—</div>
+          <div class="stat-box">
+            <div class="stat-label">Barrel%</div>
+            <div class="stat-val {% if h.barrel_rate >= 10 %}good{% elif h.barrel_rate <= 3 %}bad{% endif %}">{{ h.barrel_rate }}</div>
+          </div>
           {% endif %}
-        </td>
-        <td style="width:1%;"></td>
-        <td style="background:#f1f3f4;border-radius:6px;padding:8px 4px;width:24%;">
-          <div style="font-size:10px;color:#5f6368;margin-bottom:2px;">HARD HIT%</div>
           {% if h.hard_hit_rate %}
-            {% if h.hard_hit_rate >= 48 %}
-              {% set hh_color = "#137333" %}
-            {% elif h.hard_hit_rate <= 28 %}
-              {% set hh_color = "#c5221f" %}
-            {% else %}
-              {% set hh_color = "#202124" %}
-            {% endif %}
-          <div style="font-size:14px;font-weight:700;color:{{ hh_color }};">{{ h.hard_hit_rate }}</div>
-          {% else %}
-          <div style="font-size:13px;color:#9aa0a6;">—</div>
+          <div class="stat-box">
+            <div class="stat-label">Hard Hit%</div>
+            <div class="stat-val {% if h.hard_hit_rate >= 48 %}good{% elif h.hard_hit_rate <= 28 %}bad{% endif %}">{{ h.hard_hit_rate }}</div>
+          </div>
           {% endif %}
-        </td>
-      </tr>
-    </table>
-  </div>
-  {% endfor %}
-{% else %}
-<div style="background:#f8f9fa;border-radius:6px;padding:12px 16px;color:#5f6368;font-size:13px;">
-  Insufficient data — Statcast trends require 80+ PA for plate discipline or 50+ batted ball events for contact metrics. Check back after 2-3 weeks of games.
-</div>
-{% endif %}
+        </div>
+      </div>
+      {% if not loop.last %}<hr class="story-divider">{% endif %}
+      {% endfor %}
+    </div>
+    {% endif %}
 
     <!-- PROSPECT CALLOUTS -->
     {% if prospect_callouts %}
-    <div style="font-size:11px;font-weight:700;color:#5f6368;text-transform:uppercase;letter-spacing:0.1em;border-bottom:2px solid #f1f3f4;padding-bottom:8px;margin:24px 0 12px;">🌱 Prospect Callouts</div>
-    {% for p in prospect_callouts %}
-
-    {% if p.positive %}
-      {% set prospect_border = "#34a853" %}
-      {% set prospect_bg = "#f8fff8" %}
-      {% set prospect_badge_bg = "#e6f4ea" %}
-      {% set prospect_badge_color = "#137333" %}
-    {% else %}
-      {% set prospect_border = "#ea4335" %}
-      {% set prospect_bg = "#fff8f8" %}
-      {% set prospect_badge_bg = "#fce8e6" %}
-      {% set prospect_badge_color = "#c5221f" %}
-    {% endif %}
-
-    <div style="border-left:4px solid {{ prospect_border }};background:{{ prospect_bg }};border-radius:0 8px 8px 0;padding:12px 16px;margin-bottom:8px;">
-      <span style="font-weight:700;color:#202124;">{{ p.name }}</span>
-      <span style="background:{{ prospect_badge_bg }};color:{{ prospect_badge_color }};font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;margin-left:8px;">{{ p.level }}</span>
-      <span style="background:#e8f0fe;color:#1a73e8;font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px;margin-left:4px;">{{ p.contract }}</span>
-      <div style="font-size:12px;color:#5f6368;margin-top:4px;">{{ p.note }}</div>
+    <div class="section">
+      <div class="section-label"><span>🌱</span> Farm System</div>
+      {% for p in prospect_callouts %}
+      <div class="story">
+        <p class="story-hed">
+          {{ p.name }}
+          <span class="pill {% if p.positive %}pill-up{% else %}pill-down{% endif %}">{{ p.level }}</span>
+          <span class="pill pill-neutral">{{ p.contract }}</span>
+        </p>
+        <p class="story-body">{{ p.note }}</p>
+      </div>
+      {% if not loop.last %}<hr class="story-divider">{% endif %}
+      {% endfor %}
     </div>
-    {% endfor %}
     {% endif %}
 
     <!-- AI FARM REPORT -->
     {% if farm_report %}
-    <div style="font-size:11px;font-weight:700;color:#5f6368;text-transform:uppercase;letter-spacing:0.1em;border-bottom:2px solid #f1f3f4;padding-bottom:8px;margin:24px 0 12px;">🌾 AI Farm System Report</div>
-    <div style="background:#f8fff8;border:1px solid #ceead6;border-radius:8px;padding:16px 18px;">
-      <div style="font-size:13px;line-height:1.7;color:#202124;white-space:pre-wrap;">{{ farm_report }}</div>
+    <div class="section">
+      <div class="section-label"><span>🌾</span> Farm Report</div>
+      <div class="story">
+        <p class="story-body">{{ farm_report }}</p>
+      </div>
     </div>
     {% endif %}
 
-   <!-- BASEBALL PULSE -->
-{% if baseball_pulse %}
-<div style="font-size:11px;font-weight:700;color:#5f6368;text-transform:uppercase;letter-spacing:0.1em;border-bottom:2px solid #f1f3f4;padding-bottom:8px;margin:24px 0 12px;">📡 Baseball Pulse</div>
-<div style="background:#f8f9fa;border:1px solid #e0e0e0;border-radius:8px;padding:16px 18px;">
-  {% set sections = baseball_pulse.split('\n\n') %}
-  {% for section in sections %}
-    {% if section.strip() %}
-      {% set lines = section.strip().split('\n') %}
-      {% set header = lines[0].strip() %}
-      {% if header == 'MY TEAM' %}
-        {% set section_icon = "⚾" %}
-        {% set section_color = "#1a73e8" %}
-        {% set section_bg = "#e8f0fe" %}
-      {% elif header == 'MY PROSPECTS' %}
-        {% set section_icon = "🌱" %}
-        {% set section_color = "#137333" %}
-        {% set section_bg = "#e6f4ea" %}
-      {% elif header == 'AROUND THE LEAGUE' %}
-        {% set section_icon = "📰" %}
-        {% set section_color = "#b45309" %}
-        {% set section_bg = "#fef7e0" %}
-      {% elif header == 'BASEBALL TODAY' %}
-        {% set section_icon = "✨" %}
-        {% set section_color = "#5f6368" %}
-        {% set section_bg = "#f1f3f4" %}
-      {% else %}
-        {% set section_icon = "📡" %}
-        {% set section_color = "#5f6368" %}
-        {% set section_bg = "#f1f3f4" %}
-      {% endif %}
-      <div style="margin-bottom:16px;">
-        <div style="display:inline-block;background:{{ section_bg }};color:{{ section_color }};font-size:10px;font-weight:700;padding:3px 10px;border-radius:4px;margin-bottom:8px;letter-spacing:0.08em;">
-          {{ section_icon }} {{ header }}
-        </div>
-        <div style="font-size:13px;line-height:1.7;color:#202124;">
-          {{ lines[1:] | join('\n') | trim }}
-        </div>
-      </div>
+    <!-- BASEBALL PULSE -->
+    {% if baseball_pulse %}
+    <div class="section">
+      <div class="section-label"><span>📡</span> Baseball Pulse</div>
+      {% set sections = baseball_pulse.split('\n\n') %}
+      {% for section in sections %}
+        {% if section.strip() %}
+          {% set lines = section.strip().split('\n') %}
+          {% set header = lines[0].strip() %}
+          {% set content = lines[1:] | join(' ') | trim %}
+          {% if content and content != '' %}
+            {% if header == 'MY TEAM' %}
+              {% set label_class = 'my-team' %}
+              {% set label_text = 'My Team' %}
+            {% elif header == 'MY PROSPECTS' %}
+              {% set label_class = 'prospects' %}
+              {% set label_text = 'My Prospects' %}
+            {% elif header == 'AROUND THE LEAGUE' %}
+              {% set label_class = 'league' %}
+              {% set label_text = 'Around the League' %}
+            {% elif header == 'BASEBALL TODAY' %}
+              {% set label_class = 'baseball' %}
+              {% set label_text = 'Baseball Today' %}
+            {% else %}
+              {% set label_class = 'baseball' %}
+              {% set label_text = header %}
+            {% endif %}
+            <div class="pulse-section">
+              <span class="pulse-label {{ label_class }}">{{ label_text }}</span>
+              <p class="pulse-body">{{ content }}</p>
+            </div>
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+    </div>
     {% endif %}
-  {% endfor %}
-</div>
-{% endif %}
 
   </div>
 
-  <div style="text-align:center;padding:14px;font-size:11px;color:#9aa0a6;">
-    email-digest &nbsp;·&nbsp; {{ date }} &nbsp;·&nbsp; Generated 6:01 AM CST
+  <!-- FOOTER -->
+  <div class="footer">
+    Weekend Warriors · {{ date }} · Generated 6 AM CST
   </div>
 
 </div>
