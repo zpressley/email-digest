@@ -1,6 +1,7 @@
 {
   "daily": {
     "date": "Wednesday, April 1",
+    "matchup_status": null,
     "roster_impact": [],
     "upcoming_starts": [
       {
@@ -13,7 +14,7 @@
         "confirmed": true,
         "act_now": true,
         "position": "SP",
-        "opp_offense_rank": 22,
+        "opp_offense_rank": 21,
         "opp_offense_tier": "weak",
         "opp_k_rate": 18.3,
         "opp_runs_pg": 3.8,
@@ -151,6 +152,6 @@
     "statcast_trends": [],
     "prospect_callouts": [],
     "farm_report": "",
-    "baseball_pulse": "MY TEAM\n\nThere is no relevant news for my roster today.\n\nMY PROSPECTS\n\nNo prospect news today.\n\nAROUND THE LEAGUE\n\nZach Eflin exited his start with elbow discomfort and is expected to be placed on the IL, removing a mid-rotation arm from availability. Albert Su\u00e1rez has been called up by the Orioles to address rotation depth. Cody Ponce was diagnosed with an ACL sprain and faces a lengthy absence, significantly impacting Arizona's pitching depth. Ryan Loutos was designated for assignment by the Mariners, clearing roster space for their organizational moves.\n\nBASEBALL TODAY\n\nJose Fernandez's electrifying MLB debut included two home runs and a go-ahead three-run shot as the Diamondbacks stormed back from down 5-0 in the eighth inning. Shohei Ohtani was dominant in his pitching debut with six scoreless innings, six strikeouts, and just one hit against Cleveland, extending his scoreless innings streak to 22.2 dating back to last season. Max Fried continued his shutdown pitching for the Yankees with seven scoreless innings against Seattle, cementing their remarkable start with the fewest runs allowed through five games since 1943."
+    "baseball_pulse": "MY TEAM\n\nThere is no relevant news for my roster today.\n\nMY PROSPECTS\n\nNo prospect news today.\n\nAROUND THE LEAGUE\n\nZach Eflin is expected to be placed on the injured list after exiting his start with elbow discomfort, removing a productive arm from circulation. The Baltimore Orioles will call up Albert Su\u00e1rez as they make pitching moves before their series finale against Texas. Cody Ponce has been diagnosed with an ACL sprain and faces a lengthy absence, significantly impacting Arizona's depth. Chase DeLauter's X-rays came back negative after exiting with a foot injury, so his fantasy impact remains to be determined pending further evaluation.\n\nBASEBALL TODAY\n\nJose Fernandez delivered one of the most electrifying MLB debuts in recent memory, launching two home runs including a go-ahead three-run shot off Kenley Jansen to lead the Diamondbacks to a stunning comeback win from down 5-0. Shohei Ohtani dominated in his 2026 pitching debut with six shutout innings, six strikeouts, and just one hit, while Max Fried continues his remarkable consistency with seven more scoreless innings for the Yankees."
   }
 }
