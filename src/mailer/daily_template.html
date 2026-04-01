@@ -75,32 +75,53 @@
 
   <div class="body">
 
-    <!-- YESTERDAY'S RESULTS -->
-    {% if yesterday_results %}
+    <!-- CURRENT MATCHUP STATUS -->
+    {% if matchup_status %}
     <div class="section">
-      <div class="section-label"><span>📊</span> Yesterday's Results</div>
+      <div class="section-label"><span>📊</span> Current Matchup</div>
       <div class="story">
-        <p class="story-body">{{ yesterday_results.summary }}</p>
-        {% if yesterday_results.category_wins is defined %}
-        <div class="stat-row" style="margin-top:12px;">
-          <div class="stat-box">
-            <div class="stat-label">Cats Won</div>
-            <div class="stat-val {% if yesterday_results.cats_won >= 6 %}good{% elif yesterday_results.cats_won <= 4 %}bad{% endif %}">{{ yesterday_results.cats_won }}</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-label">Cats Lost</div>
-            <div class="stat-val {% if yesterday_results.cats_lost >= 6 %}bad{% elif yesterday_results.cats_lost <= 4 %}good{% endif %}">{{ yesterday_results.cats_lost }}</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-label">Record</div>
-            <div class="stat-val">{{ yesterday_results.record }}</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-label">Rank</div>
-            <div class="stat-val">{{ yesterday_results.rank }}</div>
-          </div>
-        </div>
+        {% if matchup_status.winning == true %}
+          {% set ms_bg = "#e6f4ea" %}
+          {% set ms_border = "#34a853" %}
+          {% set ms_color = "#137333" %}
+        {% elif matchup_status.winning == false %}
+          {% set ms_bg = "#fce8e6" %}
+          {% set ms_border = "#ea4335" %}
+          {% set ms_color = "#c5221f" %}
+        {% else %}
+          {% set ms_bg = "#f6f6f2" %}
+          {% set ms_border = "#dadce0" %}
+          {% set ms_color = "#5f6368" %}
         {% endif %}
+        <div style="background:{{ ms_bg }};border:1px solid {{ ms_border }};border-radius:8px;padding:14px 18px;">
+          <p class="story-body" style="margin:0;">{{ matchup_status.summary }}</p>
+          {% if matchup_status.cats_won is defined %}
+          <div class="stat-row" style="margin-top:12px;">
+            <div class="stat-box">
+              <div class="stat-label">Cats W</div>
+              <div class="stat-val good">{{ matchup_status.cats_won }}</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">Cats L</div>
+              <div class="stat-val bad">{{ matchup_status.cats_lost }}</div>
+            </div>
+            {% if matchup_status.cats_tied %}
+            <div class="stat-box">
+              <div class="stat-label">Tied</div>
+              <div class="stat-val">{{ matchup_status.cats_tied }}</div>
+            </div>
+            {% endif %}
+            <div class="stat-box">
+              <div class="stat-label">Record</div>
+              <div class="stat-val">{{ matchup_status.record }}</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">Rank</div>
+              <div class="stat-val">#{{ matchup_status.rank }}</div>
+            </div>
+          </div>
+          {% endif %}
+        </div>
       </div>
     </div>
     {% endif %}
