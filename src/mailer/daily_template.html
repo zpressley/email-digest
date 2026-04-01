@@ -173,58 +173,103 @@
     <div style="background:#f8f9fa;border-radius:6px;padding:12px 16px;color:#5f6368;font-size:13px;">No notable free agent movement.</div>
     {% endif %}
 
-    <!-- STATCAST TRENDS -->
-    <div style="font-size:11px;font-weight:700;color:#5f6368;text-transform:uppercase;letter-spacing:0.1em;border-bottom:2px solid #f1f3f4;padding-bottom:8px;margin:24px 0 12px;">📈 Statcast Trends</div>
-    {% if statcast_trends %}
-      {% for h in statcast_trends %}
+   <!-- STATCAST TRENDS -->
+<div style="font-size:11px;font-weight:700;color:#5f6368;text-transform:uppercase;letter-spacing:0.1em;border-bottom:2px solid #f1f3f4;padding-bottom:8px;margin:24px 0 12px;">📈 Statcast Trends</div>
+{% if statcast_trends %}
+  {% for h in statcast_trends %}
 
-      {% if h.trend == 'up' %}
-        {% set trend_bg = "#e6f4ea" %}
-        {% set trend_color = "#137333" %}
-        {% set trend_label = "↑ TRENDING UP" %}
-      {% elif h.trend == 'down' %}
-        {% set trend_bg = "#fce8e6" %}
-        {% set trend_color = "#c5221f" %}
-        {% set trend_label = "↓ TRENDING DOWN" %}
-      {% else %}
-        {% set trend_bg = "#f1f3f4" %}
-        {% set trend_color = "#5f6368" %}
-        {% set trend_label = "→ NEUTRAL" %}
-      {% endif %}
+  {% if h.trend == 'up' %}
+    {% set trend_bg = "#e6f4ea" %}
+    {% set trend_color = "#137333" %}
+    {% set trend_label = "↑ TRENDING UP" %}
+    {% set card_border = "#34a853" %}
+  {% else %}
+    {% set trend_bg = "#fce8e6" %}
+    {% set trend_color = "#c5221f" %}
+    {% set trend_label = "↓ TRENDING DOWN" %}
+    {% set card_border = "#ea4335" %}
+  {% endif %}
 
-      <div style="border:1px solid #dadce0;border-radius:8px;padding:14px 16px;margin-bottom:10px;">
-        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-          <span style="font-weight:700;color:#202124;font-size:14px;">{{ h.name }}</span>
-          <span style="background:{{ trend_bg }};color:{{ trend_color }};font-size:12px;font-weight:700;padding:2px 10px;border-radius:12px;">{{ trend_label }}</span>
-        </div>
-        <table style="width:100%;border-collapse:collapse;margin-top:8px;text-align:center;">
-          <tr>
-            <td style="background:#f1f3f4;border-radius:6px;padding:8px 4px;width:24%;">
-              <div style="font-size:10px;color:#5f6368;">EV</div>
-              <div style="font-size:14px;font-weight:700;color:#202124;">{{ h.avg_exit_velocity or 'N/A' }}</div>
-            </td>
-            <td style="width:1%;"></td>
-            <td style="background:#f1f3f4;border-radius:6px;padding:8px 4px;width:24%;">
-              <div style="font-size:10px;color:#5f6368;">BARREL%</div>
-              <div style="font-size:14px;font-weight:700;color:#202124;">{{ h.barrel_rate or 'N/A' }}</div>
-            </td>
-            <td style="width:1%;"></td>
-            <td style="background:#f1f3f4;border-radius:6px;padding:8px 4px;width:24%;">
-              <div style="font-size:10px;color:#5f6368;">xBA</div>
-              <div style="font-size:14px;font-weight:700;color:#202124;">{{ h.xba or 'N/A' }}</div>
-            </td>
-            <td style="width:1%;"></td>
-            <td style="background:#f1f3f4;border-radius:6px;padding:8px 4px;width:24%;">
-              <div style="font-size:10px;color:#5f6368;">WHIFF%</div>
-              <div style="font-size:14px;font-weight:700;color:#202124;">{{ h.whiff_rate or 'N/A' }}</div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      {% endfor %}
-    {% else %}
-    <div style="background:#f8f9fa;border-radius:6px;padding:12px 16px;color:#5f6368;font-size:13px;">No Statcast data available yet.</div>
-    {% endif %}
+  <div style="border:1px solid {{ card_border }};border-radius:8px;padding:14px 16px;margin-bottom:10px;">
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;">
+      <span style="font-weight:700;color:#202124;font-size:14px;">{{ h.name }}</span>
+      <span style="background:{{ trend_bg }};color:{{ trend_color }};font-size:12px;font-weight:700;padding:2px 10px;border-radius:12px;">{{ trend_label }}</span>
+      <span style="font-size:10px;color:#9aa0a6;">{{ h.data_label }}</span>
+    </div>
+    <table style="width:100%;border-collapse:collapse;text-align:center;">
+      <tr>
+        <td style="background:#f1f3f4;border-radius:6px;padding:8px 4px;width:24%;">
+          <div style="font-size:10px;color:#5f6368;margin-bottom:2px;">WHIFF%</div>
+          {% if h.whiff_rate %}
+            {% if h.whiff_rate <= 18 %}
+              {% set whiff_color = "#137333" %}
+            {% elif h.whiff_rate >= 30 %}
+              {% set whiff_color = "#c5221f" %}
+            {% else %}
+              {% set whiff_color = "#202124" %}
+            {% endif %}
+          <div style="font-size:14px;font-weight:700;color:{{ whiff_color }};">{{ h.whiff_rate }}</div>
+          {% else %}
+          <div style="font-size:13px;color:#9aa0a6;">—</div>
+          {% endif %}
+        </td>
+        <td style="width:1%;"></td>
+        <td style="background:#f1f3f4;border-radius:6px;padding:8px 4px;width:24%;">
+          <div style="font-size:10px;color:#5f6368;margin-bottom:2px;">CHASE%</div>
+          {% if h.chase_rate %}
+            {% if h.chase_rate <= 24 %}
+              {% set chase_color = "#137333" %}
+            {% elif h.chase_rate >= 35 %}
+              {% set chase_color = "#c5221f" %}
+            {% else %}
+              {% set chase_color = "#202124" %}
+            {% endif %}
+          <div style="font-size:14px;font-weight:700;color:{{ chase_color }};">{{ h.chase_rate }}</div>
+          {% else %}
+          <div style="font-size:13px;color:#9aa0a6;">—</div>
+          {% endif %}
+        </td>
+        <td style="width:1%;"></td>
+        <td style="background:#f1f3f4;border-radius:6px;padding:8px 4px;width:24%;">
+          <div style="font-size:10px;color:#5f6368;margin-bottom:2px;">BARREL%</div>
+          {% if h.barrel_rate %}
+            {% if h.barrel_rate >= 10 %}
+              {% set barrel_color = "#137333" %}
+            {% elif h.barrel_rate <= 3 %}
+              {% set barrel_color = "#c5221f" %}
+            {% else %}
+              {% set barrel_color = "#202124" %}
+            {% endif %}
+          <div style="font-size:14px;font-weight:700;color:{{ barrel_color }};">{{ h.barrel_rate }}</div>
+          {% else %}
+          <div style="font-size:13px;color:#9aa0a6;">—</div>
+          {% endif %}
+        </td>
+        <td style="width:1%;"></td>
+        <td style="background:#f1f3f4;border-radius:6px;padding:8px 4px;width:24%;">
+          <div style="font-size:10px;color:#5f6368;margin-bottom:2px;">HARD HIT%</div>
+          {% if h.hard_hit_rate %}
+            {% if h.hard_hit_rate >= 48 %}
+              {% set hh_color = "#137333" %}
+            {% elif h.hard_hit_rate <= 28 %}
+              {% set hh_color = "#c5221f" %}
+            {% else %}
+              {% set hh_color = "#202124" %}
+            {% endif %}
+          <div style="font-size:14px;font-weight:700;color:{{ hh_color }};">{{ h.hard_hit_rate }}</div>
+          {% else %}
+          <div style="font-size:13px;color:#9aa0a6;">—</div>
+          {% endif %}
+        </td>
+      </tr>
+    </table>
+  </div>
+  {% endfor %}
+{% else %}
+<div style="background:#f8f9fa;border-radius:6px;padding:12px 16px;color:#5f6368;font-size:13px;">
+  Insufficient data — Statcast trends require 80+ PA for plate discipline or 50+ batted ball events for contact metrics. Check back after 2-3 weeks of games.
+</div>
+{% endif %}
 
     <!-- PROSPECT CALLOUTS -->
     {% if prospect_callouts %}
@@ -260,13 +305,48 @@
     </div>
     {% endif %}
 
-    <!-- BASEBALL PULSE -->
-    {% if baseball_pulse %}
-    <div style="font-size:11px;font-weight:700;color:#5f6368;text-transform:uppercase;letter-spacing:0.1em;border-bottom:2px solid #f1f3f4;padding-bottom:8px;margin:24px 0 12px;">📡 Baseball Pulse</div>
-    <div style="background:#f8f9fa;border:1px solid #e0e0e0;border-radius:8px;padding:16px 18px;">
-      <div style="font-size:13px;line-height:1.7;color:#202124;white-space:pre-wrap;">{{ baseball_pulse }}</div>
-    </div>
+   <!-- BASEBALL PULSE -->
+{% if baseball_pulse %}
+<div style="font-size:11px;font-weight:700;color:#5f6368;text-transform:uppercase;letter-spacing:0.1em;border-bottom:2px solid #f1f3f4;padding-bottom:8px;margin:24px 0 12px;">📡 Baseball Pulse</div>
+<div style="background:#f8f9fa;border:1px solid #e0e0e0;border-radius:8px;padding:16px 18px;">
+  {% set sections = baseball_pulse.split('\n\n') %}
+  {% for section in sections %}
+    {% if section.strip() %}
+      {% set lines = section.strip().split('\n') %}
+      {% set header = lines[0].strip() %}
+      {% if header == 'MY TEAM' %}
+        {% set section_icon = "⚾" %}
+        {% set section_color = "#1a73e8" %}
+        {% set section_bg = "#e8f0fe" %}
+      {% elif header == 'MY PROSPECTS' %}
+        {% set section_icon = "🌱" %}
+        {% set section_color = "#137333" %}
+        {% set section_bg = "#e6f4ea" %}
+      {% elif header == 'AROUND THE LEAGUE' %}
+        {% set section_icon = "📰" %}
+        {% set section_color = "#b45309" %}
+        {% set section_bg = "#fef7e0" %}
+      {% elif header == 'BASEBALL TODAY' %}
+        {% set section_icon = "✨" %}
+        {% set section_color = "#5f6368" %}
+        {% set section_bg = "#f1f3f4" %}
+      {% else %}
+        {% set section_icon = "📡" %}
+        {% set section_color = "#5f6368" %}
+        {% set section_bg = "#f1f3f4" %}
+      {% endif %}
+      <div style="margin-bottom:16px;">
+        <div style="display:inline-block;background:{{ section_bg }};color:{{ section_color }};font-size:10px;font-weight:700;padding:3px 10px;border-radius:4px;margin-bottom:8px;letter-spacing:0.08em;">
+          {{ section_icon }} {{ header }}
+        </div>
+        <div style="font-size:13px;line-height:1.7;color:#202124;">
+          {{ lines[1:] | join('\n') | trim }}
+        </div>
+      </div>
     {% endif %}
+  {% endfor %}
+</div>
+{% endif %}
 
   </div>
 
