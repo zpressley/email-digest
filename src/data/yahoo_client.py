@@ -271,14 +271,14 @@ class YahooClient:
 
         return pitchers
 
-    def get_fa_pitchers_with_starts(self, count: int = 60) -> list[dict]:
+    def get_fa_pitchers_with_starts(self, count: int = 25) -> list[dict]:
         """
         FA starting pitchers with at least one start remaining this week.
         Returns list of {name, team, yahoo_id, position, opponent_today}.
         """
         url  = (
             f"{BASE_URL}/league/{self.league_key}/players"
-            f";status=FA;position=SP;sort=PTS;count={count}"
+            f";status=FA;position=SP;sort=OR;count={count}"
         )
         root = self._get_xml(url)
 
