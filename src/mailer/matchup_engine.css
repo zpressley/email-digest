@@ -1,0 +1,387 @@
+/* ═══════════════════════════════════════════════════════════════════
+   matchup_engine.css
+   FBP Email Digest — Weekly Matchup Engine styles
+   Light theme matching the existing digest design system.
+
+   Design tokens:
+     Background:  #ffffff (cards), #f4f4f0 (section/table bg)
+     Text:        #1a1a18 (headings), #3a3a36 (body), #9a9a94 (labels)
+     Border:      #e8e8e4
+     Accent:      #c0392b (red), #e67e22 (orange/yellow), #27ae60 (green)
+     Font stack:  -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Section wrapper ───────────────────────────────────────────────── */
+.matchup-engine {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+  color: #1a1a18;
+  margin: 24px 0;
+}
+
+.matchup-engine h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1a1a18;
+  border-bottom: 2px solid #e8e8e4;
+  padding-bottom: 6px;
+  margin-bottom: 16px;
+}
+
+.matchup-engine h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #3a3a36;
+  margin: 18px 0 8px;
+}
+
+/* ── IP banner ─────────────────────────────────────────────────────── */
+.ip-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f4f4f0;
+  border: 1px solid #e8e8e4;
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.ip-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #3a3a36;
+  min-width: 150px;
+  white-space: nowrap;
+}
+
+.ip-bar-bg {
+  flex: 1;
+  height: 8px;
+  background: #e8e8e4;
+  border-radius: 4px;
+  overflow: hidden;
+  min-width: 80px;
+}
+
+.ip-bar {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.ip-note {
+  font-size: 0.76rem;
+  color: #9a9a94;
+  flex: 2;
+  min-width: 160px;
+}
+
+/* ── 20-cat scorecard ──────────────────────────────────────────────── */
+.scenario-note {
+  font-size: 0.72rem;
+  color: #9a9a94;
+  margin-bottom: 8px;
+}
+
+.scorecard {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+  margin-bottom: 12px;
+  border: 1px solid #e8e8e4;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.scorecard th {
+  background: #f4f4f0;
+  color: #3a3a36;
+  padding: 6px 8px;
+  text-align: left;
+  font-weight: 600;
+  white-space: nowrap;
+  border-bottom: 1px solid #e8e8e4;
+}
+
+.scorecard td {
+  padding: 5px 8px;
+  border-bottom: 1px solid #f0f0ec;
+  color: #3a3a36;
+}
+
+.scorecard tr:last-child td {
+  border-bottom: none;
+}
+
+.scorecard .section-row td {
+  background: #f4f4f0;
+  color: #9a9a94;
+  font-weight: 700;
+  font-size: 0.70rem;
+  padding: 5px 8px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-bottom: 1px solid #e8e8e4;
+}
+
+.cat-name {
+  font-weight: 600;
+  color: #1a1a18;
+}
+
+/* ── SP start decision cards ───────────────────────────────────────── */
+.start-decisions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.start-card {
+  background: #ffffff;
+  border: 1px solid #e8e8e4;
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+
+.start-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.pitcher-name {
+  font-size: 0.96rem;
+  font-weight: 700;
+  color: #1a1a18;
+  flex: 1;
+  min-width: 120px;
+}
+
+/* Recommendation badges — match existing digest pill classes */
+.rec-badge {
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.pill-must-start  { background: #d6eaf8; color: #1a5276; }
+.pill-start       { background: #d5f5e3; color: #1e8449; }
+.pill-conditional { background: #fef9e7; color: #b7950b; }
+.pill-sit         { background: #fadbd8; color: #922b21; }
+
+.conf-badge {
+  font-size: 0.65rem;
+  color: #9a9a94;
+  padding: 1px 5px;
+  border: 1px solid #e8e8e4;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
+.dq-badge {
+  font-size: 0.65rem;
+  white-space: nowrap;
+}
+
+.ip-flag {
+  font-size: 0.70rem;
+  color: #e67e22;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.opp-line {
+  font-size: 0.73rem;
+  color: #9a9a94;
+  margin-bottom: 8px;
+}
+
+.scenarios {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-bottom: 8px;
+}
+
+.scenario {
+  padding: 4px 10px;
+  background: #f4f4f0;
+  border-radius: 4px;
+  font-size: 0.74rem;
+  color: #3a3a36;
+  font-variant-numeric: tabular-nums;
+}
+
+.reasoning {
+  font-size: 0.73rem;
+  color: #9a9a94;
+  line-height: 1.55;
+  border-top: 1px solid #f0f0ec;
+  padding-top: 7px;
+  margin-top: 4px;
+}
+
+/* ── RP bullpen table ──────────────────────────────────────────────── */
+.rp-note {
+  font-size: 0.72rem;
+  color: #9a9a94;
+  margin-bottom: 8px;
+}
+
+.rp-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.76rem;
+  margin-bottom: 12px;
+  border: 1px solid #e8e8e4;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.rp-table th {
+  background: #f4f4f0;
+  color: #3a3a36;
+  padding: 5px 8px;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 1px solid #e8e8e4;
+}
+
+.rp-table td {
+  padding: 5px 8px;
+  border-bottom: 1px solid #f0f0ec;
+  color: #3a3a36;
+}
+
+.rp-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* ── Streaming targets ─────────────────────────────────────────────── */
+.streamer-note {
+  font-size: 0.72rem;
+  color: #9a9a94;
+  margin-bottom: 8px;
+}
+
+.streamers {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.streamer-card {
+  background: #ffffff;
+  border: 1px solid #e8e8e4;
+  border-radius: 8px;
+  padding: 10px 14px;
+}
+
+.streamer-name {
+  font-weight: 700;
+  color: #1a1a18;
+  font-size: 0.90rem;
+}
+
+.grade-badge {
+  margin-left: 8px;
+  padding: 1px 8px;
+  border-radius: 10px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.value-tag {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #9a9a94;
+  border: 1px solid #e8e8e4;
+  padding: 1px 6px;
+  border-radius: 10px;
+  margin: 0 0 4px 6px;
+  vertical-align: middle;
+}
+
+.streamer-opp {
+  font-size: 0.72rem;
+  color: #9a9a94;
+  margin: 3px 0;
+}
+
+.streamer-line {
+  font-size: 0.74rem;
+  color: #3a3a36;
+  margin-bottom: 3px;
+  font-variant-numeric: tabular-nums;
+}
+
+.streamer-reason {
+  font-size: 0.71rem;
+  color: #9a9a94;
+}
+
+.no-streamers {
+  font-size: 0.80rem;
+  color: #9a9a94;
+  padding: 8px 0;
+}
+
+/* ── Week plan summary ─────────────────────────────────────────────── */
+.week-summary {
+  background: #f4f4f0;
+  border-left: 3px solid #e8e8e4;
+  border-radius: 4px;
+  padding: 12px 16px;
+  margin-top: 20px;
+}
+
+.week-summary h3 {
+  margin-top: 0;
+  margin-bottom: 6px;
+  color: #1a1a18;
+}
+
+.week-summary p {
+  font-size: 0.83rem;
+  color: #3a3a36;
+  line-height: 1.65;
+  margin: 0;
+}
+
+/* ── Mobile responsive ─────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .scorecard th:nth-child(5),
+  .scorecard td:nth-child(5) {
+    display: none;
+  }
+
+  .ip-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .ip-bar-bg {
+    width: 100%;
+  }
+
+  .start-header {
+    gap: 5px;
+  }
+
+  .pitcher-name {
+    font-size: 0.88rem;
+  }
+
+  .scenario {
+    font-size: 0.68rem;
+  }
+}

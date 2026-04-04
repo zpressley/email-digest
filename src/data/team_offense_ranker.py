@@ -289,3 +289,7 @@ def _get_tier(rank: int) -> str:
         if rank in r:
             return label
     return "average"
+
+def get_offense_rank(team_abbr: str, days: int = 14) -> int:
+    """Returns integer offense rank (1=best offense, 30=worst). Used by weekly matchup engine."""
+    return get_matchup_grade(team_abbr, days).get("rank", 15)

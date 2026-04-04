@@ -1,4 +1,6 @@
 """Daily digest entrypoint."""
+import json
+import os
 from datetime import date
 from src.analysis.roster_analyzer import get_todays_roster_impact
 from src.analysis.pitcher_analyzer import get_my_upcoming_starts
@@ -10,6 +12,11 @@ from src.analysis.category_standings import get_matchup_status
 from src.analysis.discord_reader import get_posts_as_text
 from src.data.ai_client import generate_farm_report, generate_baseball_pulse
 from src.data.snapshot_store import save_snapshot
+from src.data.yahoo_client import YahooClient
+from src.data.mlb_client import MLBClient
+from src.data import team_offense_ranker
+from src.data.weekly_matchup_engine import get_weekly_matchup_section
+from src.config import COMBINED_PLAYERS_PATH
 from src.mailer.renderer import render_daily
 from src.mailer.sender import send_email
 
@@ -47,6 +54,18 @@ def run():
     print("📡 Generating baseball pulse...")
     baseball_pulse = generate_baseball_pulse(feed_text)
 
+    print("📊 Building weekly matchup projection...")
+    try:
+        with open(COMBINED_PLAYERS_PATH) as f:
+            combined_players = json.load(f)
+    except Exception:
+        combined_players = []
+    yahoo  = YahooClient()
+    mlb    = MLBClient()
+    weekly_matchup_section = get_weekly_matchup_section(
+        yahoo, mlb, team_offense_ranker, combined_players
+    )
+
     context = {
         "date":                    today.strftime("%A, %B %-d"),
         "matchup_status":          matchup_status,
@@ -58,6 +77,7 @@ def run():
         "prospect_callouts":       prospect_callouts,
         "farm_report":             farm_report,
         "baseball_pulse":          baseball_pulse,
+        "weekly_matchup_section":  weekly_matchup_section,
     }
 
     save_snapshot({"daily": context}, today)
