@@ -75,8 +75,13 @@ def generate_baseball_pulse(feed_text: str) -> str:
     (injuries, IL moves, call-ups, significant role changes).
     Minor league signings and non-roster moves are ignored.
     """
-    if not feed_text or not ANTHROPIC_KEY:
+    if not feed_text:
+        print("  ⚠️  Baseball pulse: no feed text")
         return ""
+    if not ANTHROPIC_KEY:
+        print("  ❌ Baseball pulse: ANTHROPIC_KEY not set")
+        return ""
+    print(f"  ✅ Baseball pulse: key loaded, feed length {len(feed_text)} chars")
 
     my_roster   = _load_my_roster_names()
     my_prospects = _load_my_prospect_names()
@@ -152,7 +157,7 @@ FEED:
         )
         return message.content[0].text.strip()
     except Exception as e:
-        print(f"  ⚠️  Baseball pulse generation error: {e}")
+        print(f"  ❌ Baseball pulse generation error: {type(e).__name__}: {e}")
         return ""
 
 
@@ -190,7 +195,7 @@ Prospect activity:
         )
         return message.content[0].text.strip()
     except Exception as e:
-        print(f"  ⚠️  Farm report generation error: {e}")
+        print(f"  ❌ Farm report generation error: {type(e).__name__}: {e}")
         return ""
 
 
