@@ -14,7 +14,7 @@ import json
 import anthropic
 
 ANTHROPIC_KEY = os.getenv("ANTHROPIC_KEY")
-MODEL         = "claude-haiku-4-5-20251001"
+MODEL         = "claude-3-5-haiku-20241022"
 
 # WAR roster context injected into pulse prompt
 # These are the players the AI should watch for specifically
