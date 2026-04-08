@@ -1,0 +1,123 @@
+{
+  "daily": {
+    "date": "Wednesday, April 8",
+    "matchup_status": null,
+    "roster_impact": [],
+    "upcoming_starts": [
+      {
+        "name": "Ryan Weathers",
+        "mlb_team": "NYY",
+        "opponent": "Athletics",
+        "opponent_abbr": "OAK",
+        "game_date": "2026-04-09",
+        "days_out": 1,
+        "confirmed": true,
+        "act_now": true,
+        "position": "SP",
+        "opp_offense_rank": 5,
+        "opp_offense_tier": "elite",
+        "opp_k_rate": 30.1,
+        "opp_runs_pg": 4.3,
+        "recommendation": "SIT",
+        "rec_color": "red"
+      }
+    ],
+    "streaming_opportunities": [
+      {
+        "name": "Eduardo Rodriguez",
+        "pitcher_team": "Arizona Diamondbacks",
+        "opponent": "New York Mets",
+        "opponent_abbr": "NYM",
+        "game_date": "2026-04-09",
+        "days_out": 1,
+        "era": "N/A",
+        "ownership": 0.0,
+        "opp_offense_rank": 23,
+        "opp_offense_tier": "weak",
+        "opp_k_rate": 20.5,
+        "opp_runs_pg": 4.82,
+        "score": 53.7,
+        "latest_add_date": "Wednesday",
+        "urgent": true,
+        "confirmed": true
+      },
+      {
+        "name": "Davis Martin",
+        "pitcher_team": "Chicago White Sox",
+        "opponent": "Kansas City Royals",
+        "opponent_abbr": "KC",
+        "game_date": "2026-04-10",
+        "days_out": 2,
+        "era": "2.45",
+        "ownership": 0.0,
+        "opp_offense_rank": 17,
+        "opp_offense_tier": "average",
+        "opp_k_rate": 23.0,
+        "opp_runs_pg": 3.91,
+        "score": 52.2,
+        "latest_add_date": "Thursday",
+        "urgent": false,
+        "confirmed": true
+      },
+      {
+        "name": "Patrick Corbin",
+        "pitcher_team": "Toronto Blue Jays",
+        "opponent": "Minnesota Twins",
+        "opponent_abbr": "MIN",
+        "game_date": "2026-04-10",
+        "days_out": 2,
+        "era": "N/A",
+        "ownership": 0.0,
+        "opp_offense_rank": 13,
+        "opp_offense_tier": "average",
+        "opp_k_rate": 26.7,
+        "opp_runs_pg": 4.45,
+        "score": 36.7,
+        "latest_add_date": "Thursday",
+        "urgent": false,
+        "confirmed": true
+      },
+      {
+        "name": "Max Scherzer",
+        "pitcher_team": "Toronto Blue Jays",
+        "opponent": "Minnesota Twins",
+        "opponent_abbr": "MIN",
+        "game_date": "2026-04-12",
+        "days_out": 4,
+        "era": "3.38",
+        "ownership": 0.0,
+        "opp_offense_rank": 13,
+        "opp_offense_tier": "average",
+        "opp_k_rate": 26.7,
+        "opp_runs_pg": 4.45,
+        "score": 36.7,
+        "latest_add_date": "Saturday",
+        "urgent": false,
+        "confirmed": true
+      }
+    ],
+    "hot_free_agents": [],
+    "statcast_trends": [
+      {
+        "name": "Riley Greene",
+        "trend": "up",
+        "signal_score": 3.5,
+        "data_label": "82 PA \u2014 discipline metrics only",
+        "pa": 82,
+        "bbe": 58,
+        "whiff_rate": 25.0,
+        "chase_rate": 25.8,
+        "barrel_rate": 10.3,
+        "hard_hit_rate": 50.0,
+        "xba": null,
+        "has_discipline": true,
+        "has_contact": true,
+        "has_expected": false
+      }
+    ],
+    "prospect_callouts": [],
+    "farm_report": "",
+    "baseball_pulse": "",
+    "weekly_matchup_section": "<div class=\"matchup-engine\">\n<h2>\ud83d\udcca Weekly Matchup Projection</h2>\n\n    <div class=\"ip-banner\">\n      <span class=\"ip-label\">IP Banked: 0.0 / 35</span>\n      <div class=\"ip-bar-bg\">\n        <div class=\"ip-bar\" style=\"width:0%;background:#e74c3c\"></div>\n      </div>\n      <span class=\"ip-note\">IP minimum covered \u2014 37.4 projected (0.0 banked + 37.4 from roster starters)</span>\n    </div>\n<h3>20-Cat Projected Final</h3>\n<p class=\"scenario-note\">Your avg\u2192poor vs Opponent good\u2192avg &nbsp;|&nbsp; \ud83d\udfe2 Win &nbsp; \ud83d\udfe1 Hedge &nbsp; \ud83d\udd34 Need help</p>\n<table class=\"scorecard\">\n<tr><th>Cat</th><th>You avg</th><th>You floor</th><th>Opp avg</th><th>Opp ceil</th><th>Now</th><th>Proj</th><th>Action</th></tr>\n<tr class=\"section-row\"><td colspan=\"8\">\u2694\ufe0f Hitting</td></tr>\n<tr><td class=\"cat-name\">R</td><td>16</td><td style=\"color:#f39c12\">14</td><td>16</td><td>18</td><td>\ud83d\udfe2</td><td>\ud83d\udfe2</td><td style=\"color:#f39c12\">\u26a0\ufe0f HEDGE</td></tr>\n<tr><td class=\"cat-name\">H</td><td>29</td><td style=\"color:#f39c12\">25</td><td>23</td><td>26</td><td>\ud83d\udfe2</td><td>\ud83d\udfe2</td><td style=\"color:#f39c12\">\u26a0\ufe0f HEDGE</td></tr>\n<tr><td class=\"cat-name\">HR</td><td>4</td><td style=\"color:#f39c12\">3</td><td>3</td><td>4</td><td>\ud83d\udfe2</td><td>\ud83d\udfe2</td><td style=\"color:#f39c12\">\u26a0\ufe0f HEDGE</td></tr>\n<tr><td class=\"cat-name\">RBI</td><td>17</td><td style=\"color:#f39c12\">15</td><td>15</td><td>17</td><td>\ud83d\udfe2</td><td>\ud83d\udfe2</td><td style=\"color:#f39c12\">\u26a0\ufe0f HEDGE</td></tr>\n<tr><td class=\"cat-name\">SB</td><td>2</td><td style=\"color:#27ae60\">2</td><td>1</td><td>2</td><td>\ud83d\udfe2</td><td>\ud83d\udfe2</td><td style=\"color:#27ae60\">\u2705 SAFE</td></tr>\n<tr><td class=\"cat-name\">BB</td><td>15</td><td style=\"color:#f39c12\">13</td><td>14</td><td>16</td><td>\ud83d\udfe2</td><td>\ud83d\udfe2</td><td style=\"color:#f39c12\">\u26a0\ufe0f HEDGE</td></tr>\n<tr><td class=\"cat-name\">K (bat)</td><td>32</td><td style=\"color:#e74c3c\">36</td><td>25</td><td>22</td><td>\ud83d\udfe2</td><td>\ud83d\udd34</td><td style=\"color:#e74c3c\">\ud83d\udea8 NEED_HELP</td></tr>\n<tr><td class=\"cat-name\">TB</td><td>49</td><td style=\"color:#27ae60\">43</td><td>39</td><td>44</td><td>\ud83d\udfe2</td><td>\ud83d\udd34</td><td style=\"color:#27ae60\">\u2705 SAFE</td></tr>\n<tr><td class=\"cat-name\">AVG</td><td>0.238</td><td style=\"color:#f39c12\">0.228</td><td>0.237</td><td>0.237</td><td>\ud83d\udfe2</td><td>\ud83d\udfe2</td><td style=\"color:#f39c12\">\u26a0\ufe0f HEDGE</td></tr>\n<tr><td class=\"cat-name\">OPS</td><td>0.739</td><td style=\"color:#f39c12\">0.709</td><td>0.733</td><td>0.733</td><td>\ud83d\udfe2</td><td>\ud83d\udfe2</td><td style=\"color:#f39c12\">\u26a0\ufe0f HEDGE</td></tr>\n<tr class=\"section-row\"><td colspan=\"8\">\ud83c\udfaf Pitching</td></tr>\n<tr><td class=\"cat-name\">APP</td><td>19</td><td style=\"color:#e74c3c\">19</td><td>21</td><td>21</td><td>\ud83d\udfe2</td><td>\ud83d\udd34</td><td style=\"color:#e74c3c\">\ud83d\udea8 NEED_HELP</td></tr>\n<tr><td class=\"cat-name\">ER</td><td>25</td><td style=\"color:#e74c3c\">53</td><td>15</td><td>2</td><td>\ud83d\udfe2</td><td>\ud83d\udd34</td><td style=\"color:#e74c3c\">\ud83d\udea8 NEED_HELP</td></tr>\n<tr><td class=\"cat-name\">HR (pit)</td><td>5</td><td style=\"color:#e74c3c\">20</td><td>3</td><td>0</td><td>\ud83d\udfe2</td><td>\ud83d\udd34</td><td style=\"color:#e74c3c\">\ud83d\udea8 NEED_HELP</td></tr>\n<tr><td class=\"cat-name\">K (pit)</td><td>50</td><td style=\"color:#e74c3c\">46</td><td>51</td><td>84</td><td>\ud83d\udfe2</td><td>\ud83d\udd34</td><td style=\"color:#e74c3c\">\ud83c\udfaf STREAM_K</td></tr>\n<tr><td class=\"cat-name\">TB</td><td>49</td><td style=\"color:#27ae60\">43</td><td>39</td><td>44</td><td>\ud83d\udfe2</td><td>\ud83d\udd34</td><td style=\"color:#27ae60\">\u2705 SAFE</td></tr>\n<tr><td class=\"cat-name\">ERA</td><td>4.030</td><td style=\"color:#e74c3c\">11.230</td><td>2.240</td><td>0.250</td><td>\ud83d\udfe2</td><td>\ud83d\udd34</td><td style=\"color:#e74c3c\">\ud83d\udea8 NEED_HELP</td></tr>\n<tr><td class=\"cat-name\">K/9</td><td>8.070</td><td style=\"color:#f39c12\">9.750</td><td>7.610</td><td>10.360</td><td>\ud83d\udfe2</td><td>\ud83d\udfe2</td><td style=\"color:#f39c12\">\u26a0\ufe0f HEDGE</td></tr>\n<tr><td class=\"cat-name\">H/9</td><td>8.230</td><td style=\"color:#e74c3c\">15.260</td><td>7.310</td><td>4.320</td><td>\ud83d\udfe2</td><td>\ud83d\udd34</td><td style=\"color:#e74c3c\">\ud83d\udea8 NEED_HELP</td></tr>\n<tr><td class=\"cat-name\">BB/9</td><td>2.420</td><td style=\"color:#f39c12\">4.660</td><td>3.280</td><td>2.340</td><td>\ud83d\udfe2</td><td>\ud83d\udfe2</td><td style=\"color:#f39c12\">\u26a0\ufe0f HEDGE</td></tr>\n<tr><td class=\"cat-name\">QS</td><td>3</td><td style=\"color:#f39c12\">1</td><td>2</td><td>6</td><td>\ud83d\udfe2</td><td>\ud83d\udfe2</td><td style=\"color:#f39c12\">\u26a0\ufe0f HEDGE</td></tr>\n</table>\n<h3>\u26be SP Start Decisions</h3>\n<div class=\"start-decisions\">\n<div class=\"start-card\"><div class=\"start-header\"><span class=\"pitcher-name\">Garrett Crochet</span><span class=\"rec-badge pill-must-start\">MUST_START</span><span class=\"conf-badge\">HIGH</span><span class=\"dq-badge\" style=\"color:#27ae60\">63 apps (STRONG)</span><span class=ip-flag>\u26a0\ufe0f IP</span></div><div class=\"opp-line\">vs MIL (offense rank #27)</div><div class=\"scenarios\"><div class=\"scenario bad\">\ud83d\udd34 Bad: &nbsp;6.0IP / 9K / 3ER / ERA 4.5 / H9 6.0 / BB9 4.5  \u2705QS</div><div class=\"scenario avg\">\ud83d\udfe1 Avg: &nbsp;7.0IP / 8K / 2ER / ERA 2.57 / H9 5.14 / BB9 1.29  \u2705QS</div><div class=\"scenario good\">\ud83d\udfe2 Good: 7.0IP / 10K / 0ER / ERA 0.0 / H9 3.86 / BB9 0.0  \u2705QS</div></div><div class=\"reasoning\">IP floor risk \u2014 30.4 projected without this start, need 4.6 more to hit 35 IP min | K upside needed \u2014 avg scenario adds 8K | K ceiling: good scenario = 10K | QS likely in avg scenario | Weak offense (MIL, rank #27) | Bad scenario ERA 4.5 could flip ERA cat (their ceiling: 0.25) | Bad H/9 (6.0) threatens H/9 cat | Bad BB/9 (4.5) threatens BB/9 cat</div></div>\n<div class=\"start-card\"><div class=\"start-header\"><span class=\"pitcher-name\">Andrew Painter</span><span class=\"rec-badge pill-must-start\">MUST_START</span><span class=\"conf-badge\">HIGH</span><span class=\"dq-badge\" style=\"color:#e74c3c\">0 apps (FALLBACK)</span><span class=ip-flag>\u26a0\ufe0f IP</span></div><div class=\"opp-line\">vs SF (offense rank #6)</div><div class=\"scenarios\"><div class=\"scenario bad\">\ud83d\udd34 Bad: &nbsp;2.8IP / 3K / 5ER / ERA 16.07 / H9 32.14 / BB9 9.64</div><div class=\"scenario avg\">\ud83d\udfe1 Avg: &nbsp;5.1IP / 6K / 3ER / ERA 5.29 / H9 12.4 / BB9 3.5</div><div class=\"scenario good\">\ud83d\udfe2 Good: 6.2IP / 8K / 1ER / ERA 1.45 / H9 7.26 / BB9 1.45  \u2705QS</div></div><div class=\"reasoning\">IP floor risk \u2014 32.3 projected without this start, need 2.7 more to hit 35 IP min | K upside needed \u2014 avg scenario adds 6K | \u26a0\ufe0f Only 0 appearances in history \u2014 less reliable | Bad scenario ERA 16.07 could flip ERA cat (their ceiling: 0.25) | Bad H/9 (32.14) threatens H/9 cat | Bad BB/9 (9.64) threatens BB/9 cat</div></div>\n<div class=\"start-card\"><div class=\"start-header\"><span class=\"pitcher-name\">Luis Castillo</span><span class=\"rec-badge pill-must-start\">MUST_START</span><span class=\"conf-badge\">HIGH</span><span class=\"dq-badge\" style=\"color:#27ae60\">62 apps (STRONG)</span><span class=ip-flag>\u26a0\ufe0f IP</span></div><div class=\"opp-line\">vs TEX (offense rank #12)</div><div class=\"scenarios\"><div class=\"scenario bad\">\ud83d\udd34 Bad: &nbsp;4.0IP / 5K / 5ER / ERA 11.25 / H9 13.5 / BB9 2.25</div><div class=\"scenario avg\">\ud83d\udfe1 Avg: &nbsp;6.0IP / 6K / 1ER / ERA 1.5 / H9 6.0 / BB9 0.0  \u2705QS</div><div class=\"scenario good\">\ud83d\udfe2 Good: 7.333333333333333IP / 10K / 1ER / ERA 1.23 / H9 1.23 / BB9 0.0  \u2705QS</div></div><div class=\"reasoning\">IP floor risk \u2014 31.4 projected without this start, need 3.6 more to hit 35 IP min | K upside needed \u2014 avg scenario adds 6K | K ceiling: good scenario = 10K | QS likely in avg scenario | Bad scenario ERA 11.25 could flip ERA cat (their ceiling: 0.25) | Bad H/9 (13.5) threatens H/9 cat</div></div>\n<div class=\"start-card\"><div class=\"start-header\"><span class=\"pitcher-name\">Ryan Weathers</span><span class=\"rec-badge pill-must-start\">MUST_START</span><span class=\"conf-badge\">HIGH</span><span class=\"dq-badge\" style=\"color:#27ae60\">24 apps (STRONG)</span><span class=ip-flag>\u26a0\ufe0f IP</span></div><div class=\"opp-line\">vs ATH (offense rank #15)</div><div class=\"scenarios\"><div class=\"scenario bad\">\ud83d\udd34 Bad: &nbsp;4.666666666666667IP / 8K / 5ER / ERA 9.64 / H9 11.57 / BB9 3.86</div><div class=\"scenario avg\">\ud83d\udfe1 Avg: &nbsp;4.0IP / 2K / 3ER / ERA 6.75 / H9 18.0 / BB9 4.5</div><div class=\"scenario good\">\ud83d\udfe2 Good: 5.0IP / 4K / 0ER / ERA 0.0 / H9 9.0 / BB9 0.0</div></div><div class=\"reasoning\">IP floor risk \u2014 33.4 projected without this start, need 1.6 more to hit 35 IP min | Bad scenario ERA 9.64 could flip ERA cat (their ceiling: 0.25) | Bad H/9 (11.57) threatens H/9 cat | Bad BB/9 (3.86) threatens BB/9 cat</div></div>\n<div class=\"start-card\"><div class=\"start-header\"><span class=\"pitcher-name\">Sawyer Gipson-Long</span><span class=\"rec-badge pill-must-start\">MUST_START</span><span class=\"conf-badge\">HIGH</span><span class=\"dq-badge\" style=\"color:#f39c12\">8 apps (OK)</span><span class=ip-flag>\u26a0\ufe0f IP</span></div><div class=\"opp-line\">vs MIN (offense rank #13)</div><div class=\"scenarios\"><div class=\"scenario bad\">\ud83d\udd34 Bad: &nbsp;2.3333333333333335IP / 3K / 7ER / ERA 27.0 / H9 27.0 / BB9 0.0</div><div class=\"scenario avg\">\ud83d\udfe1 Avg: &nbsp;4.0IP / 3K / 6ER / ERA 13.5 / H9 11.25 / BB9 4.5</div><div class=\"scenario good\">\ud83d\udfe2 Good: 5.333333333333333IP / 5K / 3ER / ERA 5.06 / H9 6.75 / BB9 3.38</div></div><div class=\"reasoning\">IP floor risk \u2014 33.4 projected without this start, need 1.6 more to hit 35 IP min | Bad scenario ERA 27.0 could flip ERA cat (their ceiling: 0.25) | Bad H/9 (27.0) threatens H/9 cat</div></div>\n<div class=\"start-card\"><div class=\"start-header\"><span class=\"pitcher-name\">Jared Jones</span><span class=\"rec-badge pill-must-start\">MUST_START</span><span class=\"conf-badge\">HIGH</span><span class=\"dq-badge\" style=\"color:#27ae60\">22 apps (STRONG)</span><span class=ip-flag>\u26a0\ufe0f IP</span></div><div class=\"opp-line\">vs SD (offense rank #11)</div><div class=\"scenarios\"><div class=\"scenario bad\">\ud83d\udd34 Bad: &nbsp;4.333333333333333IP / 2K / 5ER / ERA 10.38 / H9 10.38 / BB9 4.15</div><div class=\"scenario avg\">\ud83d\udfe1 Avg: &nbsp;6.333333333333333IP / 4K / 3ER / ERA 4.26 / H9 8.53 / BB9 1.42  \u2705QS</div><div class=\"scenario good\">\ud83d\udfe2 Good: 7.0IP / 9K / 2ER / ERA 2.57 / H9 5.14 / BB9 0.0  \u2705QS</div></div><div class=\"reasoning\">IP floor risk \u2014 31.1 projected without this start, need 3.9 more to hit 35 IP min | K ceiling: good scenario = 9K | QS likely in avg scenario | Bad scenario ERA 10.38 could flip ERA cat (their ceiling: 0.25) | Bad H/9 (10.38) threatens H/9 cat | Bad BB/9 (4.15) threatens BB/9 cat</div></div>\n<div class=\"start-card\"><div class=\"start-header\"><span class=\"pitcher-name\">Jackson Jobe</span><span class=\"rec-badge pill-must-start\">MUST_START</span><span class=\"conf-badge\">HIGH</span><span class=\"dq-badge\" style=\"color:#f39c12\">12 apps (OK)</span><span class=ip-flag>\u26a0\ufe0f IP</span></div><div class=\"opp-line\">vs MIN (offense rank #13)</div><div class=\"scenarios\"><div class=\"scenario bad\">\ud83d\udd34 Bad: &nbsp;3.6666666666666665IP / 2K / 6ER / ERA 14.73 / H9 19.64 / BB9 2.45</div><div class=\"scenario avg\">\ud83d\udfe1 Avg: &nbsp;5.0IP / 3K / 2ER / ERA 3.6 / H9 7.2 / BB9 3.6</div><div class=\"scenario good\">\ud83d\udfe2 Good: 5.666666666666667IP / 7K / 1ER / ERA 1.59 / H9 4.76 / BB9 7.94</div></div><div class=\"reasoning\">IP floor risk \u2014 32.4 projected without this start, need 2.6 more to hit 35 IP min | Bad scenario ERA 14.73 could flip ERA cat (their ceiling: 0.25) | Bad H/9 (19.64) threatens H/9 cat</div></div>\n</div>\n<h3>\ud83d\udd25 Bullpen Projection</h3>\n<p class=\"rp-note\">Expected appearances based on workload rate minus recent usage penalty.</p>\n<table class=\"rp-table\">\n<tr><th>Pitcher</th><th>Exp Apps</th><th>Avg Line</th><th>Data</th></tr>\n<tr><td>Steven Okert</td><td>2.1</td><td>2.0IP / 0K / 0ER</td><td>112 (STRONG)</td></tr>\n<tr><td>Gabe Speier</td><td>2.4</td><td>2.0IP / 0K / 0ER</td><td>104 (STRONG)</td></tr>\n<tr><td>Eduard Bazardo</td><td>2.2</td><td>2.0IP / 2K / 0ER</td><td>96 (STRONG)</td></tr>\n<tr><td>Ian Seymour</td><td>0.6</td><td>3.3IP / 4K / 2ER</td><td>19 (OK)</td></tr>\n<tr><td>Shawn Armstrong</td><td>2.2</td><td>1.3IP / 4K / 0ER</td><td>127 (STRONG)</td></tr>\n<tr><td>Kris Bubic</td><td>0.6</td><td>5.7IP / 6K / 3ER</td><td>47 (STRONG)</td></tr>\n<tr><td>Edwin Uceta</td><td>2.2</td><td>2.0IP / 2K / 0ER</td><td>100 (STRONG)</td></tr>\n</table>\n<p class=\"no-streamers\">\ud83d\udd0e No safe SP streaming options this week.</p>\n<div class=\"week-summary\"><h3>\ud83d\udccb Week Plan</h3><p>Projected 19/20 categories in your favor (avg vs avg). Safe at worst-case spread: SB, TB. Winning but vulnerable: R, H, HR_hit, RBI, BB, AVG, OPS, K/9, BB/9, QS \u2014 one bad pitching week could flip these. Need active help in: K_hit, APP, ER, HR, K, ERA, H/9. IP minimum covered \u2014 37.4 projected (0.0 banked + 37.4 from roster starters) Must-start: Garrett Crochet, Andrew Painter, Luis Castillo, Ryan Weathers, Sawyer Gipson-Long, Jared Jones, Jackson Jobe.</p></div>\n</div>"
+  }
+}
