@@ -175,6 +175,8 @@ class StartDecision:
     reasoning:        str
     ip_floor_flag:    bool
     projection:       PitcherProjection
+    start_date_label: str   = ""   # "Today", "Tomorrow", "Thu Apr 17"
+    opp_k_pct:        float = 0.0  # opposing team K% from team_offense_ranker
 
 
 @dataclass
@@ -210,6 +212,11 @@ class WeekPlan:
     streamers:       list
     ip_plan:         IPPlan
     summary:         str
+    opponent_name:     str = "OPP"
+    current_score_you: int = 0
+    current_score_opp: int = 0
+    score_as_of:       str = ""
+    bullpen_summary:   str = ""
 
 
 # ---------------------------------------------------------------------------
@@ -897,29 +904,57 @@ def build_ip_plan(banked: float, sp_projections: list,
 # ---------------------------------------------------------------------------
 
 def build_summary(cat_outcomes: list, ip_plan: IPPlan,
-                   sp_decisions: list) -> str:
+                   sp_decisions: list,
+                   current_score_you: int = 0,
+                   current_score_opp: int = 0,
+                   opponent_name: str = "OPP",
+                   score_as_of: str = "") -> str:
     safe      = [c for c in cat_outcomes if c.action == "SAFE"]
     hedge     = [c for c in cat_outcomes if c.action == "HEDGE"]
     need_help = [c for c in cat_outcomes
                  if c.action in ("NEED_HELP", "STREAM_K", "STREAM_QS")]
-    winning   = [c for c in cat_outcomes if c.currently_winning]
-    must      = [d for d in sp_decisions if d.recommendation == "MUST_START"]
-    sits      = [d for d in sp_decisions if d.recommendation == "SIT"]
+    must_starts = [d for d in sp_decisions if d.recommendation == "MUST_START"]
+    must_names  = ", ".join(d.name for d in must_starts) if must_starts else "None"
 
-    lines = [f"Projected {len(winning)}/20 categories in your favor (avg vs avg)."]
-    if safe:
-        lines.append(f"Safe at worst-case spread: {', '.join(c.cat for c in safe[:6])}.")
-    if hedge:
-        lines.append(f"Winning but vulnerable: {', '.join(c.cat for c in hedge)} — "
-                     f"one bad pitching week could flip these.")
-    if need_help:
-        lines.append(f"Need active help in: {', '.join(c.cat for c in need_help)}.")
-    lines.append(ip_plan.note)
-    if must:
-        lines.append(f"Must-start: {', '.join(d.name for d in must)}.")
-    if sits:
-        lines.append(f"Consider sitting: {', '.join(d.name for d in sits)}.")
-    return " ".join(lines)
+    # IP status
+    ip_banked  = ip_plan.banked
+    ip_needed  = max(0, IP_MINIMUM - ip_banked)
+    starts_est = math.ceil(ip_needed / 5.0) if ip_needed > 0 else 0
+    ip_line = (
+        f"✅ IP minimum covered ({ip_banked:.1f}/{IP_MINIMUM:.0f} IP banked)"
+        if ip_needed == 0
+        else f"⚠️ {ip_needed:.1f} IP short of {IP_MINIMUM:.0f} min — need ~{starts_est} more SP start(s)"
+    )
+
+    # Current score
+    score_line = ""
+    if score_as_of:
+        if current_score_you > current_score_opp:
+            leader = "WAR leads"
+        elif current_score_opp > current_score_you:
+            leader = f"{opponent_name} leads"
+        else:
+            leader = "Tied"
+        score_line = (
+            f"Current score: {leader} "
+            f"{max(current_score_you, current_score_opp)}–"
+            f"{min(current_score_you, current_score_opp)} "
+            f"(through {score_as_of}). "
+        )
+
+    winning = [c for c in cat_outcomes if c.currently_winning]
+    parts = [
+        score_line,
+        f"Projected {len(winning)}/20 categories in your favor (avg vs avg). ",
+        f"Safe at worst-case: {', '.join(c.cat for c in safe)}. " if safe else "",
+        (f"Vulnerable: {', '.join(c.cat for c in hedge)} — "
+         f"one bad pitching stretch flips these. " if hedge else ""),
+        (f"Need help: {', '.join(c.cat for c in need_help)}. "
+         if need_help else ""),
+        ip_line + ". ",
+        f"Must-start remaining: {must_names}.",
+    ]
+    return "".join(p for p in parts if p)
 
 
 # ---------------------------------------------------------------------------
@@ -928,7 +963,20 @@ def build_summary(cat_outcomes: list, ip_plan: IPPlan,
 
 def render_scorecard(plan: WeekPlan) -> str:
     html = ['<div class="matchup-engine">']
-    html.append('<h2>📊 Weekly Matchup Projection</h2>')
+    # Header with opponent name and current score
+    score_display = (
+        f'<span style="color:#27ae60;font-weight:700">WAR {plan.current_score_you}</span>'
+        f' — '
+        f'<span style="color:#e74c3c;font-weight:700">{plan.opponent_name} {plan.current_score_opp}</span>'
+    )
+    score_note = (
+        f' <span style="font-size:0.72rem;color:#9a9a94;font-weight:400">through {plan.score_as_of}</span>'
+        if plan.score_as_of else ""
+    )
+    html.append(
+        f'<h2>📊 WAR vs {plan.opponent_name}{score_note}<br>'
+        f'<span style="font-size:1rem;font-weight:600">{score_display}</span></h2>'
+    )
 
     # IP banner
     ip  = plan.ip_plan
@@ -1011,52 +1059,55 @@ def render_scorecard(plan: WeekPlan) -> str:
         html.append('<div class="start-decisions">')
         for d in sp_decisions:
             p = d.projection
+            # Date badge
+            if d.start_date_label == "Today":
+                date_badge = '<span class="rec-badge" style="background:#fce8e6;color:#c5221f">Today</span>'
+            elif d.start_date_label == "Tomorrow":
+                date_badge = '<span class="rec-badge" style="background:#fff3cd;color:#856404">Tomorrow</span>'
+            elif d.start_date_label:
+                date_badge = f'<span class="rec-badge" style="background:#f1f0ec;color:#5a5a54">{d.start_date_label}</span>'
+            else:
+                date_badge = ""
+            # Opp line with K%
+            k_pct_str    = f" · K% {d.opp_k_pct:.1f}%" if d.opp_k_pct else ""
+            opp_line_html = (
+                f'<div class="opp-line">vs {d.opponent} '
+                f'(offense rank #{d.opp_offense_rank}){k_pct_str}</div>'
+            )
+            dq_color  = DQC[p.data_quality]
+            bad_line  = f'{p.bad.ip}IP / {p.bad.k}K / {p.bad.er}ER / ERA {p.bad.era} / H9 {p.bad.h9} / BB9 {p.bad.bb9}{"  \u2705QS" if p.bad.qs else ""}'
+            avg_line  = f'{p.avg.ip}IP / {p.avg.k}K / {p.avg.er}ER / ERA {p.avg.era} / H9 {p.avg.h9} / BB9 {p.avg.bb9}{"  \u2705QS" if p.avg.qs else ""}'
+            good_line = f'{p.good.ip}IP / {p.good.k}K / {p.good.er}ER / ERA {p.good.era} / H9 {p.good.h9} / BB9 {p.good.bb9}{"  \u2705QS" if p.good.qs else ""}'
             html.append(
                 f'<div class="start-card">'
                 f'<div class="start-header">'
                 f'<span class="pitcher-name">{d.name}</span>'
                 f'<span class="rec-badge pill-{d.recommendation.lower().replace("_","-")}">'
                 f'{d.recommendation}</span>'
+                f'{date_badge}'
                 f'<span class="conf-badge">{d.confidence}</span>'
-                f'<span class="dq-badge" style="color:{DQC[p.data_quality]}">'
+                f'<span class="dq-badge" style="color:{dq_color}">'
                 f'{p.log_count} apps ({p.data_quality})</span>'
-                f'{"<span class=ip-flag>⚠️ IP</span>" if d.ip_floor_flag else ""}'
+                f'{"<span class=ip-flag>\u26a0\ufe0f IP</span>" if d.ip_floor_flag else ""}'
                 f'</div>'
-                f'<div class="opp-line">vs {d.opponent} '
-                f'(offense rank #{d.opp_offense_rank})</div>'
+                f'{opp_line_html}'
                 f'<div class="scenarios">'
-                f'<div class="scenario bad">🔴 Bad: &nbsp;'
-                f'{p.bad.ip}IP / {p.bad.k}K / {p.bad.er}ER / '
-                f'ERA {p.bad.era} / H9 {p.bad.h9} / BB9 {p.bad.bb9}'
-                f'{"  ✅QS" if p.bad.qs else ""}</div>'
-                f'<div class="scenario avg">🟡 Avg: &nbsp;'
-                f'{p.avg.ip}IP / {p.avg.k}K / {p.avg.er}ER / '
-                f'ERA {p.avg.era} / H9 {p.avg.h9} / BB9 {p.avg.bb9}'
-                f'{"  ✅QS" if p.avg.qs else ""}</div>'
-                f'<div class="scenario good">🟢 Good: '
-                f'{p.good.ip}IP / {p.good.k}K / {p.good.er}ER / '
-                f'ERA {p.good.era} / H9 {p.good.h9} / BB9 {p.good.bb9}'
-                f'{"  ✅QS" if p.good.qs else ""}</div>'
+                f'<div class="scenario bad">🔴 Bad: &nbsp;{bad_line}</div>'
+                f'<div class="scenario avg">🟡 Avg: &nbsp;{avg_line}</div>'
+                f'<div class="scenario good">🟢 Good: {good_line}</div>'
                 f'</div>'
                 f'<div class="reasoning">{d.reasoning}</div>'
                 f'</div>'
             )
         html.append('</div>')
 
-    if rp_projs:
-        html.append('<h3>🔥 Bullpen Projection</h3>')
-        html.append('<p class="rp-note">Expected appearances based on workload rate '
-                    'minus recent usage penalty.</p>')
-        html.append('<table class="rp-table">')
-        html.append('<tr><th>Pitcher</th><th>Exp Apps</th>'
-                    '<th>Avg Line</th><th>Data</th></tr>')
-        for p in rp_projs:
-            html.append(
-                f'<tr><td>{p.name}</td><td>{p.expected_apps:.1f}</td>'
-                f'<td>{p.avg.ip:.1f}IP / {p.avg.k}K / {p.avg.er}ER</td>'
-                f'<td>{p.log_count} ({p.data_quality})</td></tr>'
-            )
-        html.append('</table>')
+    # Bullpen summary (replaces RP table)
+    if plan.bullpen_summary:
+        html.append(
+            f'<div class="alert-bar" style="margin-top:12px;margin-bottom:4px;">'
+            f'🔥 <b>Bullpen:</b> {plan.bullpen_summary}'
+            f'</div>'
+        )
 
     if plan.streamers:
         html.append('<h3>🎯 SP Streaming Targets</h3>')
@@ -1113,6 +1164,10 @@ def get_weekly_matchup_section(yahoo_client,
         banked_ip           = float(my_banked.get("IP", 0.0))
         my_remaining_games  = matchup.get("my_remaining_games",  3)
         opp_remaining_games = matchup.get("opp_remaining_games", 3)
+        opponent_name       = matchup.get("opponent_team_name", "OPP")
+        current_score_you   = matchup.get("current_score_you",  0)
+        current_score_opp   = matchup.get("current_score_opp",  0)
+        score_as_of         = matchup.get("score_as_of", "")
 
         my_rolling  = yahoo_client.get_team_rolling_hitting_stats(
             is_opponent=False, mlb_id_map=mlb_id_map, mlb_client=mlb_client)
@@ -1121,6 +1176,9 @@ def get_weekly_matchup_section(yahoo_client,
 
         my_pitchers  = yahoo_client.get_pitchers_with_remaining_starts(False)
         opp_pitchers = yahoo_client.get_pitchers_with_remaining_starts(True)
+
+        # Game date lookup for start_date_label on SP cards
+        pitcher_game_dates = {p["name"]: p.get("game_date", "") for p in my_pitchers}
 
         def project_rotation(pitchers, remaining_games):
             projs = []
@@ -1185,6 +1243,25 @@ def get_weekly_matchup_section(yahoo_client,
                 other_ip = sum(ip for n, ip in avg_ip_by_name.items()
                                if n != proj.name)
                 dec = make_start_decision(proj, cat_outcomes, banked_ip, other_ip)
+
+                # Populate start date label from game_date dict
+                gd_str = pitcher_game_dates.get(proj.name, "")
+                try:
+                    gd = date.fromisoformat(gd_str) if gd_str else None
+                except ValueError:
+                    gd = None
+                if gd:
+                    if gd == TODAY:
+                        dec.start_date_label = "Today"
+                    elif gd == TODAY + timedelta(days=1):
+                        dec.start_date_label = "Tomorrow"
+                    else:
+                        dec.start_date_label = gd.strftime("%a %b %-d")
+
+                # Populate opposing team K% from offense ranker
+                opp_grade     = team_offense_ranker.get_matchup_grade(proj.opponent)
+                dec.opp_k_pct = opp_grade.get("k_rate") or 0.0
+
                 start_decisions.append(dec)
 
         fa_raw = yahoo_client.get_fa_pitchers_with_starts()
@@ -1198,8 +1275,20 @@ def get_weekly_matchup_section(yahoo_client,
 
         ip_plan = build_ip_plan(banked_ip, sp_projs, streamers)
 
+        # Bullpen summary (replaces RP table)
+        from src.analysis.pitcher_analyzer import build_bullpen_summary
+        rp_list = [{"name": p.name, "expected_apps": p.expected_apps}
+                   for p in my_projs if p.is_rp]
+        bullpen_summary = build_bullpen_summary(rp_list, cat_outcomes)
+
         sp_decisions_only = [d for d in start_decisions if not d.projection.is_rp]
-        summary = build_summary(cat_outcomes, ip_plan, sp_decisions_only)
+        summary = build_summary(
+            cat_outcomes, ip_plan, sp_decisions_only,
+            current_score_you=current_score_you,
+            current_score_opp=current_score_opp,
+            opponent_name=opponent_name,
+            score_as_of=score_as_of,
+        )
 
         plan = WeekPlan(
             your_floor=your_floor, your_avg=your_avg,
@@ -1209,6 +1298,11 @@ def get_weekly_matchup_section(yahoo_client,
             streamers=streamers,
             ip_plan=ip_plan,
             summary=summary,
+            opponent_name=opponent_name,
+            current_score_you=current_score_you,
+            current_score_opp=current_score_opp,
+            score_as_of=score_as_of,
+            bullpen_summary=bullpen_summary,
         )
         return render_scorecard(plan)
 

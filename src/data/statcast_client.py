@@ -175,6 +175,35 @@ class StatcastClient:
         # Expected stats — only if PA threshold met
         xba  = _calc_xba(df)  if has_expected else None
 
+        # Prior window for delta computation (days+1 to 2*days ago)
+        deltas = {}
+        try:
+            prior_end   = end_date - timedelta(days=days + 1)
+            prior_start = end_date - timedelta(days=days * 2)
+            prior_df    = statcast_batter(
+                start_dt=prior_start.strftime("%Y-%m-%d"),
+                end_dt=prior_end.strftime("%Y-%m-%d"),
+                player_id=mlb_id,
+            )
+            if prior_df is not None and not prior_df.empty:
+                prior_pa  = _count_pa(prior_df)
+                prior_bbe = _count_bbe(prior_df)
+                pairs = [
+                    ("whiff_rate",    whiff_rate,   _calc_whiff_rate(prior_df)    if prior_pa  >= MIN_PA_DISCIPLINE else None),
+                    ("chase_rate",    chase_rate,   _calc_chase_rate(prior_df)    if prior_pa  >= MIN_PA_DISCIPLINE else None),
+                    ("barrel_rate",   barrel_rate,  _calc_barrel_rate(prior_df)   if prior_bbe >= MIN_BBE_CONTACT  else None),
+                    ("hard_hit_rate", hard_hit_rate, _calc_hard_hit_rate(prior_df) if prior_bbe >= MIN_BBE_CONTACT  else None),
+                ]
+                for key, curr_val, prior_val in pairs:
+                    if curr_val is not None and prior_val is not None:
+                        deltas[key] = {
+                            "current": round(curr_val,  1),
+                            "prior":   round(prior_val, 1),
+                            "delta":   round(curr_val - prior_val, 1),
+                        }
+        except Exception:
+            pass  # deltas are optional; failure here is non-fatal
+
         return {
             "name":           player_name,
             "mlb_id":         mlb_id,
@@ -185,6 +214,7 @@ class StatcastClient:
             "barrel_rate":    barrel_rate,
             "hard_hit_rate":  hard_hit_rate,
             "xba":            xba,
+            "deltas":         deltas,
             "has_discipline": has_discipline,
             "has_contact":    has_contact,
             "has_expected":   has_expected,

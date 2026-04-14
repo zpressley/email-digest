@@ -106,6 +106,42 @@ def get_my_upcoming_starts(days_ahead: int = 5) -> list[dict]:
     return starts
 
 
+def build_bullpen_summary(bullpen: list[dict], cat_outcomes: list) -> str:
+    """
+    Returns a single sentence summarizing bullpen APP contribution.
+    bullpen: list of dicts with keys name, expected_apps.
+    cat_outcomes: CatOutcome objects from weekly_matchup_engine.
+    """
+    total_apps = sum(p.get("expected_apps", 0) for p in bullpen)
+    app_outcome = next((c for c in cat_outcomes if c.cat == "APP"), None)
+
+    if app_outcome is None:
+        return f"Bullpen projects {total_apps:.1f} appearances this week."
+
+    action   = app_outcome.action
+    opp_avg  = app_outcome.opp_avg_val
+    your_avg = app_outcome.your_avg_val
+
+    if action == "SAFE":
+        return (
+            f"Bullpen projects {total_apps:.1f} apps — "
+            f"sufficient to win APP (you {your_avg:.0f} vs opp avg {opp_avg:.0f})."
+        )
+    elif action == "HEDGE":
+        return (
+            f"Bullpen projects {total_apps:.1f} apps. "
+            f"APP is close — opponent averages {opp_avg:.0f} vs your {your_avg:.0f}. "
+            f"High-leverage RP usage this week matters."
+        )
+    else:  # NEED_HELP
+        deficit = opp_avg - your_avg
+        return (
+            f"⚠️ Bullpen projects {total_apps:.1f} apps but APP is a losing category "
+            f"(you avg {your_avg:.0f}, opp avg {opp_avg:.0f}, deficit {deficit:.0f}). "
+            f"Consider streaming a high-appearance RP from FA."
+        )
+
+
 def get_league_pitcher_usage() -> list[dict]:
     """
     Aggregates pitcher deployment across all 12 teams.

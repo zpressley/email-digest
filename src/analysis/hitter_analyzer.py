@@ -234,6 +234,8 @@ def _build_display(metrics: dict, score: float, trend: str) -> dict:
         "barrel_rate":    metrics.get("barrel_rate")    if has_contact    else None,
         "hard_hit_rate":  metrics.get("hard_hit_rate")  if has_contact    else None,
         "xba":            metrics.get("xba")             if has_expected   else None,
+        # Deltas: {"whiff_rate": {"current": X, "prior": Y, "delta": Z}, ...}
+        "deltas":         metrics.get("deltas", {}),
         # Flags so template can show "—" vs "N/A" appropriately
         "has_discipline": has_discipline,
         "has_contact":    has_contact,

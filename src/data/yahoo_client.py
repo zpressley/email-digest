@@ -24,8 +24,8 @@ TOKEN_URL = "https://api.login.yahoo.com/oauth2/get_token"
 BASE_URL  = "https://fantasysports.yahooapis.com/fantasy/v2"
 NS        = "http://fantasysports.yahooapis.com/fantasy/v2/base.rng"
 
-IL_STATUSES   = {"IL", "DL", "NA", "IR"}
-IL_POSITIONS  = {"IL", "IL10", "IL60", "DL15", "DL60"}
+IL_STATUSES  = {"IL", "DL", "IR", "DTD", "NA"}
+IL_POSITIONS = {"IL", "IL10", "IL60", "DL", "DL15", "DL60", "NA"}
 
 YAHOO_TEAM_MAP = {
     "1": "WIZ", "2": "B2J", "3": "CFL", "4": "HAM",
@@ -216,10 +216,13 @@ class YahooClient:
         if current is None:
             return {}
 
-        result = {"my_stats": {}, "opp_stats": {}}
+        result       = {"my_stats": {}, "opp_stats": {}}
+        opponent_tid = None
 
         for team in current.findall(f".//{{{NS}}}team"):
             tid = _text(team, f"{{{NS}}}team_id")
+            if tid != str(self.team_id):
+                opponent_tid = tid
             key = "my_stats" if tid == str(self.team_id) else "opp_stats"
             for stat in team.findall(f".//{{{NS}}}stat"):
                 stat_id = _text(stat, f"{{{NS}}}stat_id")
@@ -230,6 +233,33 @@ class YahooClient:
                         result[key][name] = float(value)
                     except ValueError:
                         pass
+
+        # Opponent name
+        opponent_name = YAHOO_TEAM_MAP.get(str(opponent_tid), "OPP") if opponent_tid else "OPP"
+
+        # Count cats currently winning from banked stats
+        DIRECT_SCORING = {
+            "R": True, "H": True, "HR_hit": True, "RBI": True,
+            "SB": True, "BB": True, "AVG": True, "OPS": True,
+            "K_hit": False, "APP": True, "K": True, "QS": True,
+            "ER": False, "HR": False,
+        }
+        cats_you = cats_opp = 0
+        for cat, higher in DIRECT_SCORING.items():
+            yv = result["my_stats"].get(cat, 0) or 0
+            ov = result["opp_stats"].get(cat, 0) or 0
+            if higher:
+                if yv > ov:   cats_you += 1
+                elif ov > yv: cats_opp += 1
+            else:
+                if yv < ov:   cats_you += 1
+                elif ov < yv: cats_opp += 1
+
+        yesterday = date.today() - timedelta(days=1)
+        result["opponent_team_name"] = opponent_name
+        result["current_score_you"]  = cats_you
+        result["current_score_opp"]  = cats_opp
+        result["score_as_of"]        = yesterday.strftime("%a %b %-d")
 
         result["my_remaining_games"]  = self._remaining_games_this_week(False)
         result["opp_remaining_games"] = self._remaining_games_this_week(True)
@@ -271,13 +301,16 @@ class YahooClient:
 
             game_info = self._next_game_this_week(mlb_team)
             if game_info:
+                dates     = game_info.get("dates", [])
+                game_date = dates[0] if dates else ""
                 pitchers.append({
-                    "name":     name,
-                    "team":     mlb_team,
-                    "yahoo_id": yahoo_id,
-                    "position": pos,
-                    "opponent": game_info.get("opponent", ""),
-                    "opp_rank": 15,
+                    "name":      name,
+                    "team":      mlb_team,
+                    "yahoo_id":  yahoo_id,
+                    "position":  pos,
+                    "opponent":  game_info.get("opponent", ""),
+                    "opp_rank":  15,
+                    "game_date": game_date,
                 })
 
         return pitchers
@@ -299,6 +332,12 @@ class YahooClient:
             yahoo_id = _text(p, f"{{{NS}}}player_id") or ""
             mlb_team = _text(p, f"{{{NS}}}editorial_team_abbr") or ""
             pos      = _text(p, f"{{{NS}}}display_position") or "SP"
+
+            # Skip IL/injured free agents
+            status  = _text(p, f"{{{NS}}}status") or ""
+            sel_pos = _text(p, f".//{{{NS}}}selected_position/{{{NS}}}position") or ""
+            if status in IL_STATUSES or sel_pos in IL_POSITIONS:
+                continue
 
             game_info = self._next_game_this_week(mlb_team)
             if game_info:

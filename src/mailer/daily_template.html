@@ -57,6 +57,9 @@
     .pulse-body { font-size: 14px; color: #3a3a36; line-height: 1.65; margin: 0; }
     .empty-note { font-size: 13px; color: #9a9a94; font-style: italic; padding: 8px 0; }
     .footer { background: #f4f4f0; padding: 20px 32px; text-align: center; font-size: 11px; color: #9a9a94; border-top: 1px solid #e8e8e4; }
+    .stat-delta { font-size: 9px; font-weight: 700; margin-top: 1px; letter-spacing: 0.03em; }
+    .stat-delta.good { color: #137333; }
+    .stat-delta.bad  { color: #c5221f; }
     /* matchup engine styles */
     {% include 'matchup_engine.css' %}
   </style>
@@ -160,48 +163,6 @@
     </div>
     {% endif %}
 
-    <!-- MY PITCHER STARTS -->
-    {% if upcoming_starts %}
-    <div class="section">
-      <div class="section-label"><span>🔄</span> My Pitcher Starts</div>
-      {% for p in upcoming_starts %}
-      <div class="story">
-        <p class="story-hed">
-          {{ p.name }}
-          {% if p.days_out == 0 %}
-            <span class="pill pill-today">Today</span>
-          {% elif p.days_out == 1 %}
-            <span class="pill pill-tomorrow">Tomorrow</span>
-          {% else %}
-            <span class="pill pill-neutral">{{ p.game_date }}</span>
-          {% endif %}
-          {% if p.recommendation %}
-            {% if p.recommendation == 'START' %}
-              <span class="pill pill-start">Start</span>
-            {% elif p.recommendation == 'LEAN START' %}
-              <span class="pill pill-lean-start">Lean Start</span>
-            {% elif p.recommendation == 'LEAN SIT' %}
-              <span class="pill pill-lean-sit">Lean Sit</span>
-            {% elif p.recommendation == 'SIT' %}
-              <span class="pill pill-sit">Sit</span>
-            {% else %}
-              <span class="pill pill-neutral">Neutral</span>
-            {% endif %}
-          {% endif %}
-        </p>
-        <p class="story-body">
-          vs {{ p.opponent }}
-          {% if p.opp_offense_rank %} · Opp offense ranks <b>{{ p.opp_offense_rank }}/30</b>{% endif %}
-          {% if p.opp_k_rate %} · K% <b>{{ p.opp_k_rate }}%</b>{% endif %}
-          · {{ 'Confirmed' if p.confirmed else 'Probable' }}
-          {% if p.act_now %} · <b>Add today — active tomorrow</b>{% endif %}
-        </p>
-      </div>
-      {% if not loop.last %}<hr class="story-divider">{% endif %}
-      {% endfor %}
-    </div>
-    {% endif %}
-
     <!-- STREAMING ADDS -->
     {% if streaming_opportunities %}
     <div class="section">
@@ -256,27 +217,35 @@
         </p>
         <div class="stat-row">
           {% if h.whiff_rate %}
+          {% set d_w = h.deltas.get('whiff_rate') if h.deltas else none %}
           <div class="stat-box">
             <div class="stat-label">Whiff%</div>
             <div class="stat-val {% if h.whiff_rate <= 18 %}good{% elif h.whiff_rate >= 30 %}bad{% endif %}">{{ h.whiff_rate }}</div>
+            {% if d_w and d_w.delta != 0 %}<div class="stat-delta {{ 'bad' if d_w.delta > 0 else 'good' }}">{{ '▲' if d_w.delta > 0 else '▼' }}{{ "%.1f"|format(d_w.delta|abs) }}</div>{% endif %}
           </div>
           {% endif %}
           {% if h.chase_rate %}
+          {% set d_c = h.deltas.get('chase_rate') if h.deltas else none %}
           <div class="stat-box">
             <div class="stat-label">Chase%</div>
             <div class="stat-val {% if h.chase_rate <= 24 %}good{% elif h.chase_rate >= 35 %}bad{% endif %}">{{ h.chase_rate }}</div>
+            {% if d_c and d_c.delta != 0 %}<div class="stat-delta {{ 'bad' if d_c.delta > 0 else 'good' }}">{{ '▲' if d_c.delta > 0 else '▼' }}{{ "%.1f"|format(d_c.delta|abs) }}</div>{% endif %}
           </div>
           {% endif %}
           {% if h.barrel_rate %}
+          {% set d_b = h.deltas.get('barrel_rate') if h.deltas else none %}
           <div class="stat-box">
             <div class="stat-label">Barrel%</div>
             <div class="stat-val {% if h.barrel_rate >= 10 %}good{% elif h.barrel_rate <= 3 %}bad{% endif %}">{{ h.barrel_rate }}</div>
+            {% if d_b and d_b.delta != 0 %}<div class="stat-delta {{ 'good' if d_b.delta > 0 else 'bad' }}">{{ '▲' if d_b.delta > 0 else '▼' }}{{ "%.1f"|format(d_b.delta|abs) }}</div>{% endif %}
           </div>
           {% endif %}
           {% if h.hard_hit_rate %}
+          {% set d_h = h.deltas.get('hard_hit_rate') if h.deltas else none %}
           <div class="stat-box">
             <div class="stat-label">Hard Hit%</div>
             <div class="stat-val {% if h.hard_hit_rate >= 48 %}good{% elif h.hard_hit_rate <= 28 %}bad{% endif %}">{{ h.hard_hit_rate }}</div>
+            {% if d_h and d_h.delta != 0 %}<div class="stat-delta {{ 'good' if d_h.delta > 0 else 'bad' }}">{{ '▲' if d_h.delta > 0 else '▼' }}{{ "%.1f"|format(d_h.delta|abs) }}</div>{% endif %}
           </div>
           {% endif %}
         </div>

@@ -130,10 +130,10 @@
   color: #1a1a18;
 }
 
-/* ── SP start decision cards ───────────────────────────────────────── */
+/* ── SP start decision cards ───────────────────────────────────── */
 .start-decisions {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 10px;
   margin-bottom: 20px;
 }
@@ -143,6 +143,7 @@
   border: 1px solid #e8e8e4;
   border-radius: 8px;
   padding: 12px 14px;
+  word-break: break-word;
 }
 
 .start-header {
@@ -371,6 +372,10 @@
 
   .ip-bar-bg {
     width: 100%;
+  }
+
+  .start-decisions {
+    grid-template-columns: 1fr;
   }
 
   .start-header {
