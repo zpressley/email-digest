@@ -66,7 +66,7 @@ def run():
         "date":                    today.strftime("%A, %B %-d"),
         "matchup_status":          matchup_status,
         "roster_impact":           roster_impact,
-        "streaming_opportunities":
+        "streaming_opportunities": streaming_opportunities,
         "hot_free_agents":         hot_free_agents,
         "statcast_trends":         statcast_trends,
         "prospect_callouts":       prospect_callouts,
