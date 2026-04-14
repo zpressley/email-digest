@@ -4,4 +4,4 @@ requests>=2.31.0
 jinja2>=3.1.2
 sendgrid>=6.10.0
 python-dotenv>=1.0.0
-anthropic>=0.20.0
+anthropic>=0.49.0
