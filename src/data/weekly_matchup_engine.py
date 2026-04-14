@@ -45,8 +45,8 @@ from typing import Optional
 # Constants
 # ---------------------------------------------------------------------------
 
-SEASONS          = [2024, 2025]
-SEASON_MULT      = {2024: 0.5, 2025: 1.0}
+SEASONS          = [2024, 2025, 2026]
+SEASON_MULT      = {2024: 0.5, 2025: 1.0, 2026: 1.0}  # 2026 = no discount, max recency
 DECAY_HALFLIFE   = 45
 IP_MINIMUM       = 35.0
 TODAY            = date.today()
@@ -296,9 +296,10 @@ def fetch_tb_rate(mlb_id: int, mlb_client) -> float:
     TB is in season-level stats but NOT in game log splits.
     Falls back to MLB average (1.45) if unavailable.
     """
-    for season in reversed(SEASONS):
+    for season in reversed(SEASONS):  # tries 2026 first, falls back to 2025/2024
         stats = mlb_client.get_pitcher_season_stats(mlb_id, season)
-        if stats and stats.get("IP", 0) >= 10 and stats.get("TB", 0) > 0:
+        # 5 IP threshold (not 10) so early 2026 data isn't skipped
+        if stats and stats.get("IP", 0) >= 5 and stats.get("TB", 0) > 0:
             return round(stats["TB"] / stats["IP"], 4)
     return 1.45
 
@@ -349,7 +350,7 @@ def fetch_rp_availability(mlb_id: int, remaining_games: int,
 def fetch_appearance_logs(mlb_id: int, tb_rate: float,
                            mlb_client) -> list:
     """
-    All pitching appearances from 2024 and 2025 with recency weights.
+    All pitching appearances from 2024, 2025, and 2026 with recency weights.
     Historical seasons loaded from disk cache if available;
     fetched from API and cached on first access.
     Current season (2026) always fetched fresh.
