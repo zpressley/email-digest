@@ -24,6 +24,9 @@ TOKEN_URL = "https://api.login.yahoo.com/oauth2/get_token"
 BASE_URL  = "https://fantasysports.yahooapis.com/fantasy/v2"
 NS        = "http://fantasysports.yahooapis.com/fantasy/v2/base.rng"
 
+IL_STATUSES   = {"IL", "DL", "NA", "IR"}
+IL_POSITIONS  = {"IL", "IL10", "IL60", "DL15", "DL60"}
+
 YAHOO_TEAM_MAP = {
     "1": "WIZ", "2": "B2J", "3": "CFL", "4": "HAM",
     "5": "JEP", "6": "LFB", "7": "LAW", "8": "SAD",
@@ -252,6 +255,14 @@ class YahooClient:
             if not any(x in pos for x in ("SP", "RP", "P")):
                 continue
             if pos in ("OF", "1B", "2B", "3B", "SS", "C", "DH", "UTIL"):
+                continue
+
+            # Skip IL-slotted or injured players
+            status  = _text(p, f"{{{NS}}}status") or ""
+            sel_pos = _text(p, f".//{{{NS}}}selected_position/{{{NS}}}position") or ""
+            if status in IL_STATUSES or sel_pos in IL_POSITIONS:
+                name = _text(p, f".//{{{NS}}}full") or "unknown"
+                print(f"  ⏭️  Skipping {name} — IL/injured (status={status!r}, slot={sel_pos!r})")
                 continue
 
             name     = _text(p, f".//{{{NS}}}full") or ""

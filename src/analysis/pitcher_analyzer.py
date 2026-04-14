@@ -8,6 +8,8 @@ from src.data.mlb_client import MLBClient
 from src.data.team_offense_ranker import get_matchup_grade, ABBR_ALIASES
 from src.config import ROSTER_LAG_DAYS
 
+IL_STATUSES = {"IL", "DL", "NA", "IR"}
+
 
 def get_my_upcoming_starts(days_ahead: int = 5) -> list[dict]:
     """
@@ -18,13 +20,19 @@ def get_my_upcoming_starts(days_ahead: int = 5) -> list[dict]:
     mlb      = MLBClient()
 
     my_roster = yahoo.get_my_roster()
-    my_pitchers = {
-        p["name"].lower(): p
-        for p in my_roster
-        if p.get("primary_position") in ("SP", "RP", "P")
-        or "SP" in (p.get("eligible_positions") or [])
-        or "RP"  in (p.get("eligible_positions") or [])
-    }
+    my_pitchers = {}
+    for p in my_roster:
+        is_pitcher = (
+            p.get("primary_position") in ("SP", "RP", "P")
+            or "SP" in (p.get("eligible_positions") or [])
+            or "RP" in (p.get("eligible_positions") or [])
+        )
+        if not is_pitcher:
+            continue
+        if p.get("status") in IL_STATUSES:
+            print(f"  ⏭️  Skipping {p['name']} from start analysis — IL/injured (status={p['status']!r})")
+            continue
+        my_pitchers[p["name"].lower()] = p
 
     if not my_pitchers:
         return []

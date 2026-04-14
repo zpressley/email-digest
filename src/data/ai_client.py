@@ -13,7 +13,7 @@ import os
 import json
 import anthropic
 
-ANTHROPIC_KEY = os.getenv("ANTHROPIC_KEY")
+ANTHROPIC_KEY = os.getenv("ANTHROPIC_KEY") or os.getenv("ANTHROPIC_API_KEY")
 MODEL         = "claude-3-haiku-20240307"
 
 # WAR roster context injected into pulse prompt
