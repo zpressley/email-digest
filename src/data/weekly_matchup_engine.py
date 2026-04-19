@@ -1076,9 +1076,13 @@ def render_scorecard(plan: WeekPlan) -> str:
                 f'(offense rank #{d.opp_offense_rank}){k_pct_str}</div>'
             )
             dq_color  = DQC[p.data_quality]
-            bad_line  = f'{p.bad.ip}IP / {p.bad.k}K / {p.bad.er}ER / ERA {p.bad.era} / H9 {p.bad.h9} / BB9 {p.bad.bb9}{"  \u2705QS" if p.bad.qs else ""}'
-            avg_line  = f'{p.avg.ip}IP / {p.avg.k}K / {p.avg.er}ER / ERA {p.avg.era} / H9 {p.avg.h9} / BB9 {p.avg.bb9}{"  \u2705QS" if p.avg.qs else ""}'
-            good_line = f'{p.good.ip}IP / {p.good.k}K / {p.good.er}ER / ERA {p.good.era} / H9 {p.good.h9} / BB9 {p.good.bb9}{"  \u2705QS" if p.good.qs else ""}'
+            bad_qs    = "  ✅QS" if p.bad.qs  else ""
+            avg_qs    = "  ✅QS" if p.avg.qs  else ""
+            good_qs   = "  ✅QS" if p.good.qs else ""
+            bad_line  = f'{p.bad.ip}IP / {p.bad.k}K / {p.bad.er}ER / ERA {p.bad.era} / H9 {p.bad.h9} / BB9 {p.bad.bb9}{bad_qs}'
+            avg_line  = f'{p.avg.ip}IP / {p.avg.k}K / {p.avg.er}ER / ERA {p.avg.era} / H9 {p.avg.h9} / BB9 {p.avg.bb9}{avg_qs}'
+            good_line = f'{p.good.ip}IP / {p.good.k}K / {p.good.er}ER / ERA {p.good.era} / H9 {p.good.h9} / BB9 {p.good.bb9}{good_qs}'
+            ip_flag_html = '<span class=ip-flag>⚠️ IP</span>' if d.ip_floor_flag else ""
             html.append(
                 f'<div class="start-card">'
                 f'<div class="start-header">'
@@ -1089,7 +1093,7 @@ def render_scorecard(plan: WeekPlan) -> str:
                 f'<span class="conf-badge">{d.confidence}</span>'
                 f'<span class="dq-badge" style="color:{dq_color}">'
                 f'{p.log_count} apps ({p.data_quality})</span>'
-                f'{"<span class=ip-flag>\u26a0\ufe0f IP</span>" if d.ip_floor_flag else ""}'
+                f'{ip_flag_html}'
                 f'</div>'
                 f'{opp_line_html}'
                 f'<div class="scenarios">'
