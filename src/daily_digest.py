@@ -77,7 +77,7 @@ def run():
 
     save_snapshot({"daily": context}, today)
     html = render_daily(context)
-    send_email(f"⚾ Fantasy Digest — {context['date']}", html)
+    send_email(f"⚾ Baseball Digest — {context['date']}", html)
     print("✅ Daily digest complete.")
 
 

@@ -232,6 +232,19 @@ def _parse_ip(ip_str: str) -> float:
         return 0.0
 
 
+def _fmt_ip(ip: float) -> str:
+    """Format decimal IP back to baseball notation: 5.333 → '5.1', 6.667 → '6.2'."""
+    full = int(ip)
+    frac = ip - full
+    if frac < 0.17:
+        thirds = 0
+    elif frac < 0.5:
+        thirds = 1
+    else:
+        thirds = 2
+    return f"{full}.{thirds}"
+
+
 def _recency_weight(date_str: str, season: int) -> float:
     """
     weight = season_mult × exp(−days_ago / DECAY_HALFLIFE)
@@ -909,7 +922,8 @@ def build_summary(cat_outcomes: list, ip_plan: IPPlan,
                    current_score_you: int = 0,
                    current_score_opp: int = 0,
                    opponent_name: str = "OPP",
-                   score_as_of: str = "") -> str:
+                   score_as_of: str = "",
+                   opp_sp_projs: list = None) -> str:
     safe      = [c for c in cat_outcomes if c.action == "SAFE"]
     hedge     = [c for c in cat_outcomes if c.action == "HEDGE"]
     need_help = [c for c in cat_outcomes
@@ -955,6 +969,16 @@ def build_summary(cat_outcomes: list, ip_plan: IPPlan,
         ip_line + ". ",
         f"Must-start remaining: {must_names}.",
     ]
+
+    # Opponent threat line — name their highest-K remaining starter
+    if opp_sp_projs:
+        top = max(opp_sp_projs, key=lambda p: p.avg.k, default=None)
+        if top and top.avg.k >= 6:
+            parts.append(
+                f" {opponent_name}'s {top.name} still starts this week"
+                f" (avg {top.avg.k}K, {top.avg.ip}IP) — factor into K/ERA outlook."
+            )
+
     return "".join(p for p in parts if p)
 
 
@@ -1079,9 +1103,9 @@ def render_scorecard(plan: WeekPlan) -> str:
             bad_qs    = "  ✅QS" if p.bad.qs  else ""
             avg_qs    = "  ✅QS" if p.avg.qs  else ""
             good_qs   = "  ✅QS" if p.good.qs else ""
-            bad_line  = f'{p.bad.ip}IP / {p.bad.k}K / {p.bad.er}ER / ERA {p.bad.era} / H9 {p.bad.h9} / BB9 {p.bad.bb9}{bad_qs}'
-            avg_line  = f'{p.avg.ip}IP / {p.avg.k}K / {p.avg.er}ER / ERA {p.avg.era} / H9 {p.avg.h9} / BB9 {p.avg.bb9}{avg_qs}'
-            good_line = f'{p.good.ip}IP / {p.good.k}K / {p.good.er}ER / ERA {p.good.era} / H9 {p.good.h9} / BB9 {p.good.bb9}{good_qs}'
+            bad_line  = f'{_fmt_ip(p.bad.ip)}IP / {p.bad.k}K / {p.bad.er}ER / ERA {p.bad.era:.2f} / H9 {p.bad.h9:.2f} / BB9 {p.bad.bb9:.2f}{bad_qs}'
+            avg_line  = f'{_fmt_ip(p.avg.ip)}IP / {p.avg.k}K / {p.avg.er}ER / ERA {p.avg.era:.2f} / H9 {p.avg.h9:.2f} / BB9 {p.avg.bb9:.2f}{avg_qs}'
+            good_line = f'{_fmt_ip(p.good.ip)}IP / {p.good.k}K / {p.good.er}ER / ERA {p.good.era:.2f} / H9 {p.good.h9:.2f} / BB9 {p.good.bb9:.2f}{good_qs}'
             ip_flag_html = '<span class=ip-flag>⚠️ IP</span>' if d.ip_floor_flag else ""
             html.append(
                 f'<div class="start-card">'
@@ -1185,21 +1209,34 @@ def get_weekly_matchup_section(yahoo_client,
         # Game date lookup for start_date_label on SP cards
         pitcher_game_dates = {p["name"]: p.get("game_date", "") for p in my_pitchers}
 
-        def project_rotation(pitchers, remaining_games):
+        def project_rotation(pitchers, remaining_games, is_opponent=False):
             projs = []
             for p in pitchers:
-                mlb_id = mlb_id_map.get(p["name"])
+                mlb_id   = mlb_id_map.get(p["name"])
+                opp_rank = team_offense_ranker.get_offense_rank(p.get("opponent", ""))
+                p["opp_rank"] = opp_rank
+
                 if not mlb_id:
+                    if not is_opponent:
+                        continue  # own pitchers must have mlb_id — skip is correct
+                    # Opponent pitcher not in combined_players — use league-average fallback
+                    pos    = p.get("position", "")
+                    is_rp  = "SP" not in pos and any(x in pos for x in ("RP", "MR", "CL", "P"))
+                    e_apps = max(0.3, remaining_games * 0.25) if is_rp else 1.0
+                    proj   = _fallback_projection(
+                        p["name"], p.get("team", ""), p.get("opponent", "UNK"),
+                        opp_rank, is_rp, e_apps,
+                    )
+                    projs.append(proj)
                     continue
-                p["opp_rank"] = team_offense_ranker.get_offense_rank(
-                    p.get("opponent", ""))
+
                 proj = project_pitcher(p, mlb_id, remaining_games, mlb_client)
                 if proj:
                     projs.append(proj)
             return projs
 
-        my_projs  = project_rotation(my_pitchers,  my_remaining_games)
-        opp_projs = project_rotation(opp_pitchers, opp_remaining_games)
+        my_projs  = project_rotation(my_pitchers,  my_remaining_games, is_opponent=False)
+        opp_projs = project_rotation(opp_pitchers, opp_remaining_games, is_opponent=True)
 
         def make_lines(projs, banked, hit_rolling, rem_games):
             lines = {}
@@ -1287,12 +1324,14 @@ def get_weekly_matchup_section(yahoo_client,
         bullpen_summary = build_bullpen_summary(rp_list, cat_outcomes)
 
         sp_decisions_only = [d for d in start_decisions if not d.projection.is_rp]
+        opp_sp_projs_only = [p for p in opp_projs if not p.is_rp]
         summary = build_summary(
             cat_outcomes, ip_plan, sp_decisions_only,
             current_score_you=current_score_you,
             current_score_opp=current_score_opp,
             opponent_name=opponent_name,
             score_as_of=score_as_of,
+            opp_sp_projs=opp_sp_projs_only,
         )
 
         plan = WeekPlan(
