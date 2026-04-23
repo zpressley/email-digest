@@ -8,7 +8,7 @@ YAHOO_CLIENT_ID = os.getenv("YAHOO_CLIENT_ID")
 YAHOO_CLIENT_SECRET = os.getenv("YAHOO_CLIENT_SECRET")
 YAHOO_LEAGUE_ID = os.getenv("YAHOO_LEAGUE_ID")
 YAHOO_GAME_KEY = os.getenv("YAHOO_GAME_KEY", "469")  # 469 = MLB 2026
-YAHOO_TEAM_ID = os.getenv("YAHOO_TEAM_ID")  # your team number (1–12)
+YAHOO_TEAM_ID = os.getenv("YAHOO_TEAM_ID", "12")  # WAR = team 12
 
 SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY")
 TO_EMAIL = os.getenv("TO_EMAIL")
