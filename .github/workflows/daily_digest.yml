@@ -27,33 +27,18 @@ jobs:
           echo '${{ secrets.YAHOO_TOKEN_JSON }}' > token.json
           python -c "import json; json.load(open('token.json'))" || (echo "❌ token.json is invalid — update YAHOO_TOKEN_JSON secret" && exit 1)
 
-      - name: Sync managers.json from fbp-trade-bot
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
+      - name: Checkout fbp-trade-bot for managers.json
+        uses: actions/checkout@v3
+        with:
+          repository: zpressley/fbp-trade-bot
+          path: fbp-trade-bot
+          token: ${{ secrets.FBP_HUB_PUSH_TOKEN }}
+
+      - name: Copy managers.json to email-digest data/
         run: |
-          # managers.json is the authoritative team_id ↔ abbr map
-          # (schema: {"teams": {"WAR": {"yahoo_team_id": "12", ...}}}).
-          # Mirrors the combined_players.json sync pattern used by fbp-hub.
           mkdir -p data
-          for REPO in FBPTradeBot fbp-trade-bot; do
-            for BRANCH in main master; do
-              URL="https://api.github.com/repos/zpressley/${REPO}/contents/data/managers.json?ref=${BRANCH}"
-              RESP=$(curl -s -H "Authorization: token ${GH_TOKEN}" \
-                            -H "Accept: application/vnd.github.v3.raw" "$URL")
-              if [ -n "$RESP" ] && ! echo "$RESP" | grep -q '"message":"Not Found"'; then
-                echo "$RESP" > data/managers.json
-                if python -c "import json; json.load(open('data/managers.json'))" 2>/dev/null; then
-                  SIZE=$(wc -c < data/managers.json | tr -d ' ')
-                  echo "✅ managers.json pulled from ${REPO}@${BRANCH} (${SIZE} bytes)"
-                  exit 0
-                else
-                  echo "⚠️  ${REPO}@${BRANCH} returned non-JSON, trying next"
-                  rm -f data/managers.json
-                fi
-              fi
-            done
-          done
-          echo "⚠️  Could not fetch managers.json from fbp-trade-bot — digest will fall back to sync_managers() auto-derive"
+          cp fbp-trade-bot/config/managers.json data/managers.json
+          echo "✅ managers.json copied ($(wc -l < data/managers.json) lines)"
 
       - name: Run daily digest
         env:

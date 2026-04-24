@@ -707,10 +707,33 @@ def evaluate_categories(your_floor:        TeamWeekLine,
     for cat, meta in ALL_CATS.items():
         hb = meta["higher_better"]
 
-        yf  = your_floor.get(cat)        or 0
+        # Floor: rate-based worst case — consistent with avg_baseline (no banked).
+        # Uses the avg_baseline value scaled by the floor scenario multiplier so
+        # Floor, Avg, and Ceil are all on the same basis (pure rate × 7).
+        # Exp is the only column that adds banked stats to remaining projection.
+        ya_raw = your_avg_baseline.get(cat) or 0
+        meta_info = ALL_CATS[cat]
+        if meta_info["rate"]:
+            # Rate stats (AVG, OPS, ERA, etc.): small directional nudge
+            floor_mult = 0.96 if meta_info["higher_better"] else 1.04
+            yf = round(ya_raw * floor_mult, 2)
+        else:
+            # Counting stats: 12% swing matches the "poor" scenario multiplier
+            floor_mult = 0.88 if meta_info["higher_better"] else 1.12
+            yf = round(ya_raw * floor_mult)
+
         ye  = your_exp.get(cat)          or 0   # exp = action logic
         ya  = your_avg_baseline.get(cat) or 0   # season baseline display
-        oc  = opp_ceiling.get(cat)       or 0
+
+        # Ceil: opp rate-based best case — consistent with opp_avg_baseline (no banked).
+        oa_raw = opp_avg_baseline.get(cat) or 0
+        if meta_info["rate"]:
+            ceil_mult = 1.04 if meta_info["higher_better"] else 0.96
+            oc = round(oa_raw * ceil_mult, 2)
+        else:
+            ceil_mult = 1.12 if meta_info["higher_better"] else 0.88
+            oc = round(oa_raw * ceil_mult)
+
         oe  = opp_exp.get(cat)           or 0   # opp exp = action logic
         oa  = opp_avg_baseline.get(cat)  or 0   # opp season baseline display
         cm  = current_mine.get(cat, 0)   or 0   # your banked

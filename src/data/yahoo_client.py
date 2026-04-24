@@ -41,52 +41,48 @@ MANAGERS_JSON_PATH = os.getenv("MANAGERS_JSON_PATH", "data/managers.json")
 
 def _load_team_map() -> dict:
     """
-    Returns team_id (str) → abbr mapping.
-    Prefers data/managers.json (authoritative source from fbp-trade-bot);
-    falls back to the hardcoded _FALLBACK_TEAM_MAP if the file is missing
-    or unreadable. Always read fresh from disk so a mid-run sync is picked
-    up immediately.
-
-    Accepted schemas, in priority order:
-      1. fbp-trade-bot / fbp-hub: {"teams": {"WAR": {"yahoo_team_id": "12", ...}}}
-         — outer key is the abbr, yahoo_team_id lives inside.
-      2. Flat-dict inverse:       {"12": "WAR"}
-      3. Flat-dict nested:        {"12": {"abbr": "WAR", "name": "..."}}
-    The FBP schema is checked first because sync_managers() is a fallback
-    — when the authoritative file is present it wins.
+    Returns team_id (str) → abbr (str) mapping.
+    Handles two schemas:
+      1. fbp-trade-bot: {"teams": {"WAR": {"yahoo_team_id": "12", ...}}}
+      2. flat:          {"12": "WAR"} or {"12": {"abbr": "WAR"}}
+    Falls back to _FALLBACK_TEAM_MAP if file missing or unreadable.
     """
     try:
         if os.path.exists(MANAGERS_JSON_PATH):
             with open(MANAGERS_JSON_PATH) as f:
                 data = json.load(f)
 
-            # 1. fbp-trade-bot schema: {"teams": {"WAR": {"yahoo_team_id": "12", ...}}}
-            if isinstance(data, dict) and isinstance(data.get("teams"), dict):
+            # Schema 1: fbp-trade-bot authoritative format
+            if "teams" in data:
                 out = {}
                 for abbr, info in data["teams"].items():
-                    if not isinstance(info, dict):
-                        continue
-                    tid = info.get("yahoo_team_id") or info.get("team_id")
-                    if tid:
-                        out[str(tid)] = str(abbr)
+                    if isinstance(info, dict):
+                        tid = info.get("yahoo_team_id")
+                        if tid and abbr != "_comment":
+                            out[str(tid)] = abbr
                 if out:
+                    print(f"  🗂️  managers.json: loaded {len(out)} teams (fbp-trade-bot schema)")
                     return out
 
-            # 2 + 3. Flat {id: abbr} or {id: {"abbr": ...}}
+            # Schema 2: flat {team_id: abbr} or {team_id: {abbr: ...}}
             out = {}
             for k, v in data.items():
-                if k == "teams":
-                    continue  # handled above
+                if k.startswith("_"):
+                    continue
                 if isinstance(v, dict):
-                    abbr = v.get("abbr") or v.get("short") or v.get("name")
+                    abbr = v.get("abbr") or v.get("short")
                 else:
                     abbr = v
                 if abbr:
                     out[str(k)] = str(abbr)
             if out:
+                print(f"  🗂️  managers.json: loaded {len(out)} teams (flat schema)")
                 return out
+
     except Exception as e:
         print(f"  ⚠️  managers.json load error: {e} — using fallback map")
+
+    print("  ⚠️  managers.json missing or empty — using hardcoded fallback map")
     return dict(_FALLBACK_TEAM_MAP)
 
 
@@ -266,23 +262,26 @@ class YahooClient:
 
     def sync_managers(self, force: bool = False) -> dict:
         """
-        Fallback-only team-id → abbr sync. If data/managers.json already
-        exists (i.e. fbp-trade-bot has synced it cross-repo), this does
-        nothing — the authoritative file wins. Only writes an auto-derived
-        file when managers.json is missing, so we can't stomp the real one
-        with heuristic abbrs like "WEE" for "Weekend Warriors".
+        Fallback-only team-id → abbr sync. If authoritative managers.json is
+        already present with a full team set, trust it and skip the Yahoo call.
+        Yahoo sync only reliably returns a partial team list and would destroy
+        the fbp-trade-bot mapping.
 
         Pass force=True to regenerate regardless (diagnostic use only).
         Returns the in-memory {team_id: abbr} mapping either way.
         """
         global YAHOO_TEAM_MAP
-        if os.path.exists(MANAGERS_JSON_PATH) and not force:
-            existing = _load_team_map()
-            print(f"  🗂️  sync_managers: {MANAGERS_JSON_PATH} already present "
-                  f"({len(existing)} teams) — using authoritative file")
-            YAHOO_TEAM_MAP = existing
-            return existing
+        # If authoritative file already has the full team set, trust it.
+        # Do NOT overwrite with Yahoo-derived abbrs — Yahoo sync only returns
+        # partial results and would destroy the fbp-trade-bot mapping.
+        if not force:
+            current = _load_team_map()
+            if len(current) >= 10:
+                print(f"  🗂️  sync_managers: {len(current)} teams in managers.json — using authoritative file")
+                YAHOO_TEAM_MAP = current
+                return current
 
+        # File missing or partial — attempt Yahoo sync as fallback
         try:
             url  = f"{BASE_URL}/league/{self.league_key}/teams"
             root = self._get_xml(url)
