@@ -32,13 +32,20 @@ jobs:
         with:
           repository: zpressley/fbp-trade-bot
           path: fbp-trade-bot
-          token: ${{ secrets.FBP_HUB_PUSH_TOKEN }}
+          token: ${{ secrets.GH_PAT }}
 
       - name: Copy managers.json to email-digest data/
         run: |
           mkdir -p data
-          cp fbp-trade-bot/config/managers.json data/managers.json
-          echo "✅ managers.json copied ($(wc -l < data/managers.json) lines)"
+          if [ -f fbp-trade-bot/config/managers.json ]; then
+            cp fbp-trade-bot/config/managers.json data/managers.json
+            echo "✅ managers.json copied from config/ ($(wc -l < data/managers.json) lines)"
+          elif [ -f fbp-trade-bot/data/managers.json ]; then
+            cp fbp-trade-bot/data/managers.json data/managers.json
+            echo "✅ managers.json copied from data/ ($(wc -l < data/managers.json) lines)"
+          else
+            echo "⚠️  managers.json not found in fbp-trade-bot — digest will fall back to sync_managers()"
+          fi
 
       - name: Run daily digest
         env:
