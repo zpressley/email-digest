@@ -309,18 +309,44 @@ def _save_log_to_cache(mlb_id: int, season: int, splits: list):
 # TB rate fetch (season stats endpoint)
 # ---------------------------------------------------------------------------
 
-def fetch_tb_rate(mlb_id: int, mlb_client) -> float:
+def fetch_tb_rate_and_role(mlb_id: int, mlb_client) -> dict:
     """
-    TB allowed / IP from season stats.
-    TB is in season-level stats but NOT in game log splits.
-    Falls back to MLB average (1.45) if unavailable.
+    Single season-stats pass returns both tb_rate and SP/RP role.
+    Avoids the duplicate API call that fetch_tb_rate() + get_pitcher_role() would require.
+
+    Role thresholds (starts / games):
+      >= 0.70 → SP    |  <= 0.20 → RP    |  in-between → SP/RP
+    Requires APP >= 3 for role; IP >= 5 + TB > 0 for tb_rate.
+    Falls back to 1.45 (MLB avg) / 'RP' (conservative) if no data.
     """
-    for season in reversed(SEASONS):  # tries 2026 first, falls back to 2025/2024
+    tb_rate = None
+    role    = None
+
+    for season in reversed(SEASONS):  # 2026 first, then 2025, 2024
         stats = mlb_client.get_pitcher_season_stats(mlb_id, season)
-        # 5 IP threshold (not 10) so early 2026 data isn't skipped
-        if stats and stats.get("IP", 0) >= 5 and stats.get("TB", 0) > 0:
-            return round(stats["TB"] / stats["IP"], 4)
-    return 1.45
+        if not stats:
+            continue
+
+        ip     = stats.get("IP",  0)
+        tb     = stats.get("TB",  0)
+        games  = stats.get("APP", 0)
+        starts = stats.get("GS",  0)
+
+        if tb_rate is None and ip >= 5 and tb > 0:
+            tb_rate = round(tb / ip, 4)
+
+        if role is None and games >= 3:
+            start_pct = starts / games
+            role = "SP" if start_pct >= 0.70 else (
+                   "RP" if start_pct <= 0.20 else "SP/RP")
+
+        if tb_rate is not None and role is not None:
+            break   # both resolved — no need to check older seasons
+
+    return {
+        "tb_rate": tb_rate if tb_rate is not None else 1.45,
+        "role":    role    if role    is not None else "RP",
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -409,13 +435,12 @@ def fetch_appearance_logs(mlb_id: int, tb_rate: float,
 # ---------------------------------------------------------------------------
 
 def get_last_n_starts(logs: list, n: int = 3) -> list:
-    """Returns the n most recent SP appearances (IP >= 3.0), newest first."""
-    sorted_logs = sorted(
-        [lg for lg in logs if lg.ip >= 3.0],
-        key=lambda lg: lg.date,
-        reverse=True,
-    )
-    return sorted_logs[:n]
+    """
+    Returns the n most recent appearances sorted newest-first.
+    NO minimum IP filter — a 1-inning blow-up is critical context and
+    must NOT be silently dropped.
+    """
+    return sorted(logs, key=lambda lg: lg.date, reverse=True)[:n]
 
 
 # ---------------------------------------------------------------------------
@@ -539,26 +564,34 @@ def _fallback_projection(name, team, opponent, opp_rank,
 def project_pitcher(pitcher_info: dict, mlb_id: int,
                      remaining_games: int,
                      mlb_client) -> Optional[PitcherProjection]:
-    """Fetch logs, infer SP/RP, build projection."""
+    """Fetch logs, classify SP/RP via MLB API (not Yahoo eligibility), build projection."""
     name     = pitcher_info["name"]
     team     = pitcher_info.get("team", "")
     opponent = pitcher_info.get("opponent", "UNK")
     opp_rank = pitcher_info.get("opp_rank", 15)
     position = pitcher_info.get("position", "")
 
+    # Yahoo position as initial guess (may be eligibility-based, not role-based)
     is_rp = ("SP" not in position and
               any(x in position for x in ("RP", "MR", "CL", "P")))
 
-    tb_rate = fetch_tb_rate(mlb_id, mlb_client)
-    logs    = fetch_appearance_logs(mlb_id, tb_rate, mlb_client)
+    # Single API call: tb_rate + MLB role (starts/games ratio from season stats)
+    meta     = fetch_tb_rate_and_role(mlb_id, mlb_client)
+    tb_rate  = meta["tb_rate"]
+    mlb_role = meta["role"]
 
-    if logs:
-        sorted_ips = sorted(lg.ip for lg in logs)
-        median_ip  = sorted_ips[len(sorted_ips) // 2]
-        if median_ip < 3.0:
-            is_rp = True
-        elif median_ip >= 4.0:
-            is_rp = False
+    logs = fetch_appearance_logs(mlb_id, tb_rate, mlb_client)
+
+    # Override Yahoo guess with MLB API role — definitive for clear SP/RP cases
+    if mlb_role == "SP":
+        is_rp = False
+    elif mlb_role == "RP":
+        is_rp = True
+    else:  # SP/RP — use median IP from logs as tiebreaker
+        if logs:
+            sorted_ips = sorted(lg.ip for lg in logs)
+            median_ip  = sorted_ips[len(sorted_ips) // 2]
+            is_rp = median_ip < 3.0
 
     expected_apps = 1.0
     if is_rp:
@@ -734,23 +767,36 @@ def _build_reasoning(ip_floor_flag: bool, proj: PitcherProjection,
         recent_er = [lg.er for lg in proj.last_3]
         recent_ip = [lg.ip for lg in proj.last_3]
         worst_er  = max(recent_er)
+        worst_ip  = min(recent_ip)   # shortest outing (blow-up indicator)
         avg_er    = sum(recent_er) / len(recent_er)
         avg_ip    = sum(recent_ip) / len(recent_ip)
-        if worst_er >= 7:
+
+        if worst_ip < 2.5 and worst_er >= 5:
+            # Named blow-up: short outing with high damage — most important data point
+            blown = next(
+                (lg for lg in proj.last_3 if lg.er == worst_er and lg.ip == worst_ip),
+                proj.last_3[0],
+            )
+            parts.append(
+                f"Last {len(proj.last_3)} appearances include a blow-up "
+                f"({_fmt_ip(blown.ip)} IP / {blown.er} ER on {blown.date}) — "
+                f"bad scenario fully reflects that tail risk."
+            )
+        elif worst_er >= 6:
             parts.append(
                 f"Last {len(proj.last_3)} starts: avg {_fmt_ip(avg_ip)}IP, "
-                f"{avg_er:.1f}ER — including a {worst_er}-ER blow-up that "
+                f"{avg_er:.1f}ER — including a {worst_er}-ER outing that "
                 f"widens the bad scenario."
             )
         elif avg_er <= 2.0:
             parts.append(
                 f"Last {len(proj.last_3)} starts: avg {_fmt_ip(avg_ip)}IP, "
-                f"{avg_er:.1f}ER — strong recent form supports the avg/good scenarios."
+                f"{avg_er:.1f}ER — strong recent form supports avg/good scenarios."
             )
         else:
             parts.append(
                 f"Last {len(proj.last_3)} starts: avg {_fmt_ip(avg_ip)}IP, "
-                f"{avg_er:.1f}ER — average form, scenarios reflect typical variance."
+                f"{avg_er:.1f}ER."
             )
     elif proj.data_quality in ("THIN", "FALLBACK"):
         parts.append(
