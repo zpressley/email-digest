@@ -370,7 +370,7 @@ class YahooClient:
         start_str  = start_date.strftime("%Y-%m-%d")
         end_str    = end_date.strftime("%Y-%m-%d")
 
-        totals   = {c: 0.0 for c in ("R", "H", "HR_hit", "RBI", "SB", "BB", "K_hit", "TB")}
+        totals   = {c: 0.0 for c in ("R", "H", "HR_hit", "RBI", "SB", "BB", "K_hit", "TB_hit")}
         ab_sum   = 0.0
         pa_sum   = 0.0
         obp_x_pa = 0.0
@@ -393,7 +393,7 @@ class YahooClient:
                 totals["SB"]    += stats.get("SB",  0)
                 totals["BB"]    += stats.get("BB",  0)
                 totals["K_hit"] += stats.get("K",   0)
-                totals["TB"]    += stats.get("TB",  0)
+                totals["TB_hit"] += stats.get("TB",  0)
                 ab       = stats.get("AB", 0)
                 pa       = stats.get("PA", 0)
                 ab_sum  += ab
@@ -420,17 +420,17 @@ class YahooClient:
             "SB":     totals["SB"],
             "BB":     totals["BB"],
             "K_hit":  totals["K_hit"],
-            "TB":     totals["TB"],
+            "TB_hit": totals["TB_hit"],
             "AVG": avg, "OPS": ops,
             "days_in_window": days,
-            "banked_R":      bk.get("R",      0),
-            "banked_H":      bk.get("H",      0),
-            "banked_HR_hit": bk.get("HR_hit", 0),
-            "banked_RBI":    bk.get("RBI",    0),
-            "banked_SB":     bk.get("SB",     0),
-            "banked_BB":     bk.get("BB",     0),
-            "banked_K_hit":  bk.get("K_hit",  0),
-            "banked_TB":     bk.get("TB",     0),
+            "banked_R":       bk.get("R",      0),
+            "banked_H":       bk.get("H",      0),
+            "banked_HR_hit":  bk.get("HR_hit", 0),
+            "banked_RBI":     bk.get("RBI",    0),
+            "banked_SB":      bk.get("SB",     0),
+            "banked_BB":      bk.get("BB",     0),
+            "banked_K_hit":   bk.get("K_hit",  0),
+            "banked_TB_hit":  bk.get("TB_hit", 0),  # Yahoo doesn't expose hitting TB; always 0
         }
 
     # ── Private helpers ───────────────────────────────────────────────────────

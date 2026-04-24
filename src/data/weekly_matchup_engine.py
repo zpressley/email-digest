@@ -20,10 +20,12 @@ Stat key naming (avoids Yahoo ID collisions):
   K_hit   = batting strikeouts
   HR      = pitching HR allowed
   HR_hit  = batting home runs
+  TB      = pitching total bases allowed
+  TB_hit  = batting total bases
   ERA, K/9, H/9, BB/9 derived from components — not fetched directly
 
 Categories (20):
-  Hitting higher-better: R, H, HR_hit, RBI, SB, BB, TB, AVG, OPS
+  Hitting higher-better: R, H, HR_hit, RBI, SB, BB, TB_hit, AVG, OPS
   Hitting lower-better:  K_hit
   Pitching higher-better: APP, K, K/9, QS
   Pitching lower-better:  ER, HR, TB, ERA, H/9, BB/9
@@ -65,7 +67,7 @@ HITTING_CATS = {
     "SB":     {"higher_better": True,  "rate": False},
     "BB":     {"higher_better": True,  "rate": False},
     "K_hit":  {"higher_better": False, "rate": False},
-    "TB":     {"higher_better": True,  "rate": False},
+    "TB_hit": {"higher_better": True,  "rate": False},  # batting total bases
     "AVG":    {"higher_better": True,  "rate": True},
     "OPS":    {"higher_better": True,  "rate": True},
 }
@@ -665,17 +667,17 @@ def build_hitting_line(rolling: dict, remaining_games: int,
     """
     days = max(1, rolling.get("days_in_window", 21))
     per  = {c: rolling.get(c, 0) / days
-            for c in ("R", "H", "HR_hit", "RBI", "SB", "BB", "K_hit", "TB")}
+            for c in ("R", "H", "HR_hit", "RBI", "SB", "BB", "K_hit", "TB_hit")}
 
     cs = {"good": 1.12, "average": 1.0, "poor": 0.88}[scenario]
     rs = {"good": 1.0,  "average": 1.0, "poor": 0.96}[scenario]
     ks = {"good": 0.88, "average": 1.0, "poor": 1.12}[scenario]  # K_hit bad
 
     bk = {c: rolling.get(f"banked_{c}", 0)
-          for c in ("R", "H", "HR_hit", "RBI", "SB", "BB", "K_hit", "TB")}
+          for c in ("R", "H", "HR_hit", "RBI", "SB", "BB", "K_hit", "TB_hit")}
 
     result = {}
-    for c in ("R", "H", "HR_hit", "RBI", "SB", "BB", "TB"):
+    for c in ("R", "H", "HR_hit", "RBI", "SB", "BB", "TB_hit"):
         result[c] = round(bk[c] + per[c] * remaining_games * cs)
     result["K_hit"] = round(bk["K_hit"] + per["K_hit"] * remaining_games * ks)
     result["AVG"]   = round(rolling.get("AVG", 0.248) * rs, 3)
@@ -1195,8 +1197,9 @@ def render_scorecard(plan: WeekPlan) -> str:
           "NEED_HELP": "🚨", "STREAM_K": "🎯", "STREAM_QS": "🎯"}
 
     CAT_DISPLAY = {
-        "HR_hit": "HR", "K_hit": "K(bat)",
-        "K": "K(pit)", "HR": "HR(pit)", "TB": "TB",
+        "HR_hit": "HR",      "K_hit":  "K(bat)",
+        "K":      "K(pit)",  "HR":     "HR(pit)",
+        "TB_hit": "TB(bat)", "TB":     "TB(pit)",
     }
 
     for section, cats in [("⚔️ Hitting", HITTING_CATS),
