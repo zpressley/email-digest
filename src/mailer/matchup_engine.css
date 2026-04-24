@@ -97,17 +97,44 @@
 .scorecard th {
   background: #f4f4f0;
   color: #3a3a36;
-  padding: 6px 8px;
+  padding: 4px 6px;
   text-align: left;
   font-weight: 600;
+  font-size: 0.72rem;
   white-space: nowrap;
   border-bottom: 1px solid #e8e8e4;
 }
 
 .scorecard td {
-  padding: 5px 8px;
+  padding: 4px 6px;
+  font-size: 0.75rem;
   border-bottom: 1px solid #f0f0ec;
   color: #3a3a36;
+}
+
+/* Cat column — centred, sticky feel */
+.cat-col {
+  text-align: center;
+  font-weight: 700;
+  background: #f4f4f0 !important;
+  white-space: nowrap;
+  color: #1a1a18;
+}
+
+/* Left half (your stats) subtle green tint */
+.scorecard td:nth-child(1),
+.scorecard td:nth-child(2),
+.scorecard td:nth-child(3),
+.scorecard td:nth-child(4) {
+  background: #fafff9;
+}
+
+/* Right half (opponent stats) subtle red tint */
+.scorecard td:nth-child(6),
+.scorecard td:nth-child(7),
+.scorecard td:nth-child(8),
+.scorecard td:nth-child(9) {
+  background: #fff9f9;
 }
 
 .scorecard tr:last-child td {
@@ -125,6 +152,7 @@
   border-bottom: 1px solid #e8e8e4;
 }
 
+/* .cat-name kept for backward compatibility but superseded by .cat-col */
 .cat-name {
   font-weight: 600;
   color: #1a1a18;

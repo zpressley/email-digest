@@ -37,7 +37,7 @@ import json
 import math
 import os
 import random
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, date, timedelta
 from typing import Optional
 
@@ -134,6 +134,8 @@ class PitcherProjection:
     data_quality:     str
     is_rp:            bool
     expected_apps:    float
+    game_date:        str  = ""   # first start date this week (YYYY-MM-DD)
+    last_3:           list = field(default_factory=list)  # 3 most recent SP appearances
 
 
 @dataclass
@@ -153,13 +155,17 @@ class TeamWeekLine:
 @dataclass
 class CatOutcome:
     cat:               str
-    your_avg_val:      float
-    your_floor_val:    float
-    opp_avg_val:       float
-    opp_ceil_val:      float
-    currently_winning: bool
-    floor_beats_ceil:  bool
-    avg_beats_avg:     bool
+    your_avg_val:      float   # season baseline (rate × 7, no banked)
+    your_floor_val:    float   # worst-case end-of-week
+    your_exp_val:      float   # banked + remaining projection
+    your_current_val:  float   # currently banked
+    opp_ceil_val:      float   # opp best-case end-of-week
+    opp_avg_val:       float   # opp season baseline (rate × 7, no banked)
+    opp_exp_val:       float   # opp banked + remaining projection
+    opp_current_val:   float   # opp currently banked
+    currently_winning: bool    # winning on current banked totals
+    floor_beats_ceil:  bool    # your floor beats their ceiling
+    avg_beats_avg:     bool    # your exp beats opp exp (used for action logic)
     action:            str
     note:              str
 
@@ -399,6 +405,20 @@ def fetch_appearance_logs(mlb_id: int, tb_rate: float,
 
 
 # ---------------------------------------------------------------------------
+# Recent starts helper (Issue 4)
+# ---------------------------------------------------------------------------
+
+def get_last_n_starts(logs: list, n: int = 3) -> list:
+    """Returns the n most recent SP appearances (IP >= 3.0), newest first."""
+    sorted_logs = sorted(
+        [lg for lg in logs if lg.ip >= 3.0],
+        key=lambda lg: lg.date,
+        reverse=True,
+    )
+    return sorted_logs[:n]
+
+
+# ---------------------------------------------------------------------------
 # Weighted bootstrap projection builder
 # ---------------------------------------------------------------------------
 
@@ -546,8 +566,11 @@ def project_pitcher(pitcher_info: dict, mlb_id: int,
         if expected_apps < 0.3:
             return None
 
-    return build_projection(name, team, opponent, opp_rank,
+    proj = build_projection(name, team, opponent, opp_rank,
                              logs, is_rp, expected_apps)
+    if not proj.is_rp:
+        proj.last_3 = get_last_n_starts(logs)
+    return proj
 
 
 # ---------------------------------------------------------------------------
@@ -631,29 +654,39 @@ def build_hitting_line(rolling: dict, remaining_games: int,
 # Category evaluator
 # ---------------------------------------------------------------------------
 
-def evaluate_categories(your_floor:   TeamWeekLine,
-                         your_avg:     TeamWeekLine,
-                         opp_ceiling:  TeamWeekLine,
-                         opp_avg:      TeamWeekLine,
-                         current_mine: dict,
-                         current_opp:  dict) -> list:
+def evaluate_categories(your_floor:        TeamWeekLine,
+                         your_exp:          TeamWeekLine,
+                         your_avg_baseline: TeamWeekLine,
+                         opp_ceiling:       TeamWeekLine,
+                         opp_exp:           TeamWeekLine,
+                         opp_avg_baseline:  TeamWeekLine,
+                         current_mine:      dict,
+                         current_opp:       dict) -> list:
+    """
+    your_exp          = banked + remaining projection (action logic source)
+    your_avg_baseline = season rate × 7 days (display only — Avg column)
+    opp_exp           = opp banked + remaining projection
+    opp_avg_baseline  = opp season rate × 7 (display only)
+    """
     outcomes = []
     for cat, meta in ALL_CATS.items():
         hb = meta["higher_better"]
 
-        yf = your_floor.get(cat)  or 0
-        ya = your_avg.get(cat)    or 0
-        oc = opp_ceiling.get(cat) or 0
-        oa = opp_avg.get(cat)     or 0
-        cm = current_mine.get(cat, 0) or 0
-        co = current_opp.get(cat,  0) or 0
+        yf  = your_floor.get(cat)        or 0
+        ye  = your_exp.get(cat)          or 0   # exp = action logic
+        ya  = your_avg_baseline.get(cat) or 0   # season baseline display
+        oc  = opp_ceiling.get(cat)       or 0
+        oe  = opp_exp.get(cat)           or 0   # opp exp = action logic
+        oa  = opp_avg_baseline.get(cat)  or 0   # opp season baseline display
+        cm  = current_mine.get(cat, 0)   or 0   # your banked
+        co  = current_opp.get(cat, 0)   or 0    # opp banked
 
         def win(a, b):
             return (a >= b) if hb else (a <= b)
 
-        cw  = win(cm, co)
-        fbc = win(yf, oc)
-        aba = win(ya, oa)
+        cw  = win(cm, co)    # currently winning on banked
+        fbc = win(yf, oc)    # floor beats their ceiling
+        aba = win(ye, oe)    # exp beats their exp (was avg_beats_avg)
 
         if fbc:
             action = "SAFE"
@@ -675,14 +708,84 @@ def evaluate_categories(your_floor:   TeamWeekLine,
 
         outcomes.append(CatOutcome(
             cat=cat,
-            your_avg_val=ya,   your_floor_val=yf,
-            opp_avg_val=oa,    opp_ceil_val=oc,
+            your_avg_val=ya,     your_floor_val=yf,
+            your_exp_val=ye,     your_current_val=cm,
+            opp_ceil_val=oc,
+            opp_avg_val=oa,      opp_exp_val=oe,
+            opp_current_val=co,
             currently_winning=cw,
             floor_beats_ceil=fbc,
             avg_beats_avg=aba,
             action=action, note=note,
         ))
     return outcomes
+
+
+# ---------------------------------------------------------------------------
+# Natural-language reasoning builder (Issue 4)
+# ---------------------------------------------------------------------------
+
+def _build_reasoning(ip_floor_flag: bool, proj: PitcherProjection,
+                     cat_outcomes: list) -> str:
+    parts = []
+
+    # 1. Recent performance context
+    if proj.last_3:
+        recent_er = [lg.er for lg in proj.last_3]
+        recent_ip = [lg.ip for lg in proj.last_3]
+        worst_er  = max(recent_er)
+        avg_er    = sum(recent_er) / len(recent_er)
+        avg_ip    = sum(recent_ip) / len(recent_ip)
+        if worst_er >= 7:
+            parts.append(
+                f"Last {len(proj.last_3)} starts: avg {_fmt_ip(avg_ip)}IP, "
+                f"{avg_er:.1f}ER — including a {worst_er}-ER blow-up that "
+                f"widens the bad scenario."
+            )
+        elif avg_er <= 2.0:
+            parts.append(
+                f"Last {len(proj.last_3)} starts: avg {_fmt_ip(avg_ip)}IP, "
+                f"{avg_er:.1f}ER — strong recent form supports the avg/good scenarios."
+            )
+        else:
+            parts.append(
+                f"Last {len(proj.last_3)} starts: avg {_fmt_ip(avg_ip)}IP, "
+                f"{avg_er:.1f}ER — average form, scenarios reflect typical variance."
+            )
+    elif proj.data_quality in ("THIN", "FALLBACK"):
+        parts.append(
+            f"Only {proj.log_count} MLB appearances — less reliable; "
+            f"widen mental error bars on the scenarios."
+        )
+
+    # 2. Matchup context
+    rank = proj.opp_offense_rank
+    if rank <= 5:
+        parts.append(f"Tough matchup: {proj.opponent} ranks top-5 in offense.")
+    elif rank >= 25:
+        parts.append(f"Favorable draw: {proj.opponent} ranks bottom-5 in offense.")
+    else:
+        parts.append(f"{proj.opponent} is a mid-tier offense (rank #{rank}).")
+
+    # 3. Category stakes
+    k_out   = next((c for c in cat_outcomes if c.cat == "K"),   None)
+    qs_out  = next((c for c in cat_outcomes if c.cat == "QS"),  None)
+    era_out = next((c for c in cat_outcomes if c.cat == "ERA"), None)
+    stakes  = []
+    if k_out and k_out.action in ("NEED_HELP", "STREAM_K"):
+        stakes.append(f"K is a losing cat — avg adds {proj.avg.k}K")
+    if qs_out and qs_out.action in ("NEED_HELP", "STREAM_QS") and proj.avg.qs:
+        stakes.append("QS likely in avg scenario")
+    if era_out and era_out.action == "NEED_HELP":
+        stakes.append(f"ERA losing — bad scenario ERA {proj.bad.era:.2f} makes it worse")
+    if stakes:
+        parts.append("Cat stakes: " + "; ".join(stakes) + ".")
+
+    # 4. IP floor note
+    if ip_floor_flag:
+        parts.append("IP min at risk — start counts toward the 35-IP floor.")
+
+    return " ".join(parts) if parts else "No strong signal."
 
 
 # ---------------------------------------------------------------------------
@@ -782,8 +885,7 @@ def make_start_decision(proj: PitcherProjection,
         rec, conf = "CONDITIONAL", "MEDIUM"
         go_reasons.append("⚠️ Can't bench — IP floor at risk")
 
-    reasoning = " | ".join(must_reasons + go_reasons + sit_reasons) \
-                or "No strong signal."
+    reasoning = _build_reasoning(ip_floor_flag, proj, cat_outcomes)
 
     return StartDecision(
         name=proj.name, team=proj.team,
@@ -891,8 +993,17 @@ def find_streamers(fa_pitchers: list, cat_outcomes: list,
 
 def build_ip_plan(banked: float, sp_projections: list,
                    streamers: list) -> IPPlan:
-    roster_ip = sum(p.avg.ip for p in sp_projections)
-    total     = banked + roster_ip
+    # Only count starters whose game is today or later (exclude already-pitched
+    # starts that haven't cleared Yahoo's banked stats yet)
+    roster_ip = 0.0
+    for proj in sp_projections:
+        try:
+            gd = date.fromisoformat(proj.game_date) if proj.game_date else None
+        except ValueError:
+            gd = None
+        if gd is None or gd >= TODAY:
+            roster_ip += proj.avg.ip
+    total = banked + roster_ip
     shortfall = max(0.0, round(IP_MINIMUM - total, 1))
     needed    = math.ceil(shortfall / 5.0) if shortfall > 0 else 0
 
@@ -1027,45 +1138,53 @@ def render_scorecard(plan: WeekPlan) -> str:
     )
     html.append('<table class="scorecard">')
     html.append(
-        '<tr><th>Cat</th>'
-        '<th>You avg</th><th>You floor</th>'
-        '<th>Opp avg</th><th>Opp ceil</th>'
-        '<th>Now</th><th>Proj</th><th>Action</th></tr>'
+        '<tr>'
+        '<th>Floor</th><th>Avg</th><th>Exp</th><th>Now</th>'
+        '<th class="cat-col">Cat</th>'
+        '<th>Now</th><th>Exp</th><th>Avg</th><th>Ceil</th>'
+        '</tr>'
     )
 
-    AC = {"SAFE": "#27ae60", "HOLD": "#27ae60", "HEDGE": "#f39c12",
-          "NEED_HELP": "#e74c3c", "STREAM_K": "#e74c3c", "STREAM_QS": "#e74c3c"}
     AI = {"SAFE": "✅", "HOLD": "✅", "HEDGE": "⚠️",
           "NEED_HELP": "🚨", "STREAM_K": "🎯", "STREAM_QS": "🎯"}
 
-    # Display labels for cats with internal suffix names
     CAT_DISPLAY = {
-        "HR_hit": "HR", "K_hit": "K (bat)",
-        "K": "K (pit)", "HR": "HR (pit)", "TB": "TB",
+        "HR_hit": "HR", "K_hit": "K(bat)",
+        "K": "K(pit)", "HR": "HR(pit)", "TB": "TB",
     }
 
     for section, cats in [("⚔️ Hitting", HITTING_CATS),
                            ("🎯 Pitching", PITCHING_CATS)]:
-        html.append(f'<tr class="section-row"><td colspan="8">{section}</td></tr>')
+        html.append(f'<tr class="section-row"><td colspan="9">{section}</td></tr>')
         for cat in cats:
             c = next((x for x in plan.cat_outcomes if x.cat == cat), None)
             if not c:
                 continue
-            is_rate  = ALL_CATS[cat]["rate"]
-            fmt      = ".3f" if is_rate else ".0f"
-            color    = AC.get(c.action, "#666")
-            icon     = AI.get(c.action, "—")
-            display  = CAT_DISPLAY.get(cat, cat)
+            is_rate = ALL_CATS[cat]["rate"]
+            fmt     = ".2f" if is_rate else ".0f"
+            icon    = AI.get(c.action, "⚪")
+            display = CAT_DISPLAY.get(cat, cat)
+
+            # Your side: Exp column color = action severity
+            exp_color = (
+                "#137333" if c.action in ("SAFE", "HOLD") else
+                "#b45309" if c.action == "HEDGE" else "#c5221f"
+            )
+            # Now columns: bold green if winning, red if losing
+            now_you = "#137333" if c.currently_winning else "#c5221f"
+            now_opp = "#c5221f" if c.currently_winning else "#137333"
+
             html.append(
                 f'<tr>'
-                f'<td class="cat-name">{display}</td>'
-                f'<td>{format(c.your_avg_val,   fmt)}</td>'
-                f'<td style="color:{color}">{format(c.your_floor_val, fmt)}</td>'
-                f'<td>{format(c.opp_avg_val,    fmt)}</td>'
-                f'<td>{format(c.opp_ceil_val,   fmt)}</td>'
-                f'<td>{"🟢" if c.currently_winning else "🔴"}</td>'
-                f'<td>{"🟢" if c.avg_beats_avg   else "🔴"}</td>'
-                f'<td style="color:{color}">{icon} {c.action}</td>'
+                f'<td style="color:#9a9a94">{format(c.your_floor_val, fmt)}</td>'
+                f'<td style="color:#9a9a94">{format(c.your_avg_val,   fmt)}</td>'
+                f'<td style="color:{exp_color};font-weight:600">{format(c.your_exp_val, fmt)}</td>'
+                f'<td style="color:{now_you};font-weight:700">{format(c.your_current_val, fmt)}</td>'
+                f'<td class="cat-col">{display} {icon}</td>'
+                f'<td style="color:{now_opp};font-weight:700">{format(c.opp_current_val, fmt)}</td>'
+                f'<td style="color:#9a9a94">{format(c.opp_exp_val,  fmt)}</td>'
+                f'<td style="color:#9a9a94">{format(c.opp_avg_val,  fmt)}</td>'
+                f'<td style="color:#9a9a94">{format(c.opp_ceil_val, fmt)}</td>'
                 f'</tr>'
             )
     html.append('</table>')
@@ -1257,13 +1376,35 @@ def get_weekly_matchup_section(yahoo_client,
         opp_lines = make_lines(opp_projs, opp_banked, opp_rolling, opp_remaining_games)
 
         your_floor  = my_lines["floor"]
-        your_avg    = my_lines["average"]
+        your_avg    = my_lines["average"]   # = banked + remaining (used as your_exp)
         opp_ceiling = opp_lines["ceiling"]
-        opp_avg     = opp_lines["average"]
+        opp_avg     = opp_lines["average"]  # = opp banked + remaining (used as opp_exp)
+
+        # ── Season-baseline lines (rate × 7, no banked) — for Avg display column
+        def _zero_banked(rolling: dict) -> dict:
+            return {k: (0 if k.startswith("banked_") else v) for k, v in rolling.items()}
+
+        my_hit_base  = build_hitting_line(_zero_banked(my_rolling),  7, "average")
+        opp_hit_base = build_hitting_line(_zero_banked(opp_rolling), 7, "average")
+        my_pitch_base  = aggregate_pitching_line(my_projs,  "avg", {})
+        opp_pitch_base = aggregate_pitching_line(opp_projs, "avg", {})
+        my_avg_baseline  = TeamWeekLine("avg_baseline", hitting=my_hit_base,  pitching=my_pitch_base)
+        opp_avg_baseline = TeamWeekLine("avg_baseline", hitting=opp_hit_base, pitching=opp_pitch_base)
+
+        # Populate game_date on SP projections for build_ip_plan filtering
+        for proj in my_projs:
+            if not proj.is_rp:
+                proj.game_date = pitcher_game_dates.get(proj.name, "")
 
         cat_outcomes = evaluate_categories(
-            your_floor, your_avg, opp_ceiling, opp_avg,
-            my_banked, opp_banked,
+            your_floor=your_floor,
+            your_exp=your_avg,
+            your_avg_baseline=my_avg_baseline,
+            opp_ceiling=opp_ceiling,
+            opp_exp=opp_avg,
+            opp_avg_baseline=opp_avg_baseline,
+            current_mine=my_banked,
+            current_opp=opp_banked,
         )
 
         sp_projs       = [p for p in my_projs if not p.is_rp]
