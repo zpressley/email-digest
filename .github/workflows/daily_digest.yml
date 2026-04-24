@@ -27,25 +27,18 @@ jobs:
           echo '${{ secrets.YAHOO_TOKEN_JSON }}' > token.json
           python -c "import json; json.load(open('token.json'))" || (echo "❌ token.json is invalid — update YAHOO_TOKEN_JSON secret" && exit 1)
 
-      - name: Checkout fbp-trade-bot for managers.json
+      - name: Checkout FBPTradeBot for managers.json
         uses: actions/checkout@v3
         with:
-          repository: zpressley/fbp-trade-bot
+          repository: zpressley/FBPTradeBot
           path: fbp-trade-bot
           token: ${{ secrets.GH_PAT }}
 
       - name: Copy managers.json to email-digest data/
         run: |
           mkdir -p data
-          if [ -f fbp-trade-bot/config/managers.json ]; then
-            cp fbp-trade-bot/config/managers.json data/managers.json
-            echo "✅ managers.json copied from config/ ($(wc -l < data/managers.json) lines)"
-          elif [ -f fbp-trade-bot/data/managers.json ]; then
-            cp fbp-trade-bot/data/managers.json data/managers.json
-            echo "✅ managers.json copied from data/ ($(wc -l < data/managers.json) lines)"
-          else
-            echo "⚠️  managers.json not found in fbp-trade-bot — digest will fall back to sync_managers()"
-          fi
+          cp fbp-trade-bot/config/managers.json data/managers.json
+          echo "✅ managers.json copied ($(wc -l < data/managers.json) lines)"
 
       - name: Run daily digest
         env:
