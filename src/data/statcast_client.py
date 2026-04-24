@@ -60,6 +60,75 @@ STATCAST_CACHE_FILE = os.getenv(
 # Rolling window for current-season data
 STATCAST_DAYS = int(os.getenv("STATCAST_ROLLING_DAYS", "30"))
 
+# Daily snapshot cache: yesterday's metrics ↔ today's metrics → delta.
+# Early season, the "prior window" approach (fetching days 31-60 ago) returns
+# empty data because it falls inside spring training. Snapshot cache sidesteps
+# that by comparing today's metrics to what we computed N days ago.
+STATCAST_SNAPSHOT_DIR = os.getenv(
+    "STATCAST_SNAPSHOT_DIR", "data/statcast_snapshots"
+)
+STATCAST_DELTA_DAYS = int(os.getenv("STATCAST_DELTA_DAYS", "7"))
+STATCAST_DELTA_MIN  = int(os.getenv("STATCAST_DELTA_MIN", "3"))
+STATCAST_DELTA_MAX  = int(os.getenv("STATCAST_DELTA_MAX", "14"))
+
+
+def _snapshot_path(d: date) -> str:
+    return os.path.join(STATCAST_SNAPSHOT_DIR, f"{d.strftime('%Y-%m-%d')}.json")
+
+
+def save_statcast_snapshot(snapshot: dict, d: date | None = None) -> None:
+    """
+    Write today's per-player metrics to data/statcast_snapshots/YYYY-MM-DD.json.
+    snapshot: {mlb_id (str or int): {whiff_rate, chase_rate, barrel_rate, hard_hit_rate, ...}}
+    """
+    if not snapshot:
+        return
+    d = d or date.today()
+    try:
+        os.makedirs(STATCAST_SNAPSHOT_DIR, exist_ok=True)
+        path = _snapshot_path(d)
+        normalized = {str(k): v for k, v in snapshot.items()}
+        with open(path, "w") as f:
+            json.dump(normalized, f)
+        print(f"  💾 Statcast snapshot: wrote {len(normalized)} players to {path}")
+    except Exception as e:
+        print(f"  ⚠️  Statcast snapshot write error: {e}")
+
+
+_comparison_snapshot_cache: dict | None = None
+
+
+def _load_comparison_snapshot() -> dict:
+    """
+    Walk backward from STATCAST_DELTA_MIN..STATCAST_DELTA_MAX days ago,
+    preferring the one closest to STATCAST_DELTA_DAYS. Returns {} if none found.
+    Memoized for the life of the process so per-player calls don't hit disk.
+    """
+    global _comparison_snapshot_cache
+    if _comparison_snapshot_cache is not None:
+        return _comparison_snapshot_cache
+    today = date.today()
+    candidates = []
+    for n in range(STATCAST_DELTA_MIN, STATCAST_DELTA_MAX + 1):
+        p = _snapshot_path(today - timedelta(days=n))
+        if os.path.exists(p):
+            candidates.append((abs(n - STATCAST_DELTA_DAYS), n, p))
+    if not candidates:
+        print("  📊 Statcast deltas: no prior snapshot yet — deltas skipped today, will start tomorrow")
+        _comparison_snapshot_cache = {}
+        return _comparison_snapshot_cache
+    candidates.sort()
+    _, best_n, best_path = candidates[0]
+    try:
+        with open(best_path) as f:
+            data = json.load(f)
+        print(f"  📊 Statcast deltas: comparing to snapshot from {best_n} days ago")
+        _comparison_snapshot_cache = {str(k): v for k, v in data.items()}
+    except Exception as e:
+        print(f"  ⚠️  Statcast snapshot read error ({best_path}): {e}")
+        _comparison_snapshot_cache = {}
+    return _comparison_snapshot_cache
+
 
 class StatcastClient:
     def __init__(self):
@@ -175,34 +244,27 @@ class StatcastClient:
         # Expected stats — only if PA threshold met
         xba  = _calc_xba(df)  if has_expected else None
 
-        # Prior window for delta computation (days+1 to 2*days ago)
+        # Deltas come from yesterday's (or ~7-day-old) snapshot instead of a
+        # fresh "prior window" fetch. The old approach tried to read days 31-60
+        # ago, which falls inside spring training in April — Statcast returns
+        # empty and deltas never render. Snapshot comparison is the only way
+        # to show meaningful early-season movement.
         deltas = {}
-        try:
-            prior_end   = end_date - timedelta(days=days + 1)
-            prior_start = end_date - timedelta(days=days * 2)
-            prior_df    = statcast_batter(
-                start_dt=prior_start.strftime("%Y-%m-%d"),
-                end_dt=prior_end.strftime("%Y-%m-%d"),
-                player_id=mlb_id,
-            )
-            if prior_df is not None and not prior_df.empty:
-                prior_pa  = _count_pa(prior_df)
-                prior_bbe = _count_bbe(prior_df)
-                pairs = [
-                    ("whiff_rate",    whiff_rate,   _calc_whiff_rate(prior_df)    if prior_pa  >= MIN_PA_DISCIPLINE else None),
-                    ("chase_rate",    chase_rate,   _calc_chase_rate(prior_df)    if prior_pa  >= MIN_PA_DISCIPLINE else None),
-                    ("barrel_rate",   barrel_rate,  _calc_barrel_rate(prior_df)   if prior_bbe >= MIN_BBE_CONTACT  else None),
-                    ("hard_hit_rate", hard_hit_rate, _calc_hard_hit_rate(prior_df) if prior_bbe >= MIN_BBE_CONTACT  else None),
-                ]
-                for key, curr_val, prior_val in pairs:
-                    if curr_val is not None and prior_val is not None:
-                        deltas[key] = {
-                            "current": round(curr_val,  1),
-                            "prior":   round(prior_val, 1),
-                            "delta":   round(curr_val - prior_val, 1),
-                        }
-        except Exception:
-            pass  # deltas are optional; failure here is non-fatal
+        prior_snap = _load_comparison_snapshot().get(str(mlb_id))
+        if prior_snap:
+            pairs = [
+                ("whiff_rate",    whiff_rate,    prior_snap.get("whiff_rate")),
+                ("chase_rate",    chase_rate,    prior_snap.get("chase_rate")),
+                ("barrel_rate",   barrel_rate,   prior_snap.get("barrel_rate")),
+                ("hard_hit_rate", hard_hit_rate, prior_snap.get("hard_hit_rate")),
+            ]
+            for key, curr_val, prior_val in pairs:
+                if curr_val is not None and prior_val is not None:
+                    deltas[key] = {
+                        "current": round(curr_val,  1),
+                        "prior":   round(prior_val, 1),
+                        "delta":   round(curr_val - prior_val, 1),
+                    }
 
         return {
             "name":           player_name,

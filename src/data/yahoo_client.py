@@ -10,7 +10,7 @@ import json
 import os
 import time
 import requests
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from requests.auth import HTTPBasicAuth
 from typing import Optional
 from xml.etree import ElementTree as ET
@@ -27,11 +27,97 @@ NS        = "http://fantasysports.yahooapis.com/fantasy/v2/base.rng"
 IL_STATUSES  = {"IL", "DL", "IR", "DTD", "NA"}
 IL_POSITIONS = {"IL", "IL10", "IL60", "DL", "DL15", "DL60", "NA"}
 
-YAHOO_TEAM_MAP = {
+# Fallback mapping used only if data/managers.json is missing AND the Yahoo
+# sync fails. This table is known-stale for 2026 — sync_managers() overwrites
+# data/managers.json on every daily run so this fallback rarely fires.
+_FALLBACK_TEAM_MAP = {
     "1": "WIZ", "2": "B2J", "3": "CFL", "4": "HAM",
     "5": "JEP", "6": "LFB", "7": "LAW", "8": "SAD",
     "9": "DRO", "10": "RV", "11": "TBB", "12": "WAR"
 }
+
+MANAGERS_JSON_PATH = os.getenv("MANAGERS_JSON_PATH", "data/managers.json")
+
+
+def _load_team_map() -> dict:
+    """
+    Returns team_id (str) → abbr mapping.
+    Prefers data/managers.json (authoritative source from fbp-trade-bot);
+    falls back to the hardcoded _FALLBACK_TEAM_MAP if the file is missing
+    or unreadable. Always read fresh from disk so a mid-run sync is picked
+    up immediately.
+
+    Accepted schemas, in priority order:
+      1. fbp-trade-bot / fbp-hub: {"teams": {"WAR": {"yahoo_team_id": "12", ...}}}
+         — outer key is the abbr, yahoo_team_id lives inside.
+      2. Flat-dict inverse:       {"12": "WAR"}
+      3. Flat-dict nested:        {"12": {"abbr": "WAR", "name": "..."}}
+    The FBP schema is checked first because sync_managers() is a fallback
+    — when the authoritative file is present it wins.
+    """
+    try:
+        if os.path.exists(MANAGERS_JSON_PATH):
+            with open(MANAGERS_JSON_PATH) as f:
+                data = json.load(f)
+
+            # 1. fbp-trade-bot schema: {"teams": {"WAR": {"yahoo_team_id": "12", ...}}}
+            if isinstance(data, dict) and isinstance(data.get("teams"), dict):
+                out = {}
+                for abbr, info in data["teams"].items():
+                    if not isinstance(info, dict):
+                        continue
+                    tid = info.get("yahoo_team_id") or info.get("team_id")
+                    if tid:
+                        out[str(tid)] = str(abbr)
+                if out:
+                    return out
+
+            # 2 + 3. Flat {id: abbr} or {id: {"abbr": ...}}
+            out = {}
+            for k, v in data.items():
+                if k == "teams":
+                    continue  # handled above
+                if isinstance(v, dict):
+                    abbr = v.get("abbr") or v.get("short") or v.get("name")
+                else:
+                    abbr = v
+                if abbr:
+                    out[str(k)] = str(abbr)
+            if out:
+                return out
+    except Exception as e:
+        print(f"  ⚠️  managers.json load error: {e} — using fallback map")
+    return dict(_FALLBACK_TEAM_MAP)
+
+
+# Backwards-compat reference. Code should prefer calling _load_team_map().
+YAHOO_TEAM_MAP = _load_team_map()
+
+
+def _derive_abbr_from_name(name: str, team_id: str) -> str:
+    """
+    Best-effort short abbr extraction from a Yahoo team name.
+    Rules, in order:
+      1. Token inside parentheses, 2-5 chars, all uppercase/alnum → that token
+      2. Leading all-caps alnum token 2-5 chars → that token
+      3. Trailing all-caps alnum token 2-5 chars → that token
+      4. First 3 letters of first word, uppercased
+      5. "T{team_id}"
+    """
+    import re
+    if not name:
+        return f"T{team_id}"
+    m = re.search(r"\(([A-Z0-9]{2,5})\)", name)
+    if m:
+        return m.group(1)
+    tokens = re.findall(r"[A-Za-z0-9]+", name)
+    if tokens:
+        if re.fullmatch(r"[A-Z0-9]{2,5}", tokens[0]):
+            return tokens[0]
+        if re.fullmatch(r"[A-Z0-9]{2,5}", tokens[-1]):
+            return tokens[-1]
+        return tokens[0][:3].upper()
+    return f"T{team_id}"
 
 
 class YahooClient:
@@ -178,6 +264,57 @@ class YahooClient:
             teams[team_id] = players
         return teams
 
+    def sync_managers(self, force: bool = False) -> dict:
+        """
+        Fallback-only team-id → abbr sync. If data/managers.json already
+        exists (i.e. fbp-trade-bot has synced it cross-repo), this does
+        nothing — the authoritative file wins. Only writes an auto-derived
+        file when managers.json is missing, so we can't stomp the real one
+        with heuristic abbrs like "WEE" for "Weekend Warriors".
+
+        Pass force=True to regenerate regardless (diagnostic use only).
+        Returns the in-memory {team_id: abbr} mapping either way.
+        """
+        global YAHOO_TEAM_MAP
+        if os.path.exists(MANAGERS_JSON_PATH) and not force:
+            existing = _load_team_map()
+            print(f"  🗂️  sync_managers: {MANAGERS_JSON_PATH} already present "
+                  f"({len(existing)} teams) — using authoritative file")
+            YAHOO_TEAM_MAP = existing
+            return existing
+
+        try:
+            url  = f"{BASE_URL}/league/{self.league_key}/teams"
+            root = self._get_xml(url)
+        except Exception as e:
+            print(f"  ⚠️  sync_managers: Yahoo fetch failed ({e}) — keeping existing map")
+            return _load_team_map()
+
+        mapping = {}
+        for team in root.findall(f".//{{{NS}}}team"):
+            tid  = _text(team, f"{{{NS}}}team_id") or ""
+            name = _text(team, f".//{{{NS}}}name") or ""
+            if not tid:
+                continue
+            abbr = _derive_abbr_from_name(name, tid)
+            mapping[tid] = {"abbr": abbr, "name": name}
+
+        if not mapping:
+            print("  ⚠️  sync_managers: no teams parsed — keeping existing map")
+            return _load_team_map()
+
+        try:
+            os.makedirs(os.path.dirname(MANAGERS_JSON_PATH) or ".", exist_ok=True)
+            with open(MANAGERS_JSON_PATH, "w") as f:
+                json.dump(mapping, f, indent=2, sort_keys=True)
+            YAHOO_TEAM_MAP = {tid: v["abbr"] for tid, v in mapping.items()}
+            print(f"  🗂️  sync_managers: wrote auto-derived {len(mapping)} teams to "
+                  f"{MANAGERS_JSON_PATH} (abbr heuristic — override with the fbp-trade-bot file)")
+        except Exception as e:
+            print(f"  ⚠️  sync_managers: write failed ({e})")
+
+        return {tid: v["abbr"] for tid, v in mapping.items()}
+
     # ── Weekly matchup engine methods ─────────────────────────────────────────
 
     def get_current_matchup_full(self) -> dict:
@@ -208,34 +345,73 @@ class YahooClient:
         root = self._get_xml(url)
 
         matchups = root.findall(f".//{{{NS}}}matchup")
-        current  = next(
-            (m for m in matchups
-             if _text(m, f"{{{NS}}}is_current_week") == "1"),
-            matchups[-1] if matchups else None,
-        )
+        print(f"  🔍 matchup XML: {len(matchups)} matchup node(s) found")
+
+        # Prefer is_current_week==1/"1"; fallback to today-in-range, else last.
+        def _is_current(m):
+            flag = _text(m, f"{{{NS}}}is_current_week") or ""
+            if flag.strip() in ("1", "true", "True"):
+                return True
+            # Fallback: today between week_start and week_end inclusive
+            start = _text(m, f"{{{NS}}}week_start") or ""
+            end   = _text(m, f"{{{NS}}}week_end")   or ""
+            try:
+                if start and end:
+                    sd = datetime.strptime(start, "%Y-%m-%d").date()
+                    ed = datetime.strptime(end,   "%Y-%m-%d").date()
+                    return sd <= date.today() <= ed
+            except ValueError:
+                return False
+            return False
+
+        current = next((m for m in matchups if _is_current(m)),
+                       matchups[-1] if matchups else None)
         if current is None:
+            print("  ⚠️  matchup XML: no matchups at all")
             return {}
+
+        wk  = _text(current, f"{{{NS}}}week") or "?"
+        icw = _text(current, f"{{{NS}}}is_current_week") or ""
+        print(f"  🔍 selected matchup: week={wk} is_current_week={icw!r}")
 
         result       = {"my_stats": {}, "opp_stats": {}}
         opponent_tid = None
 
-        for team in current.findall(f".//{{{NS}}}team"):
+        # Use direct <teams>/<team> children; .//team leaks nested team nodes.
+        team_nodes = current.findall(f"./{{{NS}}}teams/{{{NS}}}team")
+        if not team_nodes:   # belt-and-braces fallback
+            team_nodes = current.findall(f".//{{{NS}}}team")
+        print(f"  🔍 team nodes in matchup: {len(team_nodes)}")
+
+        for team in team_nodes:
             tid = _text(team, f"{{{NS}}}team_id")
             if tid != str(self.team_id):
                 opponent_tid = tid
             key = "my_stats" if tid == str(self.team_id) else "opp_stats"
-            for stat in team.findall(f".//{{{NS}}}stat"):
+            stat_nodes = team.findall(f".//{{{NS}}}stat")
+            parsed = 0
+            preview = []
+            for stat in stat_nodes:
                 stat_id = _text(stat, f"{{{NS}}}stat_id")
                 value   = _text(stat, f"{{{NS}}}value")
                 name    = _STAT_ID_MAP.get(stat_id)
+                if len(preview) < 6:
+                    preview.append(f"{stat_id}={value!r}")
                 if name and value not in (None, "-", ""):
                     try:
                         result[key][name] = float(value)
+                        parsed += 1
                     except ValueError:
                         pass
+            print(f"     team_id={tid} ({key}): {len(stat_nodes)} stat nodes, {parsed} parsed. Preview: {preview}")
 
-        # Opponent name
-        opponent_name = YAHOO_TEAM_MAP.get(str(opponent_tid), "OPP") if opponent_tid else "OPP"
+        print(f"  🔍 my_stats:  {result['my_stats']}")
+        print(f"  🔍 opp_stats: {result['opp_stats']}")
+
+        # Opponent name (read fresh from managers.json)
+        team_map = _load_team_map()
+        opponent_name = team_map.get(str(opponent_tid), "OPP") if opponent_tid else "OPP"
+        print(f"  🔍 opponent: team_id={opponent_tid} → {opponent_name}")
 
         # Count cats currently winning from banked stats
         DIRECT_SCORING = {

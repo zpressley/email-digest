@@ -978,6 +978,13 @@ def find_streamers(fa_pitchers: list, cat_outcomes: list,
             if not proj or proj.is_rp:
                 continue
 
+            rank = proj.opp_offense_rank
+            # Hard-exclude top-5 offenses regardless of pitcher strength.
+            # A mere score penalty is not enough — e.g. Eury Pérez vs SF
+            # (rank 5) was still passing through because of K upside.
+            if rank <= 5:
+                continue
+
             bad = proj.bad
 
             era_safe = (not _winning("ERA") or bad.era <= _opp_ceil("ERA") + 0.15)
@@ -986,10 +993,8 @@ def find_streamers(fa_pitchers: list, cat_outcomes: list,
                 continue
 
             score = 0
-            rank  = proj.opp_offense_rank
             if rank >= 26: score += 4
             elif rank >= 21: score += 2
-            elif rank <= 5: score -= 3
             if proj.avg.k  >= 7:  score += 2
             if proj.avg.k  >= 9:  score += 1
             if proj.avg.qs >= 1:  score += 1

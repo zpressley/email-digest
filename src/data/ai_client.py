@@ -75,13 +75,14 @@ def generate_baseball_pulse(feed_text: str) -> str:
     (injuries, IL moves, call-ups, significant role changes).
     Minor league signings and non-roster moves are ignored.
     """
+    print(f"  📡 generate_baseball_pulse: feed_len={len(feed_text or '')} "
+          f"key_present={bool(ANTHROPIC_KEY)}")
     if not feed_text:
-        print("  ⚠️  Baseball pulse: no feed text")
+        print("  ⚠️  Baseball pulse: no feed text — returning empty")
         return ""
     if not ANTHROPIC_KEY:
-        print("  ❌ Baseball pulse: ANTHROPIC_KEY not set")
+        print("  ❌ Baseball pulse: ANTHROPIC_KEY not set — returning empty")
         return ""
-    print(f"  ✅ Baseball pulse: key loaded, feed length {len(feed_text)} chars")
 
     my_roster   = _load_my_roster_names()
     my_prospects = _load_my_prospect_names()
@@ -149,15 +150,18 @@ Formatting rules:
 FEED:
 {feed_text}"""
 
+    print(f"  📡 Baseball pulse: sending prompt ({len(prompt)} chars) to {MODEL}")
     try:
         message = client.messages.create(
             model=MODEL,
             max_tokens=700,
             messages=[{"role": "user", "content": prompt}],
         )
-        return message.content[0].text.strip()
+        out = message.content[0].text.strip()
+        print(f"  ✅ Baseball pulse: received {len(out)} chars")
+        return out
     except Exception as e:
-        print(f"  ❌ Baseball pulse generation error: {type(e).__name__}: {e}")
+        print(f"  ❌ Baseball pulse generation error: {type(e).__name__}: {e!r}")
         return ""
 
 
@@ -166,7 +170,13 @@ def generate_farm_report(prospect_callouts: list[dict]) -> str:
     Generate a narrative farm system report for WAR prospects.
     Only called when prospect_callouts has actual data.
     """
-    if not prospect_callouts or not ANTHROPIC_KEY:
+    print(f"  🌾 generate_farm_report: callouts={len(prospect_callouts or [])} "
+          f"key_present={bool(ANTHROPIC_KEY)}")
+    if not prospect_callouts:
+        print("  ⚠️  Farm report: no callouts — returning empty")
+        return ""
+    if not ANTHROPIC_KEY:
+        print("  ❌ Farm report: ANTHROPIC_KEY not set — returning empty")
         return ""
 
     client = anthropic.Anthropic(api_key=ANTHROPIC_KEY)
@@ -193,9 +203,11 @@ Prospect activity:
             max_tokens=200,
             messages=[{"role": "user", "content": prompt}],
         )
-        return message.content[0].text.strip()
+        out = message.content[0].text.strip()
+        print(f"  ✅ Farm report: received {len(out)} chars")
+        return out
     except Exception as e:
-        print(f"  ❌ Farm report generation error: {type(e).__name__}: {e}")
+        print(f"  ❌ Farm report generation error: {type(e).__name__}: {e!r}")
         return ""
 
 

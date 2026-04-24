@@ -27,6 +27,7 @@ from src.data.statcast_client import (
     MIN_PA_DISCIPLINE,
     MIN_BBE_CONTACT,
     MIN_PA_EXPECTED,
+    save_statcast_snapshot,
 )
 from src.data.yahoo_client import YahooClient
 
@@ -65,6 +66,7 @@ def get_statcast_trends() -> list[dict]:
     print(f"  📊 Statcast: checking {len(hitters)} rostered hitters")
 
     results = []
+    snapshot: dict = {}   # mlb_id → raw metrics for today's snapshot
 
     for player in hitters:
         name   = player.get("name", "")
@@ -78,6 +80,19 @@ def get_statcast_trends() -> list[dict]:
         if not metrics or metrics.get("insufficient_data"):
             continue
 
+        # Always capture today's raw metrics in the snapshot, even if we
+        # won't display this player (trend == neutral). Snapshot is the
+        # baseline for tomorrow's deltas across the whole league.
+        snapshot[str(mlb_id)] = {
+            "whiff_rate":    metrics.get("whiff_rate"),
+            "chase_rate":    metrics.get("chase_rate"),
+            "barrel_rate":   metrics.get("barrel_rate"),
+            "hard_hit_rate": metrics.get("hard_hit_rate"),
+            "pa":            metrics.get("pa"),
+            "bbe":           metrics.get("bbe"),
+            "name":          name,
+        }
+
         score = _compute_signal_score(metrics)
         trend = _classify_trend(score)
 
@@ -88,6 +103,9 @@ def get_statcast_trends() -> list[dict]:
         # Build display summary — only show metrics that have enough data
         display = _build_display(metrics, score, trend)
         results.append(display)
+
+    # Persist today's snapshot so deltas can be computed tomorrow onwards.
+    save_statcast_snapshot(snapshot)
 
     # Sort: up first (highest score), then down (most negative score last)
     results.sort(key=lambda x: -x["signal_score"] if x["trend"] == "up" else x["signal_score"])

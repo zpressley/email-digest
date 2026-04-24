@@ -24,6 +24,14 @@ def run():
     today = date.today()
     print(f"Running daily digest for {today}")
 
+    # Refresh managers.json so opponent abbrs stay in sync with Yahoo's
+    # current team IDs (prevents "WAR vs SAD" when opponent is actually B2J).
+    print("🗂️  Syncing managers.json from Yahoo...")
+    try:
+        YahooClient().sync_managers()
+    except Exception as e:
+        print(f"  ⚠️  sync_managers failed: {e} — continuing with existing map")
+
     print("📊 Fetching matchup status...")
     matchup_status = get_matchup_status()
 
@@ -44,11 +52,14 @@ def run():
 
     print("🌾 Generating AI farm report...")
     farm_report = generate_farm_report(prospect_callouts)
+    print(f"🌾 Farm report length: {len(farm_report)} chars")
 
     print("📡 Reading Discord Twitter feed...")
     feed_text = get_posts_as_text()
+    print(f"📡 Discord feed length: {len(feed_text)} chars")
     print("📡 Generating baseball pulse...")
     baseball_pulse = generate_baseball_pulse(feed_text)
+    print(f"📡 Baseball pulse length: {len(baseball_pulse)} chars")
 
     print("📊 Building weekly matchup projection...")
     try:
