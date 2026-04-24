@@ -394,7 +394,7 @@ class YahooClient:
                 stat_id = _text(stat, f"{{{NS}}}stat_id")
                 value   = _text(stat, f"{{{NS}}}value")
                 name    = _STAT_ID_MAP.get(stat_id)
-                if len(preview) < 6:
+                if len(preview) < 25:
                     preview.append(f"{stat_id}={value!r}")
                 if name and value not in (None, "-", ""):
                     try:
@@ -402,6 +402,9 @@ class YahooClient:
                         parsed += 1
                     except ValueError:
                         pass
+                elif not name and stat_id and value not in (None, "-", ""):
+                    # Unrecognized stat_id — log so we can add to _STAT_ID_MAP.
+                    print(f"     ⚠️  unrecognized stat_id={stat_id} value={value!r}")
             print(f"     team_id={tid} ({key}): {len(stat_nodes)} stat nodes, {parsed} parsed. Preview: {preview}")
 
         print(f"  🔍 my_stats:  {result['my_stats']}")

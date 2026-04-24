@@ -897,26 +897,45 @@ def make_start_decision(proj: PitcherProjection,
         c = next((x for x in cat_outcomes if x.cat == cat_name), None)
         return c.avg_beats_avg if c else True
 
-    era_ceil  = _opp_ceil("ERA")
-    h9_ceil   = _opp_ceil("H/9")
-    bb9_ceil  = _opp_ceil("BB/9")
+    # Rate-stat danger flags have two guards:
+    #
+    # Guard 1 — minimum IP banked. With 0 IP banked both teams show 0.00 ERA,
+    #           making "currently winning ERA" trivially true and firing the
+    #           danger flag for every pitcher before a single inning is thrown.
+    #           Only enable rate-stat flags once 5+ IP is on the board.
+    #
+    # Guard 2 — compare to opp_avg_val, not opp_ceil_val. The ceiling is the
+    #           opponent's absolute best-case ERA for the full week (e.g. 0.57).
+    #           Using it as the threshold makes every bad scenario look
+    #           catastrophic. The relevant question is: does this pitcher's
+    #           bad scenario beat their AVERAGE expected ERA? If yes, it's a
+    #           manageable risk.
+    rate_flags_active = banked_ip >= 5.0
 
-    era_danger  = _you_winning("ERA")  and era_ceil  and bad.era  > era_ceil  + 0.25
-    h9_danger   = _you_winning("H/9")  and h9_ceil   and bad.h9   > h9_ceil   + 1.00
-    bb9_danger  = _you_winning("BB/9") and bb9_ceil  and bad.bb9  > bb9_ceil  + 0.80
+    def _opp_avg(cat_name: str) -> Optional[float]:
+        c = next((x for x in cat_outcomes if x.cat == cat_name), None)
+        return c.opp_avg_val if c else None
+
+    era_threshold  = _opp_avg("ERA")
+    h9_threshold   = _opp_avg("H/9")
+    bb9_threshold  = _opp_avg("BB/9")
+
+    era_danger  = rate_flags_active and _you_winning("ERA")  and era_threshold  and bad.era  > era_threshold  + 0.50
+    h9_danger   = rate_flags_active and _you_winning("H/9")  and h9_threshold   and bad.h9   > h9_threshold   + 1.50
+    bb9_danger  = rate_flags_active and _you_winning("BB/9") and bb9_threshold  and bad.bb9  > bb9_threshold  + 1.00
 
     if era_danger:
         sit_reasons.append(
-            f"Bad scenario ERA {bad.era} could flip ERA cat "
-            f"(their ceiling: {era_ceil})"
+            f"Bad scenario ERA {bad.era:.2f} risks ERA cat "
+            f"(their avg: {era_threshold:.2f})"
         )
     else:
         go_reasons.append(f"ERA safe even in bad scenario ({bad.era})")
 
     if h9_danger:
-        sit_reasons.append(f"Bad H/9 ({bad.h9}) threatens H/9 cat")
+        sit_reasons.append(f"Bad H/9 ({bad.h9:.2f}) risks H/9 cat (their avg: {h9_threshold:.2f})")
     if bb9_danger:
-        sit_reasons.append(f"Bad BB/9 ({bad.bb9}) threatens BB/9 cat")
+        sit_reasons.append(f"Bad BB/9 ({bad.bb9:.2f}) risks BB/9 cat (their avg: {bb9_threshold:.2f})")
 
     if not _avg_winning("K") and avg.k >= 5:
         go_reasons.append(f"K upside needed — avg scenario adds {avg.k}K")
@@ -1005,8 +1024,28 @@ def find_streamers(fa_pitchers: list, cat_outcomes: list,
             # Hard-exclude top-5 offenses regardless of pitcher strength.
             # A mere score penalty is not enough — e.g. Eury Pérez vs SF
             # (rank 5) was still passing through because of K upside.
+            print(f"  [streamer] {p.get('name','?')} opp={proj.opponent!r} rank={rank}")
             if rank <= 5:
+                print(f"  [streamer] → excluded (top-5 offense)")
                 continue
+            # Belt-and-suspenders: if the ranker returned a neutral default,
+            # the opponent name from the MLB schedule may not match the
+            # ranker's expected abbr format. Exclude by substring for the
+            # handful of elite offenses we know are top-5 in 2026.
+            EXCLUDED_OPPONENT_NAMES = (
+                "san francisco", "giants", "sfg", "sf",
+                "los angeles dodgers", "dodgers", "lad",
+                "new york yankees", "yankees", "nyy",
+                "atlanta braves", "braves", "atl",
+                "philadelphia phillies", "phillies", "phi",
+            )
+            opp_lower = (proj.opponent or "").lower()
+            if any(excl in opp_lower for excl in EXCLUDED_OPPONENT_NAMES):
+                # Only trigger when rank lookup likely defaulted (rank 10-20).
+                # If ranker already classified it top-5 we hit the guard above.
+                if 10 <= rank <= 20:
+                    print(f"  [streamer] → excluded ({proj.opponent!r} name match, rank={rank} looks defaulted)")
+                    continue
 
             bad = proj.bad
 
@@ -1116,7 +1155,16 @@ def build_summary(cat_outcomes: list, ip_plan: IPPlan,
     need_help = [c for c in cat_outcomes
                  if c.action in ("NEED_HELP", "STREAM_K", "STREAM_QS")]
     must_starts = [d for d in sp_decisions if d.recommendation == "MUST_START"]
-    must_names  = ", ".join(d.name for d in must_starts) if must_starts else "None"
+
+    if must_starts:
+        must_names = ", ".join(d.name for d in must_starts)
+    elif ip_plan.shortfall > 0:
+        # IP floor at risk but no individual start is flagged as must-start
+        # (remaining starters collectively cover the gap — start them all).
+        all_sp = [d for d in sp_decisions if not d.projection.is_rp]
+        must_names = f"Start all {len(all_sp)} remaining SP today to cover IP floor"
+    else:
+        must_names = None   # IP covered — suppress the must-start line entirely
 
     # IP status
     ip_banked  = ip_plan.banked
@@ -1154,7 +1202,7 @@ def build_summary(cat_outcomes: list, ip_plan: IPPlan,
         (f"Need help: {', '.join(c.cat for c in need_help)}. "
          if need_help else ""),
         ip_line + ". ",
-        f"Must-start remaining: {must_names}.",
+        f"Must-start remaining: {must_names}." if must_names else "",
     ]
 
     # Opponent threat line — name their highest-K remaining starter
