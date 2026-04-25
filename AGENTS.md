@@ -1,5 +1,11 @@
 # email_digest — Project Rules
 
+## Coding principles (Karpathy, distilled)
+- Think before coding.
+- Simplicity first.
+- Surgical edits only.
+- Goal-driven targets before starting.
+
 ## Team identity
 - The user's fantasy team is **WAR (Weekend Warriors)**, Yahoo team_id **12**
 - WAR is always the "my team" side in all digest output, scorecard headers, and scoring logic

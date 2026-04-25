@@ -628,11 +628,19 @@ def aggregate_pitching_line(projections: list,
     er   = float(banked.get("ER",         0))
     k    = float(banked.get("K",          0))   # pitching K
     hr   = float(banked.get("HR",         0))   # HR allowed
-    tb   = float(banked.get("TB",         0))   # TB allowed (stubbed)
+    tb   = float(banked.get("TB",         0))   # TB allowed
     app  = float(banked.get("APP",        0))
     qs   = float(banked.get("QS",         0))
     h_a  = float(banked.get("H_allowed",  0))
     bb_a = float(banked.get("BB_allowed", 0))
+
+    # The league scores H/9 and BB/9 directly — raw H_allowed/BB_allowed
+    # aren't returned in the matchup endpoint. Back-derive them from the
+    # banked rate stats so accumulated projection rates are accurate.
+    if h_a == 0 and ip > 0 and float(banked.get("H/9", 0)) > 0:
+        h_a = float(banked["H/9"]) * ip / 9.0
+    if bb_a == 0 and ip > 0 and float(banked.get("BB/9", 0)) > 0:
+        bb_a = float(banked["BB/9"]) * ip / 9.0
 
     for proj in projections:
         o    = getattr(proj, attr)

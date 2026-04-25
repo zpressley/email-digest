@@ -764,42 +764,49 @@ def _parse_player(p: ET.Element) -> dict:
 
 
 # ── Yahoo stat ID map ─────────────────────────────────────────────────────────
-# Verified against calculate_baselines.py (fbp-trade-bot production pipeline).
+# Authoritative source: league 8560's stat_categories from
+# /league/{league_key}/settings, mirrored in fbp-trade-bot's
+# data/standings.json under "stat_categories". The previous map (sourced
+# from calculate_baselines.py) had nearly every non-trivial ID wrong —
+# e.g. it called stat_id 12 "R" when Yahoo emits 12 = HR. That's why the
+# pitching column showed all zeros and K_hit/TB_hit never populated.
 #
-# Naming conventions to avoid collisions:
-#   K       = pitching strikeouts   (stat_id 62)
-#   K_hit   = batting strikeouts    (stat_id 27)
-#   HR      = pitching HR allowed   (stat_id 59)
-#   HR_hit  = batting home runs     (stat_id 16)
+# Naming conventions to avoid display collisions inside the engine:
+#   K       = pitching strikeouts   (stat_id 42)
+#   K_hit   = batting strikeouts    (stat_id 21)
+#   HR      = pitching HR allowed   (stat_id 38)
+#   HR_hit  = batting home runs     (stat_id 12)
+#   TB      = pitching TB allowed   (stat_id 49)
+#   TB_hit  = batting total bases   (stat_id 23)
 #
-# Rate stats (ERA, K/9, H/9, BB/9) are NOT available directly from Yahoo's
-# matchup endpoint. They are derived inside aggregate_pitching_line() from
-# the raw components: ER, K, H_allowed, BB_allowed, IP.
-# Do not add stat IDs for ERA/K9/H9/BB9 here — it won't work.
-#
-# TB (total bases, hitting) is not cleanly available from Yahoo.
-# TB (pitching) is stubbed at 0 — MLB Stats API season endpoint used instead.
+# ERA, K/9, H/9, BB/9 are scored DIRECTLY by this league — they come back
+# as banked rate values from Yahoo. aggregate_pitching_line() still derives
+# them for projections (which only have raw components), so we also back-
+# derive banked H_allowed/BB_allowed from banked H/9 × IP / 9 there.
 _STAT_ID_MAP = {
-    # ── Pitching (verified) ───────────────────────────────────────────────────
-    "48":  "APP",
-    "50":  "IP",           # not a scored cat; needed for rate derivation
-    "58":  "ER",
-    "59":  "HR",           # HR allowed (pitching)
-    "62":  "K",            # strikeouts (pitching)
-    "82":  "QS",
-    "57":  "H_allowed",
-    "61":  "BB_allowed",
-    # ERA, K/9, H/9, BB/9 → derived from above in aggregate_pitching_line()
-
-    # ── Hitting (verified) ────────────────────────────────────────────────────
-    "12":  "R",
+    # ── Hitting (league scoring categories) ──────────────────────────────────
+    "7":   "R",
     "8":   "H",
-    "16":  "HR_hit",       # home runs (batting)
+    "12":  "HR_hit",       # home runs (batting)
     "13":  "RBI",
-    "21":  "SB",
+    "16":  "SB",
     "18":  "BB",           # walks drawn
-    "27":  "K_hit",        # strikeouts (batting)
+    "21":  "K_hit",        # strikeouts (batting)
+    "23":  "TB_hit",       # total bases (batting)
     "3":   "AVG",
     "55":  "OPS",
-    # TB (hitting) → not cleanly available from Yahoo; MLB Stats API used instead
+    # 60 = H/AB display-only — intentionally not mapped
+
+    # ── Pitching (league scoring categories) ─────────────────────────────────
+    "24":  "APP",          # pitching appearances
+    "50":  "IP",           # innings pitched (display-only but always present)
+    "37":  "ER",
+    "38":  "HR",           # HR allowed (pitching)
+    "42":  "K",            # strikeouts (pitching)
+    "49":  "TB",           # total bases allowed
+    "26":  "ERA",          # direct — no longer derived for banked
+    "57":  "K/9",          # direct
+    "77":  "H/9",          # direct
+    "78":  "BB/9",         # direct
+    "83":  "QS",
 }
