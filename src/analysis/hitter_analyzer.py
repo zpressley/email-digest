@@ -112,11 +112,6 @@ def get_statcast_trends() -> list[dict]:
     return results
 
 
-def get_breakout_watch() -> list[dict]:
-    """Players with strong positive Statcast signals."""
-    return [p for p in get_statcast_trends() if p["trend"] == "up"][:5]
-
-
 # ── Internal helpers ──────────────────────────────────────────────────────────
 
 def _compute_signal_score(metrics: dict) -> float:

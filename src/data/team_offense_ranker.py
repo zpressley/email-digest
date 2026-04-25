@@ -122,39 +122,6 @@ def get_matchup_grade(team_abbr: str, days: int = 14) -> dict:
     return {**team, "grade": grade}
 
 
-def get_weakest_offenses(top_n: int = 10, days: int = 14) -> list[dict]:
-    """
-    Returns the N weakest offenses ranked worst-first.
-    Used by streaming finder to identify best pitcher matchups.
-    """
-    rankings = get_team_offense_rankings(days)
-    sorted_teams = sorted(
-        rankings.values(),
-        key=lambda x: x["rank"],
-        reverse=True,  # highest rank number = worst offense = first
-    )
-    return sorted_teams[:top_n]
-
-
-def get_offense_landscape() -> dict:
-    """
-    Returns full offensive landscape for weekly digest.
-    Includes top 5 offenses, bottom 5 offenses, and notable trends.
-    """
-    rankings = get_team_offense_rankings(days=14)
-    if not rankings:
-        return {}
-
-    sorted_by_rank = sorted(rankings.values(), key=lambda x: x["rank"])
-
-    return {
-        "best_offenses":   sorted_by_rank[:5],
-        "worst_offenses":  sorted_by_rank[-5:][::-1],
-        "all_teams":       sorted_by_rank,
-        "updated_days":    14,
-    }
-
-
 # ── Internal helpers ──────────────────────────────────────────────────────────
 
 def _fetch_rolling_stats(days: int) -> list[dict] | None:

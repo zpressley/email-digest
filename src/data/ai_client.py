@@ -7,7 +7,6 @@ API key from ANTHROPIC_KEY environment variable.
 Sections generated:
     generate_farm_report()      — WAR prospect narrative
     generate_baseball_pulse()   — personalized daily news summary
-    generate_weekly_recap()     — weekly performance summary
 """
 import os
 import json
@@ -223,35 +222,3 @@ Prospect activity:
         return ""
 
 
-def generate_weekly_recap(context: dict) -> str:
-    """
-    Generate a weekly performance recap for the Sunday digest.
-    Covers matchup result, category wins/losses, and roster notes.
-    """
-    if not ANTHROPIC_KEY:
-        return ""
-
-    client = anthropic.Anthropic(api_key=ANTHROPIC_KEY)
-
-    prompt = f"""You are a fantasy baseball analyst writing a weekly recap
-for the Weekend Warriors. Write 3-4 sentences covering:
-- How the matchup went this week (wins/losses by category if available)
-- Standout performers on the roster
-- Any notable injuries or roster moves that affected the week
-- One forward-looking note about the coming week
-
-Use plain text only. Be direct and analytical.
-
-Context:
-{json.dumps(context, indent=2, default=str)}"""
-
-    try:
-        message = client.messages.create(
-            model=MODEL,
-            max_tokens=300,
-            messages=[{"role": "user", "content": prompt}],
-        )
-        return message.content[0].text.strip()
-    except Exception as e:
-        print(f"  ⚠️  Weekly recap generation error: {e}")
-        return ""

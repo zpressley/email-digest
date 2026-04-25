@@ -3,7 +3,6 @@ import json
 import os
 from datetime import date
 from src.analysis.roster_analyzer import get_todays_roster_impact
-from src.analysis.matchup_finder import get_streaming_opportunities
 from src.analysis.free_agent_tracker import get_hot_free_agents
 from src.analysis.hitter_analyzer import get_statcast_trends
 from src.analysis.prospect_tracker import get_prospect_callouts
@@ -37,9 +36,6 @@ def run():
 
     print("📋 Fetching roster impact...")
     roster_impact = get_todays_roster_impact()
-
-    print("⚡ Finding streaming opportunities...")
-    streaming_opportunities = get_streaming_opportunities()
 
     print("🔥 Fetching free agent heat...")
     hot_free_agents = get_hot_free_agents()
@@ -77,7 +73,6 @@ def run():
         "date":                    today.strftime("%A, %B %-d"),
         "matchup_status":          matchup_status,
         "roster_impact":           roster_impact,
-        "streaming_opportunities": streaming_opportunities,
         "hot_free_agents":         hot_free_agents,
         "statcast_trends":         statcast_trends,
         "prospect_callouts":       prospect_callouts,

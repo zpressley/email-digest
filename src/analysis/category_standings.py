@@ -8,8 +8,6 @@ weekly review (full category breakdown).
 """
 import json
 import os
-from datetime import date, timedelta
-from src.data.snapshot_store import load_snapshot
 
 MY_TEAM_ABBR   = os.getenv("MY_TEAM_ABBR", "WAR")
 STANDINGS_FILE = "data/standings.json"
@@ -66,71 +64,6 @@ def get_matchup_status() -> dict | None:
         "record":  record,
         "rank":    rank,
         "winning": None,
-    }
-
-
-def get_full_standings() -> list[dict]:
-    """
-    Returns full league standings — used in weekly digest.
-    """
-    current = _load_standings_file()
-    if not current:
-        return []
-    return current.get("standings", [])
-
-
-def get_weekly_summary() -> dict | None:
-    """
-    Returns a richer weekly summary for the Sunday digest.
-    Compares current snapshot vs 7 days ago to show weekly movement.
-    """
-    current = _load_standings_file()
-    if not current:
-        return None
-
-    my_standing = _find_my_team(current.get("standings", []))
-    if not my_standing:
-        return None
-
-    today    = date.today()
-    past_snap = load_snapshot(today - timedelta(days=7))
-
-    rank_change = None
-    if past_snap:
-        past_standings = past_snap.get("daily", {}).get("standings", [])
-        past_my_team   = _find_my_team(past_standings) if past_standings else None
-        if past_my_team:
-            rank_change = my_standing.get("rank", 0) - past_my_team.get("rank", 0)
-
-    my_matchup = _find_my_matchup(current.get("matchups", []))
-    cats_won = cats_lost = cats_tied = 0
-    opponent = "opponent"
-    if my_matchup:
-        cats_won, cats_lost, cats_tied, opponent = _parse_matchup(my_matchup)
-
-    rank   = my_standing.get("rank", "N/A")
-    record = my_standing.get("record", "N/A")
-
-    if rank_change is not None:
-        if rank_change < 0:
-            movement = f"up {abs(rank_change)} spot{'s' if abs(rank_change) > 1 else ''}"
-        elif rank_change > 0:
-            movement = f"down {rank_change} spot{'s' if rank_change > 1 else ''}"
-        else:
-            movement = "holding steady"
-    else:
-        movement = None
-
-    return {
-        "record":      record,
-        "rank":        rank,
-        "rank_change": rank_change,
-        "movement":    movement,
-        "cats_won":    cats_won,
-        "cats_lost":   cats_lost,
-        "cats_tied":   cats_tied,
-        "opponent":    opponent,
-        "winning":     cats_won > cats_lost,
     }
 
 

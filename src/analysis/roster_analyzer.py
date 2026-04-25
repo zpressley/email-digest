@@ -16,7 +16,7 @@ import requests
 from datetime import date
 from src.data.yahoo_client import YahooClient
 from src.data.mlb_client import MLBClient
-from src.data.team_offense_ranker import get_matchup_grade, ABBR_ALIASES
+from src.data.team_offense_ranker import ABBR_ALIASES
 
 MLB_BASE = "https://statsapi.mlb.com/api/v1"
 
@@ -121,54 +121,6 @@ def get_todays_roster_impact() -> list[dict]:
     order = {"favorable": 0, "neutral": 1, "tough": 2}
     results.sort(key=lambda x: order.get(x["matchup"], 1))
     return results
-
-
-def get_pitcher_start_grades(pitcher_starts: list[dict]) -> list[dict]:
-    """
-    Takes a list of upcoming pitcher starts and enriches each with
-    opponent offensive rank and a sit/start recommendation.
-
-    Input format matches pitcher_analyzer.get_my_upcoming_starts() output.
-    Returns the same list with added matchup fields.
-    """
-    enriched = []
-    for start in pitcher_starts:
-        opp_abbr  = start.get("opponent_abbr", start.get("opponent", ""))
-        opp_grade = get_matchup_grade(opp_abbr)
-
-        rank  = opp_grade.get("rank", 15)
-        grade = opp_grade.get("grade", "NEUTRAL")
-        tier  = opp_grade.get("tier", "average")
-
-        # Sit/start recommendation based on opposing offense rank
-        if rank >= 24:
-            recommendation = "START"
-            rec_color      = "green"
-        elif rank >= 18:
-            recommendation = "LEAN START"
-            rec_color      = "green"
-        elif rank >= 12:
-            recommendation = "NEUTRAL"
-            rec_color      = "yellow"
-        elif rank >= 6:
-            recommendation = "LEAN SIT"
-            rec_color      = "red"
-        else:
-            recommendation = "SIT"
-            rec_color      = "red"
-
-        enriched.append({
-            **start,
-            "opp_offense_rank":  rank,
-            "opp_offense_tier":  tier,
-            "opp_offense_grade": grade,
-            "opp_k_rate":        opp_grade.get("k_rate"),
-            "opp_runs_pg":       opp_grade.get("runs_pg"),
-            "recommendation":    recommendation,
-            "rec_color":         rec_color,
-        })
-
-    return enriched
 
 
 def _get_pitcher_era(pitcher_id: int | None) -> float | None:

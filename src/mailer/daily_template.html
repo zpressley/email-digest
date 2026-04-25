@@ -163,28 +163,6 @@
     </div>
     {% endif %}
 
-    <!-- STREAMING ADDS -->
-    {% if streaming_opportunities %}
-    <div class="section">
-      <div class="section-label"><span>⚡</span> Streaming Adds</div>
-      {% for opp in streaming_opportunities %}
-      <div class="alert-bar">
-        <b>{{ opp.name }}</b>
-        {% if opp.recommendation %}
-          <span class="pill pill-{% if opp.rec_color == 'green' %}start{% else %}neutral{% endif %}">{{ opp.recommendation }}</span>
-        {% endif %}
-        <span style="color:#6a6a64;font-size:12px;margin-left:4px;">{{ opp.ownership }}% owned</span><br>
-        <span style="font-size:12px;color:#3a3a36;">
-          vs {{ opp.opponent }} · {{ opp.game_date }}
-          {% if opp.opp_offense_rank %} · Opp rank {{ opp.opp_offense_rank }}/30{% endif %}
-          {% if opp.opp_k_rate %} · K% {{ opp.opp_k_rate }}%{% endif %}
-          · Add by <b>{{ opp.latest_add_date }}</b>
-        </span>
-      </div>
-      {% endfor %}
-    </div>
-    {% endif %}
-
     <!-- FREE AGENT HEAT -->
     {% if hot_free_agents %}
     <div class="section">
