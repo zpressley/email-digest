@@ -11,6 +11,7 @@ Sections generated:
 """
 import os
 import json
+import re
 import anthropic
 
 ANTHROPIC_KEY = os.getenv("ANTHROPIC_KEY") or os.getenv("ANTHROPIC_API_KEY")
@@ -158,6 +159,17 @@ FEED:
             messages=[{"role": "user", "content": prompt}],
         )
         out = message.content[0].text.strip()
+        # Claude follows the prompt and emits 'HEADER\n\nBODY\n\nHEADER\n\nBODY'.
+        # The daily template's parser does split('\n\n') and expects each
+        # chunk to be 'HEADER\nBODY', not alternating header/body chunks.
+        # Collapse the blank line between header and its paragraph so the
+        # downstream split groups header+body correctly.
+        out = re.sub(
+            r"^(MY TEAM|MY PROSPECTS|AROUND THE LEAGUE|BASEBALL TODAY)\n\n",
+            r"\1\n",
+            out,
+            flags=re.MULTILINE,
+        )
         print(f"  ✅ Baseball pulse: received {len(out)} chars")
         return out
     except Exception as e:
