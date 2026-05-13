@@ -3089,7 +3089,7 @@
     "years_simple": "P"
   },
   {
-    "FBP_Team": "DRO",
+    "FBP_Team": "WAR",
     "age": 23,
     "bats": "L",
     "bbref_id": "ingleco01",
@@ -3101,7 +3101,7 @@
     "fangraphs_name": "Cooper Ingle",
     "fypd": false,
     "height": "5' 8\"",
-    "manager": "Andromedans",
+    "manager": "Weekend Warriors",
     "mlb_id": 694876,
     "mlb_primary_position": "C",
     "name": "Cooper Ingle",
@@ -3897,7 +3897,7 @@
     "years_simple": "P"
   },
   {
-    "FBP_Team": "SAD",
+    "FBP_Team": "",
     "age": 30,
     "bats": "S",
     "bbref_id": "edmanto01",
@@ -3907,7 +3907,7 @@
     "fangraphs_name": "Tommy Edman",
     "fypd": false,
     "height": "5' 9\"",
-    "manager": "not much of a donkey",
+    "manager": null,
     "mlb_id": 669242,
     "mlb_primary_position": "2B",
     "name": "Tommy Edman",
@@ -14882,7 +14882,7 @@
     "years_simple": "VC 2"
   },
   {
-    "FBP_Team": "WAR",
+    "FBP_Team": "DRO",
     "age": 24,
     "bats": "R",
     "bbref_id": "langfwy01",
@@ -14892,7 +14892,7 @@
     "fangraphs_name": "Wyatt Langford",
     "fypd": false,
     "height": "6' 0\"",
-    "manager": "Weekend Warriors",
+    "manager": "Andromedans",
     "mlb_id": 694671,
     "mlb_primary_position": "LF",
     "name": "Wyatt Langford",
@@ -15509,7 +15509,7 @@
     "years_simple": "TC 1"
   },
   {
-    "FBP_Team": "",
+    "FBP_Team": "DMN",
     "age": 24,
     "bats": "R",
     "bbref_id": "volpean01",
@@ -15519,7 +15519,7 @@
     "fangraphs_name": "Anthony Volpe",
     "fypd": false,
     "height": "5' 10\"",
-    "manager": null,
+    "manager": "The Damn Yankees",
     "mlb_id": 683011,
     "mlb_primary_position": "SS",
     "name": "Anthony Volpe",
@@ -15725,7 +15725,7 @@
     "years_simple": "TC 1"
   },
   {
-    "FBP_Team": "WAR",
+    "FBP_Team": "DRO",
     "age": 24,
     "bats": "R",
     "bbref_id": "kerkeor01",
@@ -15735,7 +15735,7 @@
     "fangraphs_name": "Orion Kerkering",
     "fypd": false,
     "height": "6' 2\"",
-    "manager": "Weekend Warriors",
+    "manager": "Andromedans",
     "mlb_id": 689147,
     "mlb_primary_position": "P",
     "name": "Orion Kerkering",
@@ -22391,7 +22391,7 @@
     "years_simple": "TC 1"
   },
   {
-    "FBP_Team": "DRO",
+    "FBP_Team": "WAR",
     "age": 31,
     "bats": "R",
     "bbref_id": "cleavga01",
@@ -22401,7 +22401,7 @@
     "fangraphs_name": "Garrett Cleavinger",
     "fypd": false,
     "height": "6' 1\"",
-    "manager": "Andromedans",
+    "manager": "Weekend Warriors",
     "mlb_id": 664076,
     "mlb_primary_position": "P",
     "name": "Garrett Cleavinger",
@@ -33196,7 +33196,7 @@
     "years_simple": "TC 1"
   },
   {
-    "FBP_Team": "DRO",
+    "FBP_Team": "WAR",
     "age": 26,
     "bats": "R",
     "bbref_id": "elderbr01",
@@ -33206,7 +33206,7 @@
     "fangraphs_name": "Bryce Elder",
     "fypd": false,
     "height": "6' 2\"",
-    "manager": "Andromedans",
+    "manager": "Weekend Warriors",
     "mlb_id": 693821,
     "mlb_primary_position": "P",
     "name": "Bryce Elder",
@@ -43664,7 +43664,7 @@
     "years_simple": "TC 1"
   },
   {
-    "FBP_Team": "DRO",
+    "FBP_Team": "",
     "age": 30,
     "bats": "L",
     "bbref_id": "sousabe01",
@@ -43674,7 +43674,7 @@
     "fangraphs_name": "Bennett Sousa",
     "fypd": false,
     "height": "6' 3\"",
-    "manager": "Andromedans",
+    "manager": null,
     "mlb_id": 656986,
     "mlb_primary_position": "P",
     "name": "Bennett Sousa",
@@ -51383,7 +51383,7 @@
     "years_simple": "TC 1"
   },
   {
-    "FBP_Team": "CFL",
+    "FBP_Team": "",
     "age": 29,
     "bats": "R",
     "bbref_id": "cabaljo01",
@@ -51393,7 +51393,7 @@
     "fangraphs_name": "Jose Caballero",
     "fypd": false,
     "height": "5' 10\"",
-    "manager": "Country Fried Lamb",
+    "manager": null,
     "mlb_id": 676609,
     "mlb_primary_position": "SS",
     "name": "Jos\u00e9 Caballero",
@@ -112820,7 +112820,7 @@
     "years_simple": ""
   },
   {
-    "FBP_Team": "WAR",
+    "FBP_Team": "DRO",
     "age": 28,
     "bats": "L",
     "bbref_id": "bledajj01",
@@ -112830,7 +112830,7 @@
     "fangraphs_name": "JJ Bleday",
     "fypd": false,
     "height": "6' 2\"",
-    "manager": "Weekend Warriors",
+    "manager": "Andromedans",
     "mlb_id": 668709,
     "mlb_primary_position": "CF",
     "name": "J.J. Bleday",
@@ -152957,6 +152957,25 @@
     "debut_date": null,
     "bats": "L",
     "throws": "R",
+    "fypd": false,
+    "level": "A+"
+  },
+  {
+    "upid": "8445",
+    "name": "Nathan Flewelling",
+    "team": "TB",
+    "position": "C",
+    "age": 19,
+    "manager": "",
+    "player_type": "Farm",
+    "contract_type": "",
+    "years_simple": "",
+    "yahoo_id": null,
+    "mlb_id": null,
+    "birth_date": null,
+    "debut_date": null,
+    "bats": null,
+    "throws": null,
     "fypd": false,
     "level": "A+"
   }
