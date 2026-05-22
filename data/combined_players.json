@@ -7600,7 +7600,7 @@
     "years_simple": "VC 1"
   },
   {
-    "FBP_Team": "WIZ",
+    "FBP_Team": "WAR",
     "age": 26,
     "bats": "R",
     "bbref_id": "greenhu01",
@@ -7611,7 +7611,7 @@
     "fypd": false,
     "height": "6' 5\"",
     "level": "MLB",
-    "manager": "Whiz Kids",
+    "manager": "Weekend Warriors",
     "mlb_id": 668881,
     "mlb_primary_position": "P",
     "name": "Hunter Greene",
@@ -10154,7 +10154,7 @@
     "bats": "R",
     "bbref_id": "stewasa01",
     "birth_date": "2003-12-07",
-    "contract_type": "Purchased Contract",
+    "contract_type": "Blue Chip Contract",
     "debut_date": "09/01/2025",
     "debuted": true,
     "fangraphs_id": "31505",
@@ -13809,7 +13809,7 @@
     "years_simple": "P"
   },
   {
-    "FBP_Team": "",
+    "FBP_Team": "WAR",
     "age": 24,
     "bats": "L",
     "bbref_id": "rushida01",
@@ -13822,20 +13822,20 @@
     "fypd": false,
     "height": "5' 11\"",
     "level": "MLB",
-    "manager": "",
+    "manager": "Weekend Warriors",
     "mlb_id": 687221,
     "mlb_primary_position": "C",
     "name": "Dalton Rushing",
-    "player_type": "Farm",
+    "player_type": "MLB",
     "position": "C",
     "rank": 473,
-    "status": "[9] P",
+    "status": "[7] TC1",
     "team": "LAD",
     "throws": "R",
     "upid": "3914",
     "weight": 220,
     "yahoo_id": "60232",
-    "years_simple": "P"
+    "years_simple": "TC 1"
   },
   {
     "FBP_Team": null,
@@ -15454,7 +15454,8 @@
     "upid": "2979",
     "weight": 220,
     "yahoo_id": "12549",
-    "years_simple": "P"
+    "years_simple": "P",
+    "NRI": "CFL"
   },
   {
     "FBP_Team": "WIZ",
@@ -30068,7 +30069,7 @@
     "years_simple": "TC 1"
   },
   {
-    "FBP_Team": "",
+    "FBP_Team": "WAR",
     "age": 35,
     "bats": "R",
     "bbref_id": "armstsh01",
@@ -30078,7 +30079,7 @@
     "fangraphs_name": "Shawn Armstrong",
     "fypd": false,
     "height": "6' 2\"",
-    "manager": null,
+    "manager": "Weekend Warriors",
     "mlb_id": 542888,
     "mlb_primary_position": "P",
     "name": "Shawn Armstrong",
@@ -32142,7 +32143,7 @@
     "years_simple": "TC 1"
   },
   {
-    "FBP_Team": "WAR",
+    "FBP_Team": "WIZ",
     "age": 23,
     "bats": "R",
     "bbref_id": "walkejo02",
@@ -32152,7 +32153,7 @@
     "fangraphs_name": "Jordan Walker",
     "fypd": false,
     "height": "6' 6\"",
-    "manager": "Weekend Warriors",
+    "manager": "Whiz Kids",
     "mlb_id": 691023,
     "mlb_primary_position": "RF",
     "name": "Jordan Walker",
@@ -37531,7 +37532,8 @@
     "upid": "3798",
     "weight": 225,
     "yahoo_id": "12530",
-    "years_simple": "P"
+    "years_simple": "P",
+    "NRI": "RV"
   },
   {
     "FBP_Team": "",
@@ -44843,7 +44845,7 @@
     "years_simple": "TC 1"
   },
   {
-    "FBP_Team": "",
+    "FBP_Team": "LFB",
     "age": 29,
     "bats": "R",
     "bbref_id": "latzja01",
@@ -44853,7 +44855,7 @@
     "fangraphs_name": "Jacob Latz",
     "fypd": false,
     "height": "6' 2\"",
-    "manager": null,
+    "manager": "La Flama Blanca",
     "mlb_id": 656641,
     "mlb_primary_position": "P",
     "name": "Jacob Latz",
@@ -81440,7 +81442,8 @@
     "upid": "7924",
     "weight": 225,
     "yahoo_id": "66156",
-    "years_simple": "P"
+    "years_simple": "P",
+    "NRI": "DRO"
   },
   {
     "FBP_Team": "",
@@ -82892,7 +82895,7 @@
     "years_simple": "P"
   },
   {
-    "FBP_Team": "WIZ",
+    "FBP_Team": "WAR",
     "age": 21,
     "bats": "R",
     "contract_type": "Purchased Contract",
@@ -82901,7 +82904,7 @@
     "fypd": true,
     "fypd_rank": 80,
     "height_weight": "6' 2\" / 208 lbs",
-    "manager": "Whiz Kids",
+    "manager": "Weekend Warriors",
     "mlb_id": null,
     "mlb_primary_position": "SP",
     "name": "Anthony Eyanson",
@@ -108898,7 +108901,7 @@
     "years_simple": ""
   },
   {
-    "FBP_Team": "WIZ",
+    "FBP_Team": "",
     "age": 30,
     "bats": "R",
     "bbref_id": "grifffo01",
@@ -108908,7 +108911,7 @@
     "fangraphs_name": "Foster Griffin",
     "fypd": false,
     "height": "6' 3\"",
-    "manager": "Whiz Kids",
+    "manager": null,
     "mlb_id": 656492,
     "mlb_primary_position": "P",
     "name": "Foster Griffin",
@@ -122257,7 +122260,8 @@
     "upid": "6516",
     "weight": null,
     "yahoo_id": "11384",
-    "years_simple": ""
+    "years_simple": "",
+    "NRI": "SAD"
   },
   {
     "FBP_Team": "",
@@ -152960,5 +152964,29 @@
     "upid": "8445",
     "yahoo_id": null,
     "years_simple": ""
+  },
+  {
+    "upid": "8446",
+    "name": "Carlos Virahonda",
+    "team": "AZ",
+    "position": "C",
+    "age": 20,
+    "manager": "",
+    "FBP_Team": "",
+    "player_type": "Farm",
+    "contract_type": "",
+    "years_simple": "",
+    "yahoo_id": "8560",
+    "mlb_id": 808024,
+    "birth_date": "2005-12-13",
+    "debut_date": null,
+    "debuted": false,
+    "bats": "R",
+    "throws": "R",
+    "height": "5' 11''",
+    "weight": 180,
+    "mlb_primary_position": "C",
+    "fypd": false,
+    "level": ""
   }
 ]
