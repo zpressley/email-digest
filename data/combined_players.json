@@ -1966,7 +1966,7 @@
     "years_simple": "TC 1"
   },
   {
-    "FBP_Team": "WIZ",
+    "FBP_Team": "",
     "age": 35,
     "bats": "L",
     "bbref_id": "boydma01",
@@ -1976,7 +1976,7 @@
     "fangraphs_name": "Matthew Boyd",
     "fypd": false,
     "height": "6' 3\"",
-    "manager": "Whiz Kids",
+    "manager": null,
     "mlb_id": 571510,
     "mlb_primary_position": "P",
     "name": "Matthew Boyd",
@@ -9550,7 +9550,7 @@
     "years_simple": "TC 1"
   },
   {
-    "FBP_Team": "",
+    "FBP_Team": "WIZ",
     "age": 32,
     "bats": "R",
     "bbref_id": "nolaaa01",
@@ -9560,7 +9560,7 @@
     "fangraphs_name": "Aaron Nola",
     "fypd": false,
     "height": "6' 2\"",
-    "manager": null,
+    "manager": "Whiz Kids",
     "mlb_id": 605400,
     "mlb_primary_position": "P",
     "name": "Aaron Nola",
@@ -13950,21 +13950,22 @@
     "years_simple": "P"
   },
   {
-    "FBP_Team": "WAR",
-    "contract_type": "Development Cont.",
+    "FBP_Team": "",
+    "contract_type": "",
     "debut_date": null,
     "debuted": false,
     "fypd": false,
-    "manager": "Weekend Warriors",
+    "manager": "",
     "mlb_id": null,
     "name": "Gabriel Rincones",
     "player_type": "Farm",
     "position": "OF",
-    "status": "[7] P",
+    "status": "[9] P",
     "team": "PHI",
     "upid": "7236",
     "yahoo_id": "",
-    "years_simple": "P"
+    "years_simple": "P",
+    "level": "MLB"
   },
   {
     "FBP_Team": "WAR",
@@ -19196,7 +19197,7 @@
     "years_simple": "TC 1"
   },
   {
-    "FBP_Team": "JEP",
+    "FBP_Team": "",
     "age": 37,
     "bats": "L",
     "bbref_id": "raleybr01",
@@ -19206,7 +19207,7 @@
     "fangraphs_name": "Brooks Raley",
     "fypd": false,
     "height": "6' 3\"",
-    "manager": "Jepordizers!",
+    "manager": null,
     "mlb_id": 548384,
     "mlb_primary_position": "P",
     "name": "Brooks Raley",
@@ -25894,7 +25895,7 @@
     "years_simple": "TC 1"
   },
   {
-    "FBP_Team": "",
+    "FBP_Team": "WIZ",
     "age": 27,
     "bats": "S",
     "bbref_id": "ruizke01",
@@ -25904,7 +25905,7 @@
     "fangraphs_name": "Keibert Ruiz",
     "fypd": false,
     "height": "6' 0\"",
-    "manager": null,
+    "manager": "Whiz Kids",
     "mlb_id": 660688,
     "mlb_primary_position": "C",
     "name": "Keibert Ruiz",
@@ -31507,7 +31508,7 @@
     "years_simple": "TC 1"
   },
   {
-    "FBP_Team": "WIZ",
+    "FBP_Team": "",
     "age": 32,
     "bats": "S",
     "bbref_id": "caratvi01",
@@ -31517,7 +31518,7 @@
     "fangraphs_name": "Victor Caratini",
     "fypd": false,
     "height": "6' 0\"",
-    "manager": "Whiz Kids",
+    "manager": null,
     "mlb_id": 605170,
     "mlb_primary_position": "C",
     "name": "Victor Caratini",
@@ -33934,31 +33935,32 @@
     "years_simple": "P"
   },
   {
-    "FBP_Team": "DRO",
+    "FBP_Team": "",
     "age": 23,
     "bats": "R",
     "bbref_id": "leeha02",
     "birth_date": "2003-02-03",
-    "contract_type": "Development Cont.",
+    "contract_type": "",
     "debut_date": null,
     "debuted": false,
     "fangraphs_id": "sa3017863",
     "fangraphs_name": "Hao-Yu Lee",
     "fypd": false,
     "height": "5' 9\"",
-    "manager": "Andromedans",
+    "manager": "",
     "mlb_id": 701678,
     "mlb_primary_position": "2B",
     "name": "Hao-Yu Lee",
     "player_type": "Farm",
     "position": "2B,3B",
-    "status": "[7] P",
+    "status": "[9] P",
     "team": "DET",
     "throws": "R",
     "upid": "3596",
     "weight": 190,
     "yahoo_id": "60319",
-    "years_simple": "P"
+    "years_simple": "P",
+    "level": "MLB"
   },
   {
     "FBP_Team": "",
@@ -37075,7 +37077,7 @@
     "years_simple": "P"
   },
   {
-    "FBP_Team": "",
+    "FBP_Team": "JEP",
     "age": 27,
     "bats": "L",
     "bbref_id": "milleer01",
@@ -37085,7 +37087,7 @@
     "fangraphs_name": "Erik Miller",
     "fypd": false,
     "height": "6' 5\"",
-    "manager": null,
+    "manager": "Jepordizers!",
     "mlb_id": 669062,
     "mlb_primary_position": "P",
     "name": "Erik Miller",
