@@ -2567,7 +2567,7 @@
     "years_simple": "P"
   },
   {
-    "FBP_Team": "CFL",
+    "FBP_Team": "WIZ",
     "age": 21,
     "bats": "L",
     "bbref_id": "clarkma04",
@@ -2579,7 +2579,7 @@
     "fangraphs_name": "Max Clark",
     "fypd": false,
     "height": "6' 0\"",
-    "manager": "Country Fried Lamb",
+    "manager": "Whiz Kids",
     "mlb_id": 703601,
     "mlb_primary_position": "OF",
     "name": "Max Clark",
@@ -14250,7 +14250,7 @@
     "years_simple": ""
   },
   {
-    "FBP_Team": "LFB",
+    "FBP_Team": "",
     "age": 27,
     "bats": "R",
     "bbref_id": "jungjo01",
@@ -14260,7 +14260,7 @@
     "fangraphs_name": "Josh Jung",
     "fypd": false,
     "height": "6' 1\"",
-    "manager": "La Flama Blanca",
+    "manager": null,
     "mlb_id": 673962,
     "mlb_primary_position": "3B",
     "name": "Josh Jung",
@@ -35917,7 +35917,8 @@
     "upid": "3704",
     "weight": 195,
     "yahoo_id": "60246",
-    "years_simple": "P"
+    "years_simple": "P",
+    "NRI": "LFB"
   },
   {
     "FBP_Team": "",
@@ -82260,7 +82261,7 @@
     "years_simple": "P"
   },
   {
-    "FBP_Team": "CFL",
+    "FBP_Team": "WIZ",
     "age": 18,
     "bats": "R",
     "bbref_id": "hallst01",
@@ -82273,7 +82274,7 @@
     "fypd": true,
     "fypd_rank": 19,
     "height_weight": "6' 0\" / 180 lbs",
-    "manager": "Country Fried Lamb",
+    "manager": "Whiz Kids",
     "mlb_id": "829162",
     "mlb_primary_position": "SS",
     "name": "Steele Hall",
