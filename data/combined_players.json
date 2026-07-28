@@ -4005,7 +4005,7 @@
     "years_simple": "TC 1"
   },
   {
-    "FBP_Team": "WIZ",
+    "FBP_Team": "HAM",
     "age": 26,
     "bats": "R",
     "bbref_id": "guerrvl01",
@@ -4016,7 +4016,7 @@
     "fypd": false,
     "height": "6' 0\"",
     "level": "MLB",
-    "manager": "Whiz Kids",
+    "manager": "Hammers",
     "mlb_id": 665489,
     "mlb_primary_position": "1B",
     "name": "Vladimir Guerrero Jr.",
@@ -7129,7 +7129,7 @@
     "years_simple": "TC 1"
   },
   {
-    "FBP_Team": "RV",
+    "FBP_Team": "LFB",
     "age": 24,
     "bats": "R",
     "bbref_id": "alvarfr01",
@@ -7139,7 +7139,7 @@
     "fangraphs_name": "Francisco Alvarez",
     "fypd": false,
     "height": "5' 10\"",
-    "manager": "Rick Vaughn",
+    "manager": "La Flama Blanca",
     "mlb_id": 682626,
     "mlb_primary_position": "C",
     "name": "Francisco Alvarez",
@@ -15017,7 +15017,7 @@
     "years_simple": "VC 2"
   },
   {
-    "FBP_Team": "HAM",
+    "FBP_Team": "WIZ",
     "age": 35,
     "bats": "L",
     "bbref_id": "muncyma01",
@@ -15027,7 +15027,7 @@
     "fangraphs_name": "Max Muncy",
     "fypd": false,
     "height": "5' 10\"",
-    "manager": "Hammers",
+    "manager": "Whiz Kids",
     "mlb_id": 571970,
     "mlb_primary_position": "3B",
     "name": "Max Muncy",
@@ -32304,7 +32304,7 @@
     "years_simple": "TC 1"
   },
   {
-    "FBP_Team": "DRO",
+    "FBP_Team": "DMN",
     "age": 26,
     "bats": "R",
     "bbref_id": "gonzani01",
@@ -32314,7 +32314,7 @@
     "fangraphs_name": "Nick Gonzales",
     "fypd": false,
     "height": "5' 9\"",
-    "manager": "Andromedans",
+    "manager": "The Damn Yankees",
     "mlb_id": 693304,
     "mlb_primary_position": "2B",
     "name": "Nick Gonzales",
@@ -33931,7 +33931,7 @@
     "years_simple": "P"
   },
   {
-    "FBP_Team": "DRO",
+    "FBP_Team": "",
     "age": 23,
     "bats": "R",
     "bbref_id": "leeha02",
@@ -33943,19 +33943,20 @@
     "fangraphs_name": "Hao-Yu Lee",
     "fypd": false,
     "height": "5' 9\"",
-    "manager": "Andromedans",
+    "manager": "",
     "mlb_id": 701678,
     "mlb_primary_position": "2B",
     "name": "Hao-Yu Lee",
     "player_type": "Farm",
     "position": "2B,3B",
-    "status": "[7] P",
+    "status": "[9] P",
     "team": "DET",
     "throws": "R",
     "upid": "3596",
     "weight": 190,
     "yahoo_id": "60319",
-    "years_simple": "P"
+    "years_simple": "P",
+    "level": "MLB"
   },
   {
     "FBP_Team": "",
@@ -36243,7 +36244,7 @@
     "years_simple": "P"
   },
   {
-    "FBP_Team": "LFB",
+    "FBP_Team": "RV",
     "age": 25,
     "bats": "R",
     "bbref_id": "henriro01",
@@ -36255,7 +36256,7 @@
     "fangraphs_name": "Ronny Henriquez",
     "fypd": false,
     "height": "5' 10\"",
-    "manager": "La Flama Blanca",
+    "manager": "Rick Vaughn",
     "mlb_id": 678692,
     "mlb_primary_position": "P",
     "name": "Ronny Henriquez",
@@ -36454,7 +36455,7 @@
     "years_simple": "TC 1"
   },
   {
-    "FBP_Team": "DMN",
+    "FBP_Team": "DRO",
     "age": 26,
     "bats": "R",
     "bbref_id": "sheehem01",
@@ -36464,7 +36465,7 @@
     "fangraphs_name": "Emmet Sheehan",
     "fypd": false,
     "height": "6' 5\"",
-    "manager": "The Damn Yankees",
+    "manager": "Andromedans",
     "mlb_id": 686218,
     "mlb_primary_position": "P",
     "name": "Emmet Sheehan",
@@ -150170,7 +150171,7 @@
     "bats": "L",
     "bbref_id": "rodriel03",
     "birth_date": "2003-08-18",
-    "contract_type": "Development Cont.",
+    "contract_type": "Purchased Contract",
     "fangraphs_id": "sa3019459",
     "fangraphs_name": "Elmer Rodriguez-Cruz",
     "fypd": false,
