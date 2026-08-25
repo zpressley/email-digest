@@ -18317,7 +18317,7 @@
     "years_simple": "TC 1"
   },
   {
-    "FBP_Team": "JEP",
+    "FBP_Team": "",
     "age": 31,
     "bats": "R",
     "bbref_id": "bendean01",
@@ -18327,7 +18327,7 @@
     "fangraphs_name": "Anthony Bender",
     "fypd": false,
     "height": "6' 4\"",
-    "manager": "Jepordizers!",
+    "manager": null,
     "mlb_id": 669622,
     "mlb_primary_position": "P",
     "name": "Anthony Bender",
@@ -22610,7 +22610,7 @@
     "years_simple": "TC 1"
   },
   {
-    "FBP_Team": "B2J",
+    "FBP_Team": "",
     "age": 36,
     "bats": "R",
     "bbref_id": "stantmi03",
@@ -22620,7 +22620,7 @@
     "fangraphs_name": "Giancarlo Stanton",
     "fypd": false,
     "height": "6' 6\"",
-    "manager": "Btwn2Jackies",
+    "manager": null,
     "mlb_id": 519317,
     "mlb_primary_position": "DH",
     "name": "Giancarlo Stanton",
@@ -24002,7 +24002,7 @@
     "years_simple": "P"
   },
   {
-    "FBP_Team": "WIZ",
+    "FBP_Team": "",
     "age": 33,
     "bats": "L",
     "bbref_id": "mcneije01",
@@ -24012,7 +24012,7 @@
     "fangraphs_name": "Jeff McNeil",
     "fypd": false,
     "height": "6' 0\"",
-    "manager": "Whiz Kids",
+    "manager": null,
     "mlb_id": 643446,
     "mlb_primary_position": "2B",
     "name": "Jeff McNeil",
@@ -51690,7 +51690,7 @@
     "years_simple": "P"
   },
   {
-    "FBP_Team": "",
+    "FBP_Team": "JEP",
     "age": 23,
     "bats": "R",
     "bbref_id": "sanojja01",
@@ -51700,7 +51700,7 @@
     "fangraphs_name": "Javier Sanoja",
     "fypd": false,
     "height": "5' 7\"",
-    "manager": null,
+    "manager": "Jepordizers!",
     "mlb_id": 691594,
     "mlb_primary_position": "2B",
     "name": "Javier Sanoja",
@@ -53772,17 +53772,17 @@
     "years_simple": "P"
   },
   {
-    "FBP_Team": "JEP",
+    "FBP_Team": "",
     "age": 28,
     "bats": "R",
     "bbref_id": "monasan01",
     "birth_date": "1997-05-30",
-    "contract_type": "Keeper Contract",
+    "contract_type": null,
     "fangraphs_id": "19455",
     "fangraphs_name": "Andruw Monasterio",
     "fypd": false,
     "height": "5' 11\"",
-    "manager": "Jepordizers!",
+    "manager": null,
     "mlb_id": 655316,
     "mlb_primary_position": "SS",
     "name": "Andruw Monasterio",
@@ -59148,7 +59148,7 @@
     "years_simple": "P"
   },
   {
-    "FBP_Team": "",
+    "FBP_Team": "WIZ",
     "age": 24,
     "bats": "L",
     "bbref_id": "marseja01",
@@ -59160,7 +59160,7 @@
     "fangraphs_name": "Jakob Marsee",
     "fypd": false,
     "height": "6' 0\"",
-    "manager": null,
+    "manager": "Whiz Kids",
     "mlb_id": 805300,
     "mlb_primary_position": "CF",
     "name": "Jakob Marsee",
@@ -73071,8 +73071,7 @@
     "upid": "7353",
     "weight": 210,
     "yahoo_id": "64134",
-    "years_simple": "P",
-    "NRI": "DRO"
+    "years_simple": "P"
   },
   {
     "FBP_Team": "",
@@ -78082,7 +78081,7 @@
     "bats": "L",
     "bbref_id": "cacerju01",
     "birth_date": "2007-08-15",
-    "contract_type": "Purchased Contract",
+    "contract_type": "Blue Chip Contract",
     "debut_date": null,
     "debuted": false,
     "fangraphs_id": "sa3024329",
