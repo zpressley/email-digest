@@ -27,6 +27,9 @@ STREAMING_WINDOW_DAYS = 5
 FA_OWNERSHIP_THRESHOLD = 30.0
 STATCAST_ROLLING_DAYS = 21
 SNAPSHOT_DIR = "data/snapshots"
+# Rendered digest is written here every run so a delivery failure does not
+# throw away the work; CI uploads it as an artifact.
+DIGEST_HTML_PATH = os.getenv("DIGEST_HTML_PATH", "data/last_digest.html")
 COMBINED_PLAYERS_PATH = os.getenv(
     "COMBINED_PLAYERS_PATH",
     "/Users/zpressley/fbp-trade-bot/data/combined_players.json"

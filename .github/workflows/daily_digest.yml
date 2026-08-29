@@ -57,15 +57,49 @@ jobs:
           MY_TEAM_ABBR: WAR
         run: PYTHONPATH=. python src/daily_digest.py
 
+      # Everything below runs even when the digest step failed. A delivery
+      # failure must not also cost us the refreshed Yahoo token or the day's
+      # snapshots — both are written before the email is sent.
+      - name: Upload rendered digest
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: digest-html
+          path: data/last_digest.html
+          if-no-files-found: ignore
+          retention-days: 14
+
       - name: Update Yahoo token secret
-        run: cat token.json | gh secret set YAHOO_TOKEN_JSON
+        if: always()
+        run: |
+          # always() means this can run after an earlier step failed, so never
+          # write back a token.json that is missing or corrupt — that would
+          # destroy a working YAHOO_TOKEN_JSON secret.
+          if ! python -c "import json; json.load(open('token.json'))" 2>/dev/null; then
+            echo "⚠️  token.json missing or invalid — leaving YAHOO_TOKEN_JSON untouched"
+            exit 0
+          fi
+          cat token.json | gh secret set YAHOO_TOKEN_JSON
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
 
       - name: Commit snapshots
+        if: always()
+        env:
+          BRANCH: ${{ github.ref_name }}
         run: |
           git config --global user.name "email-digest-bot"
           git config --global user.email "bot@email-digest"
-          git add data/snapshots/
-          git diff --staged --quiet || git commit -m "chore: daily snapshot $(date +%Y-%m-%d)"
-          git push
+          # git errors on a pathspec that does not exist yet; empty dirs are
+          # ignored by git, so creating them first is a no-op when unused.
+          mkdir -p data/snapshots data/statcast_snapshots
+          git add data/snapshots/ data/statcast_snapshots/
+          git diff --staged --quiet && exit 0
+          git commit -m "chore: daily snapshot $(date +%Y-%m-%d)"
+          for i in 1 2 3 4; do
+            git pull --rebase origin "$BRANCH" && git push origin HEAD:"$BRANCH" && exit 0
+            echo "push failed — retry $i"
+            sleep $((2 ** i))
+          done
+          echo "❌ could not push snapshots after 4 attempts"
+          exit 1

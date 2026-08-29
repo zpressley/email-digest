@@ -353,7 +353,21 @@ Conditional sections only render if they contain data.
 Cron: `0 11 * * *` (6 AM CST = 11 AM UTC)
 
 Steps: checkout → install deps → write `token.json` from secret →
-run `daily_digest.py` → commit updated snapshots → push.
+copy `managers.json` from the trade bot → run `daily_digest.py` →
+upload rendered digest artifact → write `token.json` back to the
+`YAHOO_TOKEN_JSON` secret → commit updated snapshots → push.
+
+**The last three steps run under `if: always()`, and that is load-bearing.**
+They were previously skipped whenever `daily_digest.py` exited non-zero, so a
+single failing step (a rejected SendGrid key, say) also meant the refreshed
+Yahoo token never made it back into the secret and no snapshot was ever
+committed. Both are written *before* the email is sent, so a delivery failure
+must not discard them. Do not remove the `if: always()` guards.
+
+The snapshot commit covers `data/snapshots/` **and**
+`data/statcast_snapshots/` — Statcast day-over-day deltas need yesterday's
+file to exist in the repo, so leaving the second path out silently means
+"no prior snapshot yet" forever.
 
 ### `weekly_review.yml`
 Cron: `0 11 * * 0` (6 AM CST Sunday)
@@ -438,6 +452,40 @@ print("Saved to digest_preview.html")
 ```
 
 Then: `open digest_preview.html`
+
+Every run also writes the rendered HTML to `data/last_digest.html`
+(gitignored, overridable with `DIGEST_HTML_PATH`) *before* attempting
+delivery, and CI uploads it as the `digest-html` artifact. If an email never
+arrives, the digest itself is still recoverable from there.
+
+---
+
+## Email Delivery Troubleshooting
+
+`src/mailer/sender.py` distinguishes permanent failures from transient ones.
+Transient statuses (429, 5xx) and network errors get up to 3 attempts with
+exponential backoff. Auth failures are never retried — a 401 will 401 forever,
+and retrying it daily only burns quota and buries the real cause.
+
+`check_credentials()` runs at the *top* of `daily_digest.py`, before ~90
+seconds of Yahoo/Discord/Claude calls, so a dead key is reported on line 1 of
+the log instead of in a traceback at the very end. It only reports and never
+blocks the run: a restricted-access key can lack `scopes.read` and still send
+mail fine, so anything other than a 401 is treated as inconclusive.
+
+**HTTP 401 Unauthorized** — the key is being rejected. This is not a code bug
+and cannot be fixed in this repo; the key has to be replaced. In order of
+likelihood: the key was deleted/revoked in the SendGrid dashboard; the key
+lacks Mail Send permission; the account is suspended; or the GitHub secret has
+stray whitespace or quotes around the value (`_api_key()` trims those and
+warns, but a mangled key still fails). Fix by creating a new key with Mail
+Send access and updating the `SENDGRID_API_KEY` repo secret.
+
+**HTTP 403 Forbidden** — the key authenticated but the send was refused.
+Almost always an unverified sender: `FROM_EMAIL` must be a verified Single
+Sender or on an authenticated domain under Sender Authentication. Note that
+`FROM_EMAIL` defaults to `digest@fantasy.local`, which can never be verified —
+set the secret explicitly.
 
 ---
 

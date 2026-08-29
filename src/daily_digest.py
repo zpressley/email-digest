@@ -14,14 +14,21 @@ from src.data.yahoo_client import YahooClient
 from src.data.mlb_client import MLBClient
 from src.data import team_offense_ranker
 from src.data.weekly_matchup_engine import get_weekly_matchup_section
-from src.config import COMBINED_PLAYERS_PATH
+from src.config import COMBINED_PLAYERS_PATH, DIGEST_HTML_PATH
 from src.mailer.renderer import render_daily
-from src.mailer.sender import send_email
+from src.mailer.sender import MailerError, check_credentials, send_email
 
 
 def run():
     today = date.today()
     print(f"Running daily digest for {today}")
+
+    # Auth preflight first: the digest costs ~90s of Yahoo/Discord/Claude
+    # calls, so a dead SendGrid key should surface here, not in a traceback
+    # at the very end. This only reports — the run continues either way so
+    # snapshots keep accumulating while the key is being fixed.
+    print("✉️  Checking SendGrid credentials...")
+    check_credentials()
 
     # Refresh managers.json so opponent abbrs stay in sync with Yahoo's
     # current team IDs (prevents "WAR vs SAD" when opponent is actually B2J).
@@ -83,7 +90,21 @@ def run():
 
     save_snapshot({"daily": context}, today)
     html = render_daily(context)
-    send_email(f"⚾ Baseball Digest — {context['date']}", html)
+
+    os.makedirs(os.path.dirname(DIGEST_HTML_PATH) or ".", exist_ok=True)
+    with open(DIGEST_HTML_PATH, "w") as f:
+        f.write(html)
+    print(f"💾 Rendered digest saved: {DIGEST_HTML_PATH}")
+
+    try:
+        send_email(f"⚾ Baseball Digest — {context['date']}", html)
+    except MailerError as e:
+        print(
+            f"\n❌ Digest built but could not be delivered.\n"
+            f"   The rendered digest is at {DIGEST_HTML_PATH}.\n\n{e}\n"
+        )
+        raise SystemExit(1)
+
     print("✅ Daily digest complete.")
 
 

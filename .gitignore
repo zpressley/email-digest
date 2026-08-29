@@ -8,3 +8,4 @@ venv/
 digest_preview.html
 .sfdx/
 data/pitcher_logs/
+data/last_digest.html
