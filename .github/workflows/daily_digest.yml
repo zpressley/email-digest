@@ -1,8 +1,10 @@
 name: Daily Digest
 
 on:
-  schedule:
-    - cron: '0 11 * * *'
+  # Schedule paused until RESEND_API_KEY / delivery secrets are set —
+  # restore the block below to resume daily runs.
+  # schedule:
+  #   - cron: '0 11 * * *'
   workflow_dispatch:
 
 jobs:
