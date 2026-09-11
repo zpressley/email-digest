@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Offseason Brief — {{ date }}</title>
+  <style>
+    body { margin: 0; padding: 0; background: #f4f4f0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; }
+    .wrap { max-width: 600px; margin: 0 auto; background: #ffffff; }
+    .header { background: #1a1d2e; padding: 28px 32px 24px; }
+    .header-eyebrow { font-size: 10px; color: #90cdf4; letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 6px; }
+    .header-title { font-size: 26px; font-weight: 700; color: #ffffff; margin: 0 0 4px; }
+    .header-date { font-size: 13px; color: #90cdf4; }
+    .header-tags { margin-top: 16px; }
+    .tag { display: inline-block; border: 1px solid rgba(255,255,255,0.25); border-radius: 20px; padding: 3px 12px; font-size: 11px; color: rgba(255,255,255,0.7); margin-right: 6px; }
+    .body { padding: 4px 32px 32px; }
+    .pulse-section { border-top: 1px solid #e8e8e4; padding: 22px 0 4px; }
+    .pulse-section:first-child { border-top: none; }
+    .pulse-label { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-bottom: 10px; }
+    .pulse-label.my-team { background: #e8f0fe; color: #185fa5; }
+    .pulse-label.prospects { background: #e6f4ea; color: #137333; }
+    .pulse-label.league { background: #fef7e0; color: #b45309; }
+    .pulse-label.baseball { background: #f1f0ec; color: #5a5a54; }
+    .pulse-body { font-size: 14px; color: #3a3a36; line-height: 1.7; margin: 0 0 16px; }
+    .empty-note { font-size: 13px; color: #9a9a94; font-style: italic; padding: 24px 0; }
+    .footer { background: #f4f4f0; padding: 20px 32px; text-align: center; font-size: 11px; color: #9a9a94; border-top: 1px solid #e8e8e4; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-eyebrow">Offseason Brief</div>
+    <div class="header-title">🥶 Hot Stove Digest</div>
+    <div class="header-date">{{ date }}</div>
+    <div class="header-tags">
+      <span class="tag">WAR Dynasty</span>
+      <span class="tag">Prospects &amp; 2027 Outlook</span>
+    </div>
+  </div>
+
+  <div class="body">
+    {% if offseason_brief %}
+      {% for s in offseason_brief %}
+      <div class="pulse-section">
+        <span class="pulse-label {{ s.css_class }}">{{ s.label }}</span>
+        <p class="pulse-body">{{ s.body }}</p>
+      </div>
+      {% endfor %}
+    {% else %}
+      <p class="empty-note">No feed activity in the last 24 hours.</p>
+    {% endif %}
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    Weekend Warriors · {{ date }} · {{ post_count }} posts analyzed
+  </div>
+
+</div>
+</body>
+</html>

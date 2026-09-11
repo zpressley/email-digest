@@ -183,7 +183,7 @@ NOISE_PATTERNS = [
     "merchandise",
 ]
 
-LOOKBACK_HOURS  = 24
+LOOKBACK_HOURS  = int(os.getenv("FEED_LOOKBACK_HOURS", "24"))
 MIN_CONTENT_LEN = 20
 
 
@@ -211,13 +211,17 @@ def get_twitter_feed_posts() -> list[dict]:
     return all_posts
 
 
-def get_posts_as_text() -> str:
+def get_posts_as_text(posts: list[dict] | None = None) -> str:
     """
     Returns all posts grouped by category for the AI prompt.
     Each post is tagged with the source handle so the AI knows the source.
     Categories output in priority order: TRANSACTIONS → PROSPECTS → STATCAST → VIBES
+
+    Pass `posts` (from get_twitter_feed_posts) to avoid a second fetch when
+    the caller also needs the raw post list.
     """
-    posts = get_twitter_feed_posts()
+    if posts is None:
+        posts = get_twitter_feed_posts()
     if not posts:
         return ""
 

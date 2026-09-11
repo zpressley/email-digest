@@ -45,6 +45,9 @@ jobs:
           ANTHROPIC_KEY: ${{ secrets.ANTHROPIC_KEY }}
           COMBINED_PLAYERS_PATH: ./data/combined_players.json
           MY_TEAM_ABBR: WAR
+          # offseason: Twitter-feed analysis only (prospects + 2027 outlooks).
+          # Flip to "inseason" when the 2027 season starts.
+          DIGEST_MODE: offseason
         run: PYTHONPATH=. python src/daily_digest.py
 
       - name: Commit snapshots

@@ -1,5 +1,5 @@
 # email-digest — Project Documentation
-*Last updated: September 2026 — Yahoo API removed; runs on pybaseball + MLB Stats API + Discord feed*
+*Last updated: September 2026 — Yahoo API removed; offseason mode is the default*
 
 ---
 
@@ -26,6 +26,21 @@ and the TweetShift Twitter-dump channels on Discord. Email delivery moved
 from the SendGrid SDK to plain HTTPS with Resend preferred and SendGrid
 as fallback (the old SendGrid key had been 401ing for weeks and silently
 killing every run at the send step).
+
+**Two modes** (`DIGEST_MODE` env var, default `offseason`):
+
+- **offseason** — the digest IS the Twitter analysis. The Discord feed
+  goes to Claude Opus (`claude-opus-5`) for a "Hot Stove Digest": five
+  sections covering my roster's 2027 outlook, my prospects, transactions
+  and their fantasy impact, the league-wide prospect pipeline, and 2027
+  breakout/sleeper chatter. No MLB API, no pybaseball, no roster/FA
+  sections. Skips sending entirely on days with no feed activity.
+  Entry: `run_offseason()` → `generate_offseason_brief()` →
+  `offseason_template.html`.
+- **inseason** — the full daily digest described below (roster impact,
+  pitching planner, FA heat, Statcast, prospects, baseball pulse).
+  Flip `DIGEST_MODE` to `inseason` in the workflow when the 2027 season
+  starts.
 
 ---
 
@@ -64,7 +79,8 @@ email-digest/
 │   │   ├── discord_reader.py       # TweetShift Twitter-dump channels
 │   │   └── prospect_tracker.py     # Minor league callouts
 │   └── mailer/
-│       ├── daily_template.html     # Jinja2 HTML email template
+│       ├── daily_template.html     # In-season email template
+│       ├── offseason_template.html # Hot Stove Digest template
 │       ├── renderer.py             # Jinja2 render functions
 │       └── sender.py               # Resend (preferred) / SendGrid delivery
 ├── data/
@@ -181,6 +197,8 @@ DISCORD_BOT_TOKEN         Bot token for the TweetShift feed channels
 ANTHROPIC_KEY             Claude API key (farm report + baseball pulse)
 COMBINED_PLAYERS_PATH     Path to combined_players.json from trade bot
 MY_TEAM_ABBR              FBP team abbreviation (WAR)
+DIGEST_MODE               offseason (default) | inseason
+FEED_LOOKBACK_HOURS       Discord feed window (default 24)
 ```
 
 No season-rollover updates needed anymore — there are no Yahoo league IDs

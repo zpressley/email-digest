@@ -1,6 +1,6 @@
 """
-Offline smoke-test for the Yahoo-free daily digest.
-Mocks all HTTP calls with canned MLB Stats API responses — no network,
+Offline smoke-test for the daily digest, both modes.
+Mocks all HTTP and Claude API calls with canned responses — no network,
 no credentials needed.
 Run from repo root: PYTHONPATH=. python tests/test_digest_offline.py
 """
@@ -156,9 +156,29 @@ def fake_get(url, *args, **kwargs):
     return FakeResponse({}, status=404)
 
 
-def main():
-    failures = []
+SAMPLE_BRIEF = """MY ROSTER
 
+Dustin May finished the season healthy and the feed notes his cutter usage jumped in September, a keep signal for 2027.
+
+MY PROSPECTS
+
+No prospect news today.
+
+TRANSACTIONS
+
+Example Closer signed with Colorado, which moves his 2027 value down sharply.
+
+PROSPECT PIPELINE
+
+Top Pipeline Bat homered twice in the Arizona Fall League opener.
+
+2027 OUTLOOK
+
+@enosarris flagged Breakout Arm as a 2027 sleeper after a velocity gain."""
+
+
+def run_inseason_checks(failures: list):
+    os.environ["DIGEST_MODE"] = "inseason"
     with mock.patch.object(requests, "get", side_effect=fake_get), \
          mock.patch.object(requests, "post",
                            side_effect=RuntimeError("network disabled in test")):
@@ -166,29 +186,84 @@ def main():
         run()
 
     if not os.path.exists(PREVIEW_PATH):
-        failures.append("digest_preview.html was not written")
-    else:
-        html = open(PREVIEW_PATH).read()
-        checks = {
-            "roster impact rendered": "Soft Tosser" in html,
-            "my start rendered":      "Dustin May" in html,
-            "streamer rendered":      "Streamy McStream" in html,
-            "hot FA rendered":        "Hot Waiver Bat" in html,
-            # Taylor Ward is rostered — he must not appear in the FA section
-            "rostered FA filtered":   "Taylor Ward" not in
-                                      html.split("Free Agent Watch")[-1]
-                                          .split("Statcast")[0],
-        }
-        for label, ok in checks.items():
-            if not ok:
-                failures.append(label)
+        failures.append("inseason: digest_preview.html was not written")
+        return
+    html = open(PREVIEW_PATH).read()
+    checks = {
+        "roster impact rendered": "Soft Tosser" in html,
+        "my start rendered":      "Dustin May" in html,
+        "streamer rendered":      "Streamy McStream" in html,
+        "hot FA rendered":        "Hot Waiver Bat" in html,
+        # Taylor Ward is rostered — he must not appear in the FA section
+        "rostered FA filtered":   "Taylor Ward" not in
+                                  html.split("Free Agent Watch")[-1]
+                                      .split("Statcast")[0],
+    }
+    for label, ok in checks.items():
+        if not ok:
+            failures.append(f"inseason: {label}")
+    os.remove(PREVIEW_PATH)
+
+
+def run_offseason_checks(failures: list):
+    os.environ["DIGEST_MODE"] = "offseason"
+    from src.data import ai_client
+    from src.analysis import discord_reader
+    from src.daily_digest import run
+
+    # Section parser on canned model output
+    sections = ai_client.parse_offseason_sections(SAMPLE_BRIEF)
+    if [s["label"] for s in sections] != [
+        "My Roster", "My Prospects", "Transactions",
+        "Prospect Pipeline", "2027 Outlook",
+    ]:
+        failures.append(f"offseason: parser produced {[s['label'] for s in sections]}")
+
+    # Empty feed → no email, no crash, no preview written
+    with mock.patch.object(discord_reader, "get_twitter_feed_posts",
+                           return_value=[]):
+        run()
+    if os.path.exists(PREVIEW_PATH):
+        failures.append("offseason: empty feed still produced a preview")
+
+    # Feed present → brief rendered through the offseason template
+    fake_posts = [{"channel": "twitter-dump", "handle": "mlbtraderumors",
+                   "category": "TRANSACTIONS", "content": "Example Closer signs."}]
+    with mock.patch.object(discord_reader, "get_twitter_feed_posts",
+                           return_value=fake_posts), \
+         mock.patch.object(ai_client, "generate_offseason_brief",
+                           return_value=ai_client.parse_offseason_sections(SAMPLE_BRIEF)), \
+         mock.patch.object(requests, "post",
+                           side_effect=RuntimeError("network disabled in test")):
+        # daily_digest imports these inside run_offseason — patch at source
+        run()
+
+    if not os.path.exists(PREVIEW_PATH):
+        failures.append("offseason: preview was not written")
+        return
+    html = open(PREVIEW_PATH).read()
+    checks = {
+        "brief section rendered":  "Dustin May finished the season" in html,
+        "outlook section rendered": "Breakout Arm" in html,
+        "post count in footer":    "1 posts analyzed" in html,
+        "offseason header":        "Hot Stove Digest" in html,
+    }
+    for label, ok in checks.items():
+        if not ok:
+            failures.append(f"offseason: {label}")
+
+
+def main():
+    failures = []
+    run_inseason_checks(failures)
+    run_offseason_checks(failures)
 
     if failures:
         print("\n❌ FAILURES:")
         for f in failures:
             print(f"   - {f}")
         sys.exit(1)
-    print("\n✅ Offline digest smoke test passed.")
+    print("\n✅ Offline digest smoke test passed (both modes).")
 
 
 if __name__ == "__main__":

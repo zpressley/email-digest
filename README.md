@@ -1,8 +1,14 @@
 # email-digest
 
-Personal fantasy baseball morning briefing. Delivers a daily email at 6 AM CST
-with roster impact, upcoming starts, streaming targets, free agent heat,
-Statcast signals, prospect callouts, and an AI news pulse.
+Personal fantasy baseball morning briefing, daily at 6 AM CST. Two modes
+via `DIGEST_MODE`:
+
+- **offseason** (default) — the Hot Stove Digest: the Discord Twitter dump
+  goes to Claude Opus for an offseason briefing on prospect development
+  and 2027 fantasy outlooks, personalized to the WAR roster and farm.
+- **inseason** — the full daily digest: roster impact, upcoming starts,
+  streaming targets, free agent heat, Statcast signals, prospect
+  callouts, and an AI news pulse.
 
 No fantasy-host API. Data comes from:
 

@@ -8,3 +8,7 @@ env = Environment(loader=FileSystemLoader(TEMPLATE_DIR))
 
 def render_daily(context: dict) -> str:
     return env.get_template("daily_template.html").render(**context)
+
+
+def render_offseason(context: dict) -> str:
+    return env.get_template("offseason_template.html").render(**context)
