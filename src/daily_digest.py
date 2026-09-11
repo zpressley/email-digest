@@ -1,20 +1,21 @@
-"""Daily digest entrypoint."""
-import json
+"""Daily digest entrypoint — pybaseball + MLB Stats API + Discord feed.
+
+No fantasy-host API involved: rosters come from combined_players.json
+(trade bot), stats from the MLB Stats API and Baseball Savant, and news
+from the TweetShift Twitter dump channels on Discord.
+"""
 import os
 from datetime import date
+
 from src.analysis.roster_analyzer import get_todays_roster_impact
 from src.analysis.free_agent_tracker import get_hot_free_agents
 from src.analysis.hitter_analyzer import get_statcast_trends
 from src.analysis.prospect_tracker import get_prospect_callouts
 from src.analysis.category_standings import get_matchup_status
 from src.analysis.discord_reader import get_posts_as_text
+from src.analysis.pitching_planner import get_pitching_planner
 from src.data.ai_client import generate_farm_report, generate_baseball_pulse
 from src.data.snapshot_store import save_snapshot
-from src.data.yahoo_client import YahooClient
-from src.data.mlb_client import MLBClient
-from src.data import team_offense_ranker
-from src.data.weekly_matchup_engine import get_weekly_matchup_section
-from src.config import COMBINED_PLAYERS_PATH
 from src.mailer.renderer import render_daily
 from src.mailer.sender import send_email
 
@@ -23,19 +24,14 @@ def run():
     today = date.today()
     print(f"Running daily digest for {today}")
 
-    # Refresh managers.json so opponent abbrs stay in sync with Yahoo's
-    # current team IDs (prevents "WAR vs SAD" when opponent is actually B2J).
-    print("🗂️  Syncing managers.json from Yahoo...")
-    try:
-        YahooClient().sync_managers()
-    except Exception as e:
-        print(f"  ⚠️  sync_managers failed: {e} — continuing with existing map")
-
     print("📊 Fetching matchup status...")
     matchup_status = get_matchup_status()
 
     print("📋 Fetching roster impact...")
     roster_impact = get_todays_roster_impact()
+
+    print("⚾ Building pitching planner...")
+    pitching_planner = get_pitching_planner()
 
     print("🔥 Fetching free agent heat...")
     hot_free_agents = get_hot_free_agents()
@@ -57,32 +53,28 @@ def run():
     baseball_pulse = generate_baseball_pulse(feed_text)
     print(f"📡 Baseball pulse length: {len(baseball_pulse)} chars")
 
-    print("📊 Building weekly matchup projection...")
-    try:
-        with open(COMBINED_PLAYERS_PATH) as f:
-            combined_players = json.load(f)
-    except Exception:
-        combined_players = []
-    yahoo  = YahooClient()
-    mlb    = MLBClient()
-    weekly_matchup_section = get_weekly_matchup_section(
-        yahoo, mlb, team_offense_ranker, combined_players
-    )
-
     context = {
-        "date":                    today.strftime("%A, %B %-d"),
-        "matchup_status":          matchup_status,
-        "roster_impact":           roster_impact,
-        "hot_free_agents":         hot_free_agents,
-        "statcast_trends":         statcast_trends,
-        "prospect_callouts":       prospect_callouts,
-        "farm_report":             farm_report,
-        "baseball_pulse":          baseball_pulse,
-        "weekly_matchup_section":  weekly_matchup_section,
+        "date":              today.strftime("%A, %B %-d"),
+        "matchup_status":    matchup_status,
+        "roster_impact":     roster_impact,
+        "pitching_planner":  pitching_planner,
+        "hot_free_agents":   hot_free_agents,
+        "statcast_trends":   statcast_trends,
+        "prospect_callouts": prospect_callouts,
+        "farm_report":       farm_report,
+        "baseball_pulse":    baseball_pulse,
     }
 
     save_snapshot({"daily": context}, today)
     html = render_daily(context)
+
+    if os.getenv("DIGEST_DRY_RUN"):
+        preview_path = os.getenv("DIGEST_PREVIEW_PATH", "digest_preview.html")
+        with open(preview_path, "w") as f:
+            f.write(html)
+        print(f"🧪 DIGEST_DRY_RUN set — wrote {preview_path}, no email sent.")
+        return
+
     send_email(f"⚾ Baseball Digest — {context['date']}", html)
     print("✅ Daily digest complete.")
 

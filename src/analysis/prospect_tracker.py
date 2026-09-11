@@ -12,6 +12,7 @@ import json
 import os
 import requests
 from src.config import COMBINED_PLAYERS_PATH, MY_TEAM_ABBR
+from src.data.league_rosters import manager_matches
 
 MLB_BASE = "https://statsapi.mlb.com/api/v1"
 
@@ -59,7 +60,7 @@ def get_prospect_callouts() -> list[dict]:
     my_prospects = [
         p for p in all_players
         if p.get("player_type") == "Farm"
-        and p.get("manager") == MY_TEAM_ABBR
+        and manager_matches(p, MY_TEAM_ABBR)
         and p.get("upid")
     ]
 

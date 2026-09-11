@@ -14,7 +14,7 @@ For pitchers: favorable = weak offense (they allow less)
 """
 import requests
 from datetime import date
-from src.data.yahoo_client import YahooClient
+from src.data import league_rosters
 from src.data.mlb_client import MLBClient
 from src.data.team_offense_ranker import ABBR_ALIASES
 
@@ -29,18 +29,15 @@ def get_todays_roster_impact() -> list[dict]:
     - matchup grade for the hitter (good offense = favorable for hitter)
     - probable pitcher they face + pitcher ERA
     """
-    yahoo = YahooClient()
-    mlb   = MLBClient()
+    mlb = MLBClient()
 
-    my_roster = yahoo.get_my_roster()
+    my_roster = league_rosters.get_my_roster()
 
     # Hitters only — index by MLB team abbreviation
     my_hitters: dict[str, dict] = {}
     for p in my_roster:
         team = (p.get("mlb_team") or "").upper()
-        pos  = p.get("primary_position", "")
-        eligible = p.get("eligible_positions") or []
-        if pos in ("SP", "RP", "P") or "SP" in eligible:
+        if league_rosters.is_pitcher(p):
             continue
         if team:
             my_hitters[team] = p

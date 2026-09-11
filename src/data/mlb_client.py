@@ -64,8 +64,6 @@ class MLBClient:
         """
         Game-by-game pitching log for a player.
         Returns list of split dicts; each has 'stat' and 'date' keys.
-        Used by weekly_matchup_engine to build appearance distributions
-        for both SP and RP (all appearances included, no role filter).
 
         stat keys: inningsPitched, strikeOuts, earnedRuns,
                    homeRuns, hits, baseOnBalls, gamesStarted, gamesPlayed
@@ -133,7 +131,6 @@ class MLBClient:
                                      start_date: str, end_date: str) -> dict | None:
         """
         A batter's hitting stats over a date range.
-        Used by yahoo_client.get_team_rolling_hitting_stats().
 
         Returns flat dict: {R, H, HR, RBI, SB, BB, K, TB, AB, PA, AVG, OBP, SLG}
         or None if no data.

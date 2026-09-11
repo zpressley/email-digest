@@ -29,7 +29,7 @@ from src.data.statcast_client import (
     MIN_PA_EXPECTED,
     save_statcast_snapshot,
 )
-from src.data.yahoo_client import YahooClient
+from src.data import league_rosters
 
 # Score thresholds for showing a trend
 SHOW_UP_THRESHOLD   =  2.5   # must score >= this to show as trending up
@@ -52,16 +52,10 @@ def get_statcast_trends() -> list[dict]:
 
     Sorted: up trends first (highest score), then down trends.
     """
-    yahoo    = YahooClient()
     statcast = StatcastClient()
-    roster   = yahoo.get_my_roster()
+    roster   = league_rosters.get_my_roster()
 
-    hitters = [
-        p for p in roster
-        if p.get("primary_position") not in ("SP", "RP", "P")
-        and "SP" not in (p.get("eligible_positions") or [])
-        and "RP" not in (p.get("eligible_positions") or [])
-    ]
+    hitters = [p for p in roster if not league_rosters.is_pitcher(p)]
 
     print(f"  📊 Statcast: checking {len(hitters)} rostered hitters")
 
@@ -70,7 +64,7 @@ def get_statcast_trends() -> list[dict]:
 
     for player in hitters:
         name   = player.get("name", "")
-        mlb_id = statcast.get_mlb_id(name)
+        mlb_id = player.get("mlb_id") or statcast.get_mlb_id(name)
         if not mlb_id:
             continue
 

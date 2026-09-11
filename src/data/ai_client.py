@@ -30,9 +30,10 @@ def _load_my_roster_names() -> list[str]:
             return []
         with open(path) as f:
             players = json.load(f)
+        from src.data.league_rosters import manager_matches
         names = [
             p["name"] for p in players
-            if p.get("manager") == MY_TEAM_ABBR
+            if manager_matches(p, MY_TEAM_ABBR)
             and p.get("player_type") == "MLB"
             and p.get("name")
         ]
@@ -49,9 +50,10 @@ def _load_my_prospect_names() -> list[str]:
             return []
         with open(path) as f:
             players = json.load(f)
+        from src.data.league_rosters import manager_matches
         names = [
             p["name"] for p in players
-            if p.get("manager") == MY_TEAM_ABBR
+            if manager_matches(p, MY_TEAM_ABBR)
             and p.get("player_type") == "Farm"
             and p.get("name")
         ]

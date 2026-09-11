@@ -60,8 +60,6 @@
     .stat-delta { font-size: 9px; font-weight: 700; margin-top: 1px; letter-spacing: 0.03em; }
     .stat-delta.good { color: #137333; }
     .stat-delta.bad  { color: #c5221f; }
-    /* matchup engine styles */
-    {% include 'matchup_engine.css' %}
   </style>
 </head>
 <body>
@@ -131,11 +129,53 @@
     </div>
     {% endif %}
 
-    <!-- WEEKLY MATCHUP PROJECTION -->
-    {% if weekly_matchup_section %}
+    <!-- MY UPCOMING STARTS -->
+    {% if pitching_planner and pitching_planner.my_starts %}
     <div class="section">
-      <div class="section-label"><span>📊</span> Weekly Matchup Projection</div>
-      {{ weekly_matchup_section | safe }}
+      <div class="section-label"><span>⚾</span> My Upcoming Starts</div>
+      {% for s in pitching_planner.my_starts %}
+      <div class="matchup-row">
+        <div>
+          <div class="matchup-player">{{ s.name }}
+            {% if s.opp_grade in ('ELITE', 'FAVORABLE') %}
+              <span class="pill pill-start">Start</span>
+            {% elif s.opp_grade == 'AVOID' %}
+              <span class="pill pill-sit">Caution</span>
+            {% elif s.opp_grade == 'TOUGH' %}
+              <span class="pill pill-neutral">Tough</span>
+            {% endif %}
+          </div>
+          <div class="matchup-detail">
+            {{ s.date_label }} vs {{ s.opponent }} (#{{ s.opp_rank }} offense, {{ s.opp_tier }})
+            {% if s.era is not none %} · {{ "%.2f"|format(s.era) }} ERA{% endif %}
+            {% if s.k9 is not none %} · {{ "%.1f"|format(s.k9) }} K/9{% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- STREAMING TARGETS -->
+    {% if pitching_planner and pitching_planner.streamers %}
+    <div class="section">
+      <div class="section-label"><span>🎯</span> Streaming Targets</div>
+      <p style="font-size:11px;color:#9a9a94;margin:0 0 14px;">Unrostered starters facing bottom-half offenses · 1-day roster lag applied</p>
+      {% for s in pitching_planner.streamers %}
+      <div class="story">
+        <p class="story-hed">{{ s.name }}
+          <span style="font-size:12px;font-weight:400;color:#6a6a64;">{{ s.team }}</span>
+          {% if s.add_today %}<span class="pill pill-today">Add Today</span>{% endif %}
+        </p>
+        <p class="story-body">
+          {{ s.date_label }} vs {{ s.opponent }} (#{{ s.opp_rank }} offense, {{ s.opp_tier }})
+          {% if s.era is not none %} · {{ "%.2f"|format(s.era) }} ERA{% endif %}
+          {% if s.k9 is not none %} · {{ "%.1f"|format(s.k9) }} K/9{% endif %}
+          · <b>Add by {{ s.latest_add }}</b>
+        </p>
+      </div>
+      {% if not loop.last %}<hr class="story-divider">{% endif %}
+      {% endfor %}
     </div>
     {% endif %}
 
@@ -167,10 +207,11 @@
     {% if hot_free_agents %}
     <div class="section">
       <div class="section-label"><span>🔥</span> Free Agent Watch</div>
+      <p style="font-size:11px;color:#9a9a94;margin:0 0 14px;">Hottest unrostered hitters · {{ hot_free_agents[0].window }}</p>
       {% for fa in hot_free_agents %}
       <div class="story">
-        <p class="story-hed">{{ fa.name }} <span style="font-size:12px;font-weight:400;color:#6a6a64;">{{ fa.position }} · {{ fa.ownership }}% owned</span></p>
-        <p class="story-body">{{ fa.trend }} · <b>Add by {{ fa.latest_add_date }}</b></p>
+        <p class="story-hed">{{ fa.name }} <span style="font-size:12px;font-weight:400;color:#6a6a64;">{{ fa.position }}{% if fa.team %} · {{ fa.team }}{% endif %}</span></p>
+        <p class="story-body">{{ fa.stat_line }}</p>
       </div>
       {% if not loop.last %}<hr class="story-divider">{% endif %}
       {% endfor %}

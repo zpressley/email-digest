@@ -22,13 +22,8 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Write Yahoo token
-        run: |
-          echo '${{ secrets.YAHOO_TOKEN_JSON }}' > token.json
-          python -c "import json; json.load(open('token.json'))" || (echo "❌ token.json is invalid — update YAHOO_TOKEN_JSON secret" && exit 1)
-
       - name: Checkout FBPTradeBot for managers.json
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: zpressley/FBPTradeBot
           path: fbp-trade-bot
@@ -42,12 +37,7 @@ jobs:
 
       - name: Run daily digest
         env:
-          YAHOO_TOKEN_PATH: ./token.json
-          YAHOO_CLIENT_ID: ${{ secrets.YAHOO_CLIENT_ID }}
-          YAHOO_CLIENT_SECRET: ${{ secrets.YAHOO_CLIENT_SECRET }}
-          YAHOO_LEAGUE_ID: ${{ secrets.YAHOO_LEAGUE_ID }}
-          YAHOO_GAME_KEY: ${{ secrets.YAHOO_GAME_KEY }}
-          YAHOO_TEAM_ID: ${{ secrets.YAHOO_TEAM_ID }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
           TO_EMAIL: ${{ secrets.TO_EMAIL }}
           FROM_EMAIL: ${{ secrets.FROM_EMAIL }}
@@ -56,11 +46,6 @@ jobs:
           COMBINED_PLAYERS_PATH: ./data/combined_players.json
           MY_TEAM_ABBR: WAR
         run: PYTHONPATH=. python src/daily_digest.py
-
-      - name: Update Yahoo token secret
-        run: cat token.json | gh secret set YAHOO_TOKEN_JSON
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
 
       - name: Commit snapshots
         run: |

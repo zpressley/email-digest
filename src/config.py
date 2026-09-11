@@ -3,13 +3,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-YAHOO_TOKEN_PATH = os.getenv("YAHOO_TOKEN_PATH", "./token.json")
-YAHOO_CLIENT_ID = os.getenv("YAHOO_CLIENT_ID")
-YAHOO_CLIENT_SECRET = os.getenv("YAHOO_CLIENT_SECRET")
-YAHOO_LEAGUE_ID = os.getenv("YAHOO_LEAGUE_ID")
-YAHOO_GAME_KEY = os.getenv("YAHOO_GAME_KEY", "469")  # 469 = MLB 2026
-YAHOO_TEAM_ID = os.getenv("YAHOO_TEAM_ID", "12")  # WAR = team 12
-
+RESEND_API_KEY = os.getenv("RESEND_API_KEY")
 SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY")
 TO_EMAIL = os.getenv("TO_EMAIL")
 FROM_EMAIL = os.getenv("FROM_EMAIL", "digest@fantasy.local")
@@ -26,7 +20,7 @@ ROSTER_LAG_DAYS = 1
 STREAMING_WINDOW_DAYS = 5
 FA_OWNERSHIP_THRESHOLD = 30.0
 STATCAST_ROLLING_DAYS = 21
-SNAPSHOT_DIR = "data/snapshots"
+SNAPSHOT_DIR = os.getenv("SNAPSHOT_DIR", "data/snapshots")
 COMBINED_PLAYERS_PATH = os.getenv(
     "COMBINED_PLAYERS_PATH",
     "/Users/zpressley/fbp-trade-bot/data/combined_players.json"
